@@ -2,7 +2,7 @@
 
 export const Home=()=>{
 
-    return <div className="bg-pink-500">
-         Home
+    return <div className="h-10 bg-orange-400">
+        Home
     </div>
 }
