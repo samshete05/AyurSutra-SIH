@@ -1,100 +1,43 @@
+import React from "react";
+
 export const Register = () => {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-black relative overflow-hidden">
+    return (
+        <div className="h-screen w-full overflow-hidden">
+            <div className="h-48 w-full flex justify-center">
+                <div className="w-1/3 text-center justify-center content-center flex-col items-center">
+                    <h1 className="text-5xl font-bold text-[#F26611]">AyurSutra</h1>
+                    <span className="mt-4">
+                        <h1 className="text-xl text-[#8B8B8B]">Professional Panchakarma Management Platform</h1>
+                    </span>
+                </div>
+            </div>
 
-      {/* BG Radial Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#3a1d00_0%,#000_70%)] opacity-70"></div>
+            <div className="min-h-screen flex justify-center w-full">
+                <div className="h-132  bg-[rgba(20,20,20,0.55)] backdrop-blur-2xl border border-[rgba(255,255,255,0.08)]
+  shadow-[0_8px_32px_rgba(0,0,0,0.4)] w-1/3 rounded-2xl">
 
-      {/* LOGO + TITLE */}
-      <div className="absolute top-20 text-center">
-        <div className="mx-auto w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center">
-          <span className="text-white text-4xl">❤</span>
-        </div>
-        <h1 className="mt-4 text-4xl font-bold text-orange-500">AyurSutra</h1>
-        <p className="text-gray-300 mt-1">Professional Panchakarma Management Platform</p>
-      </div>
+                    <div className="w-full h-24 bg-green-400 flex-col text-center content-center">
+                        <span className="text-2xl font-medium"><h1>Welcome Back</h1></span>
+                        <span><h1>Access your secure healthcare portal</h1></span>
+                    </div>
 
-      {/* CARD */}
-      <div className="relative mt-40 w-[420px] bg-[#0f0f0f] border border-[#222] shadow-xl rounded-2xl p-6 backdrop-blur-lg">
+                    <div className="h-8 w-full flex justify-center bg-orange-400">
+                        <div className="w-3/4 bg-green-400 rounded-lg">
+                            <button className="w-1/2 h-8 border-white">Sign In</button>
+                            <button className="w-1/2 h-8 border-white">Register</button>
+                        </div>
+                    </div>
 
-        {/* Header */}
-        <h2 className="text-white text-2xl font-semibold text-center">Create Account</h2>
-        <p className="text-gray-400 text-sm text-center mt-1">
-          Register to access your healthcare portal
-        </p>
+                   
+                   <div className="h-24 w-full">
+                        <input className="h-12 w-3/4 border-grey-300" type="text" name="" id="" placeholder="Enter Email"/>
+                   </div>
 
-        {/* Tabs */}
-        <div className="flex items-center justify-center gap-3 mt-6">
-          <button className="px-6 py-2 rounded-xl bg-[#1a1a1a] text-gray-400 hover:bg-[#222] transition">
-            Sign In
-          </button>
-          <button className="px-6 py-2 rounded-xl bg-[#1a1a1a] text-white border border-orange-500">
-            Register
-          </button>
-        </div>
 
-        {/* FORM */}
-        <div className="flex flex-col mt-6 gap-4">
+                </div>
+            </div>
 
-          {/* Full Name */}
-          <div>
-            <label className="text-gray-300 text-sm">Full Name</label>
-            <input
-              placeholder="Enter full name"
-              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#1f1f1f] text-white border border-[#333] outline-none focus:border-orange-500 transition"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="text-gray-300 text-sm">Email</label>
-            <input
-              placeholder="Enter your email"
-              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#1f1f1f] text-white border border-[#333] outline-none focus:border-orange-500 transition"
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="text-gray-300 text-sm">Phone Number</label>
-            <input
-              placeholder="Enter phone number"
-              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#1f1f1f] text-white border border-[#333] outline-none focus:border-orange-500 transition"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="text-gray-300 text-sm">Password</label>
-            <input
-              type="password"
-              placeholder="Create a password"
-              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#1f1f1f] text-white border border-[#333] outline-none focus:border-orange-500 transition"
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="text-gray-300 text-sm">Confirm Password</label>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#1f1f1f] text-white border border-[#333] outline-none focus:border-orange-500 transition"
-            />
-          </div>
-
-          {/* Button */}
-          <button className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl text-lg transition">
-            Register
-          </button>
-
-          <p className="text-center text-gray-400 text-sm mt-2">
-            Already have an account?{" "}
-            <span className="text-orange-500 cursor-pointer hover:underline">Sign In</span>
-          </p>
 
         </div>
-      </div>
-    </div>
-  );
+    );
 };
