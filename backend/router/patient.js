@@ -67,7 +67,7 @@ patientRouter.post("/register", async function(req,res){
             otp:otp
         })
 
-     await sendemail(registerUser.email,"OTP-VERIFICATION",otp);
+     await sendemail(registerUser.email,"Email verification code:",otp);
                
      res.json({
         message:"OTP_Send",

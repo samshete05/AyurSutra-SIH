@@ -2,7 +2,7 @@ const mongoose=require("mongoose");
 
 const schema=mongoose.Schema;
 
-mongoose.connect(process.env.mongourl);
+mongoose.connect(process.env.MONGO_URL);
 
 
 const patientSchema=new schema({
