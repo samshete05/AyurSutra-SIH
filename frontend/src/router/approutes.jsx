@@ -7,6 +7,7 @@ import { Service } from "../pages/services";
 import { Center } from "../pages/center";
 import { Contact } from "../pages/contact";
 import { Register } from "../pages/register";
+import SignUp from "../pages/SignUp";
 
 export const AppRoutes=()=>{
 
@@ -17,7 +18,7 @@ export const AppRoutes=()=>{
         <Route path="/service" element={<Service/>}/>
         <Route path="/center" element={<Center/>}/>
         <Route path="/contact" element={<Contact/>}/>
-        <Route path="/register" element={<Register/>}/>
+        <Route path="/signup" element={<SignUp/>}/>
         </Routes>
     </div>
 }
