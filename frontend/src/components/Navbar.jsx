@@ -56,10 +56,10 @@ const Navbar = () => {
         {/* Desktop auth actions */}
         <div className="hidden items-center gap-3 md:flex">
           <a
-            href="/signin"
+            href="/login"
             className="text-sm font-medium text-emerald-900 hover:text-[#1E4B3C]"
           >
-            Sign In
+            Login
           </a>
           <a
             href="/signup"
@@ -135,11 +135,11 @@ const Navbar = () => {
 
             <div className="mt-2 flex items-center gap-3 border-t border-emerald-100 pt-3">
               <a
-                href="/signin"
+                href="/login"
                 className="text-emerald-900 hover:text-[#1E4B3C]"
                 onClick={handleToggleMenu}
               >
-                Sign In
+                Login
               </a>
               <a
                 href="/signup"
