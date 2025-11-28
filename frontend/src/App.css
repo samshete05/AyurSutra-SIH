@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
+/* FIX: full-screen root */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
+/* Optional logo styles (not used in your UI) */
 .logo {
   height: 6em;
   padding: 1.5em;

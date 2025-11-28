@@ -6,16 +6,18 @@ import { About } from "../pages/about";
 import { Service } from "../pages/services";
 import { Center } from "../pages/center";
 import { Contact } from "../pages/contact";
+import { Register } from "../pages/register";
 
 export const AppRoutes=()=>{
 
-    return <div>
+    return <div className="h-screen w-full">
         <Routes>
         <Route path="/" element={<Home/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/service" element={<Service/>}/>
         <Route path="/center" element={<Center/>}/>
         <Route path="/contact" element={<Contact/>}/>
+        <Route path="/register" element={<Register/>}/>
         </Routes>
     </div>
 }
