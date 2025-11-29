@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Marquee from "react-fast-marquee"; // npm install react-fast-marquee
 import RoutesTester from "./RoutesTester";
+import AdvancedCenterSearch from "./AdvancedCenterSearch";
 
 const megaMenuConfig = {
   concern: {
@@ -312,6 +313,7 @@ const Navbar = () => {
 
         {/* Mobile handling can remain separate */}
       </div>
+      <AdvancedCenterSearch/>
     </header>
   );
 };
