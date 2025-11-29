@@ -11,6 +11,9 @@ const RoutesTester = () => {
     { to: "/signup", label: "Sign Up" },
     { to: "/login", label: "Login" },
     { to: "/otpverification", label: "OTP Verification" },
+    { to: "/doctor-dashboard", label: "Doctor DashBoard" },
+    { to: "/dashboard", label: "Center Head DashBoard" },
+    { to: "/patient", label: "Patient DashBoard" },
     {
       to: "/center-head-application-success",
       label: "Center Head Success",

@@ -16,6 +16,8 @@ import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
 import AppointmentList from "../pages/AppointmentList";
 import AddDoctorPage from "../pages/AddDoctor";
 import CenterDetails from "../pages/CenterDetails";
+import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+import DocDashMain from "../pages/doctor/DocDashMain";
 
 export const AppRoutes=()=>{
 
@@ -34,12 +36,17 @@ export const AppRoutes=()=>{
         <Route path="/center-appointments" element={<AppointmentList/>}/>
         <Route path="/add-doctor" element={<AddDoctorPage/>}/>
 
+
+
+        <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
+
         <Route path="/allcenters" element={<AllCenters />} />
         <Route path="/patient/*" element={<PatientRoutes />} />
         <Route path="/PanchaKarma-Dashboard" element={<PanchakarmaDashboard />} />
 
         {/* Dynamic center route (prefixed to avoid collisions) */}
         <Route path="/center/:slug" element={<CenterDetails />} />
+
 
         {/* Optional: 404 route last */}
         {/* <Route path="*" element={<NotFound />} /> */}
