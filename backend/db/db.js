@@ -32,11 +32,26 @@ const otpSchema=new schema({
 })
 
 
+const PanchakarmaCenterSchema=new schema({
+    name:String,
+    licenseNo:String,
+    AdminEmail:{
+        type:String,unique:true
+    },
+  location: { type: String, required: true },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+
+})
+
+
 const patientModel=mongoose.model("Patient",patientSchema);
 const otpmodel=mongoose.model("Otp",otpSchema);
+const PanchkarmaModel=mongoose.model("PanchkarmaCenter",PanchakarmaCenterSchema);
 
 
 module.exports={
     patientModel:patientModel,
-    otpmodel:otpmodel
+    otpmodel:otpmodel,
+    PanchkarmaModel:PanchkarmaModel
 }

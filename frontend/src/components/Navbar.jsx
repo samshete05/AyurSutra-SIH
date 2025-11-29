@@ -313,7 +313,7 @@ const Navbar = () => {
 
         {/* Mobile handling can remain separate */}
       </div>
-      <AdvancedCenterSearch/>
+      {/* <AdvancedCenterSearch/> */}
     </header>
   );
 };
