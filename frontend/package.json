@@ -10,10 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@tailwindcss/vite": "^4.1.17",
+    "chart.js": "^4.5.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
     "react-fast-marquee": "^1.6.5",
     "react-leaflet": "^5.0.0",

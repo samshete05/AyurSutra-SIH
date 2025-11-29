@@ -12,6 +12,7 @@ import Login from "../pages/Login";
 import OtpVerification from "../pages/OtpVerification";
 import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess";
 import PatientRoutes from "./PatientRoutes";
+import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
 
 export const AppRoutes=()=>{
 
@@ -30,6 +31,7 @@ export const AppRoutes=()=>{
         {/* Patient dashboard and nested pages */}
         <Route path="/patient/*" element={<PatientRoutes />} />
 
+        <Route path="/PanchaKarma-Dashboard" element={<PanchakarmaDashboard/>}/>
         </Routes>
     </div>
 }
