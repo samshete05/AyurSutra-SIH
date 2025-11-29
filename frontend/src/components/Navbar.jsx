@@ -39,21 +39,24 @@ const megaMenuConfig = {
         title: "Abhyanga",
         description:
           "Warm herbal oil massage designed to calm the nervous system and prepare the body for deeper Panchakarma therapies.",
-        imageSrc: "https://www.mattindia.com/wp-content/uploads/2024/10/Ayurvedic-Massage-Therapy-in-Kerala-Techniques-and-Benefits-999x500.jpg",
+        imageSrc:
+          "https://www.mattindia.com/wp-content/uploads/2024/10/Ayurvedic-Massage-Therapy-in-Kerala-Techniques-and-Benefits-999x500.jpg",
         imageAlt: "Abhyanga full body oil massage",
       },
       {
         title: "Swedana",
         description:
           "Gentle herbal steam that supports detox through sweating and relieves stiffness in joints and muscles.",
-        imageSrc: "https://www.chandigarhayurvedcentre.com/wp-content/uploads/2019/09/Swedana1.jpg",
+        imageSrc:
+          "https://www.chandigarhayurvedcentre.com/wp-content/uploads/2019/09/Swedana1.jpg",
         imageAlt: "Swedana herbal steam therapy",
       },
       {
         title: "Basti",
         description:
           "Medicated enema therapy traditionally used for Vata-related issues such as dryness, pain, and constipation.",
-        imageSrc: "https://aradhanaayurveda.com/wp-content/uploads/2020/09/kati-basti.jpg",
+        imageSrc:
+          "https://aradhanaayurveda.com/wp-content/uploads/2020/09/kati-basti.jpg",
         imageAlt: "Basti therapy setup",
       },
     ],
@@ -90,7 +93,8 @@ const megaMenuConfig = {
         title: "Pitta Cooling Program",
         description:
           "Soothing therapies and lifestyle suggestions to cool excess heat and support skin and digestive comfort.",
-        imageSrc: "https://www.maulirituals.com/cdn/shop/articles/Blog_post_header_7.png?v=1750068522&width=1920",
+        imageSrc:
+          "https://www.maulirituals.com/cdn/shop/articles/Blog_post_header_7.png?v=1750068522&width=1920",
         imageAlt: "Pitta cooling program",
       },
     ],
@@ -116,14 +120,16 @@ const megaMenuConfig = {
         title: "7-Day Detox",
         description:
           "Structured short-term detox program combining diet, mild therapies, and guided follow-ups.",
-        imageSrc: "https://i.ytimg.com/vi/iIcCeiAwKp8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBd-3aLC2HuPZdID15_76Zzrw2gdQ",
+        imageSrc:
+          "https://i.ytimg.com/vi/iIcCeiAwKp8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBd-3aLC2HuPZdID15_76Zzrw2gdQ",
         imageAlt: "7-day detox program",
       },
       {
         title: "Rejuvenation Retreat",
         description:
           "Longer Panchakarma-inspired schedule focused on rebuilding strength and vitality post-illness or stress.",
-        imageSrc: "https://shathayuretreat.com/wp-content/uploads/2023/03/retreat.png.webp",
+        imageSrc:
+          "https://shathayuretreat.com/wp-content/uploads/2023/03/retreat.png.webp",
         imageAlt: "Rejuvenation retreat environment",
       },
     ],
@@ -170,20 +176,14 @@ const Navbar = () => {
         onMouseLeave={handleClose}
       >
         {/* Main navbar */}
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6 lg:px-8">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#1E4B3C] to-emerald-500 text-white font-bold text-lg">
-              A
-            </div>
-            <div className="leading-tight">
-              <p className="text-base md:text-lg font-extrabold text-[#1E4B3C]">
-                AyurSutra
-              </p>
-              <p className="hidden text-[11px] md:block text-emerald-900/70">
-                Panchakarma Management Platform
-              </p>
-            </div>
+        <nav className="flex w-full items-center justify-between px-4 py-3 md:px-6 lg:px-10">
+          {/* LEFT: only 3 logos */}
+          <Link to="/" className="flex items-center text-gray-400">
+            <img src="Gemini_Generated_Image_97y8ep97y8ep97y8.png" alt="Logo 1" className="h-7 w-auto" />
+            <span className="mx-3 text-gray-300 text-sm">|</span>
+            <img src="All_India_Institute_of_Ayurveda.jpg" alt="Logo 2" className="h-7 w-auto" />
+            <span className="mx-3 text-gray-300 text-sm">|</span>
+            <img src="ministry-of-ayush-logo.png" alt="Logo 3" className="h-7 w-auto" />
           </Link>
 
           {/* Center nav items that control mega menu */}
