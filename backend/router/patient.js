@@ -12,7 +12,7 @@ const sendemail=require("../otplogic/otp");
 
 
 
-
+// *************************** REGISTER ********************************
 patientRouter.post("/register", async function(req,res){
      const requiredatas=z.object({
         name:z.string().min(3).max(100),
@@ -78,7 +78,7 @@ patientRouter.post("/register", async function(req,res){
 })
 
 
-
+// *************************** LOGIN ********************************
 patientRouter.post("/login", async function(req,res){
    const requiredatas=z.object({
       email:z.string().min(3).max(100).email(),
@@ -126,7 +126,7 @@ patientRouter.post("/login", async function(req,res){
 })
 
 
- patientRouter.post("/verifyOTP",async(req,res)=>{
+patientRouter.post("/verifyOTP",async(req,res)=>{
              const {email,otp}=req.body;
 
              
@@ -156,7 +156,7 @@ patientRouter.post("/login", async function(req,res){
                })
                return;
              }
-             const verifyPatientTrue=await patientModel.updateOne({
+             const verifyPatientTrue = await patientModel.updateOne({
                   email:email,
                   verified:true
              })
@@ -168,92 +168,223 @@ patientRouter.post("/login", async function(req,res){
              res.json({
                 message:"Verified_otp"
              })
- })
+})
 
 
 
-   // resendCode
-   patientRouter.post("/resendCode",async(req,res)=>{
-      try {
-         const bodySchema = z.object({
-            email: z.string().email().min(5).max(100),
+// *************************** RESEND CODE ********************************
+patientRouter.post("/resendCode",async(req,res)=>{
+   try {
+      const bodySchema = z.object({
+         email: z.string().email().min(5).max(100),
+      });
+   
+      const parseResult = bodySchema.safeParse(req.body);
+      if (!parseResult.success) {
+         res.status(422).json({
+            message: "Invalid_Input",
          });
-      
-         const parseResult = bodySchema.safeParse(req.body);
-         if (!parseResult.success) {
-            res.status(422).json({
-               message: "Invalid_Input",
-            });
-            return;
-         }
-      
-         const { email } = parseResult.data;
-      
-         // 1. Check patient exists
-         const patient = await patientModel.findOne({ email: email });
-         if (!patient) {
-            res.json({
-               message: "User_not_exist",
-            });
-            return;
-         }
-      
-         // 2. Optional: block if already verified
-         if (patient.verified === true) {
-            res.json({
-              message: "Already_verified",
-            });
-            return;
-         }
-      
-         // 3. Delete old OTP (if any)
-         await otpmodel.deleteMany({ email: email });
-      
-         // 4. Generate new OTP
-         const otp = otpgenerator.generate(6, {
-            digits: true,
-            upperCaseAlphabets: false,
-            lowerCaseAlphabets: false,
-            specialChars: false,
-         });
-      
-         // 5. Save new OTP
-         await otpmodel.create({
-            email: email,
-            otp: otp,
-         });
-      
-         // 6. Send email
-         await sendemail(email, "Email verification code (resend):", otp);
-      
-         // 7. Respond
-         res.json({
-            message: "OTP_Resent",
-            email: email,
-         });
-      } catch (err) {
-         console.error("Error in /resendCode:", err);
-         res.status(500).json({
-            message: "Server_error",
-         });
+         return;
       }
-   })
-
-   // logout
-   patientRouter.post("/logout",async(req,res)=>{
-      res.clearCookie("uidcookie", {
-         httpOnly: false,  // Ensures the cookie cannot be accessed via JavaScript
-         secure: true,    // Ensures the cookie is only sent over HTTPS
+   
+      const { email } = parseResult.data;
+   
+      // 1. Check patient exists
+      const patient = await patientModel.findOne({ email: email });
+      if (!patient) {
+         res.json({
+            message: "User_not_exist",
+         });
+         return;
+      }
+   
+      // 2. Optional: block if already verified
+      if (patient.verified === true) {
+         res.json({
+           message: "Already_verified",
+         });
+         return;
+      }
+   
+      // 3. Delete old OTP (if any)
+      await otpmodel.deleteMany({ email: email });
+   
+      // 4. Generate new OTP
+      const otp = otpgenerator.generate(6, {
+         digits: true,
+         upperCaseAlphabets: false,
+         lowerCaseAlphabets: false,
+         specialChars: false,
       });
-      res.clearCookie("userId", {
-         httpOnly: false,  // Ensures the cookie cannot be accessed via JavaScript
-         secure: true,    // Ensures the cookie is only sent over HTTPS
+   
+      // 5. Save new OTP
+      await otpmodel.create({
+         email: email,
+         otp: otp,
+      });
+   
+      // 6. Send email
+      await sendemail(email, "Email verification code (resend):", otp);
+   
+      // 7. Respond
+      res.json({
+         message: "OTP_Resent",
+         email: email,
+      });
+   } catch (err) {
+      console.error("Error in /resendCode:", err);
+      res.status(500).json({
+         message: "Server_error",
+      });
+   }
+})
+
+// *************************** FORGET PASSWORD ********************************
+// STEP 1 : Patient requests password reset (send OTP to email)
+patientRouter.post("/forgetPassword", async (req, res) => {
+   try {
+      const schema = z.object({
+         email: z.string().email().min(5).max(100),
       });
 
-      res.status(200).json({
-         message:"logedout"
-      })
-   })
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ message: "Invalid_Input" });
+        return;
+      }
+    
+      const { email } = parsed.data;
+    
+      const patient = await patientModel.findOne({ email });
+      if (!patient) {
+        res.json({ message: "User_not_exist" });
+        return;
+      }
+    
+      // remove old OTPs
+      await otpmodel.deleteMany({ email });
+    
+      const otp = otpgenerator.generate(6, {
+        digits: true,
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+      });
+    
+      await otpmodel.create({ email, otp });
+    
+      await sendemail(email, "AyurSutra doctor password reset code:", otp);
+    
+      res.json({ message: "Reset_OTP_Sent", email });
+   } catch (err) {
+      console.error("Error in /patient/forgetPassword:", err);
+      res.status(500).json({ message: "Server_error" });
+   }
+});
+
+// *************************** VERIFY RESET OTP ********************************
+// STEP 2 : Doctor verifies reset OTP
+patientRouter.post("/verifyResetOTP", async (req, res) => {
+   try {
+      const schema = z.object({
+        email: z.string().email().min(5).max(100),
+        otp: z.string().min(4).max(10),
+      });
+
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ message: "Invalid_Input" });
+        return;
+      }
+
+      const { email, otp } = parsed.data;
+
+      const patient = await patientModel.findOne({ email });
+      if (!patient) {
+        res.json({ message: "User_not_exist" });
+        return;
+      }
+
+      const otpDoc = await otpmodel.findOne({ email, otp });
+      if (!otpDoc) {
+        res.json({ message: "INVALID_OTP" });
+        return;
+      }
+
+      res.json({ message: "Reset_OTP_Verified" });
+   } catch (err) {
+     console.error("Error in /doctor/verifyResetOTP:", err);
+     res.status(500).json({ message: "Server_error" });
+   }
+});
+
+// *************************** RESET PASSWORD ********************************
+// STEP 3 : Patient sets new password (after OTP)
+patientRouter.post("/resetPassword", async (req, res) => {
+   try {
+      const schema = z.object({
+         email: z.string().email().min(5).max(100),
+         otp: z.string().min(4).max(10),
+         newPassword: z.string().min(5).max(100),
+         confirmPassword: z.string().min(5).max(100),
+      });
+
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ message: "Invalid_Input" });
+        return;
+      }
+    
+      const { email, otp, newPassword, confirmPassword } = parsed.data;
+    
+      if (newPassword !== confirmPassword) {
+        res.json({ message: "Password_Mismatch" });
+        return;
+      }
+    
+      const patient = await patientModel.findOne({ email });
+      if (!patient) {
+        res.json({ message: "User_not_exist" });
+        return;
+      }
+    
+      const otpDoc = await otpmodel.findOne({ email, otp });
+      if (!otpDoc) {
+        res.json({ message: "INVALID_OTP" });
+        return;
+      }
+    
+      const hashed = await bcrypt.hash(newPassword, 5);
+    
+      await patientModel.updateOne(
+        { email },
+        { $set: { password: hashed } }
+      );
+    
+      await otpmodel.deleteMany({ email });
+    
+      res.json({ message: "Password_Reset_Success" });
+   } catch (err) {
+      console.error("Error in /patient/resetPassword:", err);
+      res.status(500).json({ message: "Server_error" });
+   }
+});
+
+
+
+
+
+
+// *************************** LOGOUT ********************************
+patientRouter.post("/logout",async(req,res)=>{
+   res.clearCookie("uidcookie", {
+      httpOnly: false,  // Ensures the cookie cannot be accessed via JavaScript
+      secure: true,    // Ensures the cookie is only sent over HTTPS
+   });
+   res.status(200).json({
+      message:"logedout"
+     })
+})
 
 module.exports={
    patientRouter:patientRouter
