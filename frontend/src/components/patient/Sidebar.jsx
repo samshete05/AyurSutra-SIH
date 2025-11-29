@@ -39,10 +39,6 @@ function Sidebar() {
                   alt="AyurSutra logo"
                   className="h-8 w-auto object-contain"
                 />
-                {/* <div>
-                  <p className="text-sm font-semibold text-slate-900">AyurSutra</p>
-                  <p className="text-xs text-slate-500">Patient Portal</p>
-                </div> */}
             </div>
         </div>
 
@@ -72,7 +68,7 @@ function Sidebar() {
                         <span
                             className={`text-xs px-2 py-0.5 rounded-full ${
                                 item.badge === "New"
-                                    ? "bg-orange-100 text-orange-600"
+                                    ? "bg-red-100 text-orange-600"
                                     : "bg-slate-100 text-slate-700"
                                 }`
                             }

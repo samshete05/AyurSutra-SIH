@@ -18,7 +18,7 @@ function TopBar() {
         <button className="relative p-2 rounded-full hover:bg-slate-100 text-slate-600">
           <span className="sr-only">Notifications</span>
           <Bell size={20} className="stroke-[1.8]" />
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-orange-500 text-[10px] text-white flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
             3
           </span>
         </button>
