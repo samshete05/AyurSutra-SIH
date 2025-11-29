@@ -1,4 +1,5 @@
 const mongoose=require("mongoose");
+const { Center } = require("../../frontend/src/pages/center");
 
 const schema=mongoose.Schema;
 
@@ -33,15 +34,17 @@ const otpSchema=new schema({
 
 
 const PanchakarmaCenterSchema=new schema({
-    name:String,
+    AdminName:String,
+    Centername:String,
+    MobileNo:String,
     licenseNo:String,
     AdminEmail:{
         type:String,unique:true
     },
-  location: { type: String, required: true },
   latitude: { type: Number, required: true },
   longitude: { type: Number, required: true },
-
+  Password:String,
+  BotNumber:String
 })
 
 
