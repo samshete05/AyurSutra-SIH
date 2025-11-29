@@ -10,7 +10,7 @@ export const Home=()=>{
         <Navbar/>
         <div className="h-100">
             <h1 className="m-10 p-10">This is Home</h1>
-            <RoutesTester/>
+            {/* <RoutesTester/> */}
             <h1 className="m-10 p-10">This is Home</h1>
             
         </div>
