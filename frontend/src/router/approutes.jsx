@@ -11,6 +11,7 @@ import SignUp from "../pages/SignUp";
 import Login from "../pages/Login";
 import OtpVerification from "../pages/OtpVerification";
 import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess";
+import PatientRoutes from "./PatientRoutes";
 
 export const AppRoutes=()=>{
 
@@ -25,6 +26,10 @@ export const AppRoutes=()=>{
         <Route path="/login" element={<Login/>}/>
         <Route path="/otpverification" element={<OtpVerification/>}/>
         <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
+
+        {/* Patient dashboard and nested pages */}
+        <Route path="/patient/*" element={<PatientRoutes />} />
+
         </Routes>
     </div>
 }
