@@ -1,4 +1,4 @@
-mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const schema = mongoose.Schema;
 
 
@@ -14,4 +14,4 @@ const PanchakarmaCenterSchema=new schema({
 
 })
 
-export const PanchkarmaModel=mongoose.model("PanchakarmaCenter",PanchakarmaCenterSchema);
+module.exports.PanchakarmaModel = mongoose.model("PanchakarmaCenter",PanchakarmaCenterSchema);

@@ -8,7 +8,6 @@ const doctorModel = require("../models/Doctor.model");
 
 
 
-
 doctorRouter.post("/login", async function(req,res){
     const requiredatas=z.object({
         email:z.string().min(3).max(100).email(),

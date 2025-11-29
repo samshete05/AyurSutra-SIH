@@ -1,4 +1,4 @@
-const express=require("express");
+const express = require("express");
 const patientRouter=express.Router();
 
 const z =require('zod');
@@ -239,6 +239,21 @@ patientRouter.post("/login", async function(req,res){
       }
    })
 
+   // logout
+   patientRouter.post("/logout",async(req,res)=>{
+      res.clearCookie("uidcookie", {
+         httpOnly: false,  // Ensures the cookie cannot be accessed via JavaScript
+         secure: true,    // Ensures the cookie is only sent over HTTPS
+      });
+      res.clearCookie("userId", {
+         httpOnly: false,  // Ensures the cookie cannot be accessed via JavaScript
+         secure: true,    // Ensures the cookie is only sent over HTTPS
+      });
+
+      res.status(200).json({
+         message:"logedout"
+      })
+   })
 
 module.exports={
    patientRouter:patientRouter
