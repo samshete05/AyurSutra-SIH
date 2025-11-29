@@ -1,8 +1,19 @@
+import Footer from "../components/Footer"
+import Navbar from "../components/Navbar"
 
 
 export const Home=()=>{
 
-    return <div className="h-10 bg-orange-400">
-        Home
-    </div>
+    return(
+        <>
+        <Navbar/>
+        <div className="h-100">
+            <h1 className="m-10 p-10">This is Home</h1>
+            <h1 className="m-10 p-10">This is Home</h1>
+            <h1 className="m-10 p-10">This is Home</h1>
+            
+        </div>
+        <Footer/>
+        </>
+    )
 }

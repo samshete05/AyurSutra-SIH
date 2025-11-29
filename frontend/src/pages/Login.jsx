@@ -44,7 +44,7 @@ const Login = () => {
     <>
     <Navbar/>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-emerald-50 to-[#1E4B3C]/40 px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl border border-emerald-100 overflow-hidden">
+      <div className="w-full max-w-xl rounded-3xl bg-white shadow-2xl border border-emerald-100 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] px-8 pt-7 pb-4 text-center text-white">
           <h1 className="text-2xl font-extrabold tracking-wide">

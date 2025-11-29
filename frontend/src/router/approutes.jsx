@@ -9,6 +9,7 @@ import { Contact } from "../pages/contact";
 import { Register } from "../pages/register";
 import SignUp from "../pages/SignUp";
 import Login from "../pages/Login";
+import OtpVerification from "../pages/OtpVerification";
 
 export const AppRoutes=()=>{
 
@@ -21,6 +22,7 @@ export const AppRoutes=()=>{
         <Route path="/contact" element={<Contact/>}/>
         <Route path="/signup" element={<SignUp/>}/>
         <Route path="/login" element={<Login/>}/>
+        <Route path="/otpverification" element={<OtpVerification/>}/>
         </Routes>
     </div>
 }
