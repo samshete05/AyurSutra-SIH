@@ -275,7 +275,7 @@ patientRouter.post("/forgetPassword", async (req, res) => {
     
       await sendemail(email, "AyurSutra doctor password reset code:", otp);
     
-      res.json({ message: "Reset_OTP_Sent", email });
+      res.json({ message: "Resent_OTP_Sent", email });
    } catch (err) {
       console.error("Error in /patient/forgetPassword:", err);
       res.status(500).json({ message: "Server_error" });
