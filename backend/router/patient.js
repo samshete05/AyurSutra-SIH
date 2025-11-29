@@ -171,6 +171,73 @@ patientRouter.post("/logIn", async function(req,res){
 
 
 
+   // resendCode
+   patientRouter.post("/resendCode",async(req,res)=>{
+      try {
+         const bodySchema = z.object({
+            email: z.string().email().min(5).max(100),
+         });
+      
+         const parseResult = bodySchema.safeParse(req.body);
+         if (!parseResult.success) {
+            res.status(422).json({
+               message: "Invalid_Input",
+            });
+            return;
+         }
+      
+         const { email } = parseResult.data;
+      
+         // 1. Check patient exists
+         const patient = await patientModel.findOne({ email: email });
+         if (!patient) {
+            res.json({
+               message: "User_not_exist",
+            });
+            return;
+         }
+      
+         // 2. Optional: block if already verified
+         if (patient.verified === true) {
+            res.json({
+              message: "Already_verified",
+            });
+            return;
+         }
+      
+         // 3. Delete old OTP (if any)
+         await otpmodel.deleteMany({ email: email });
+      
+         // 4. Generate new OTP
+         const otp = otpgenerator.generate(6, {
+            digits: true,
+            upperCaseAlphabets: false,
+            lowerCaseAlphabets: false,
+            specialChars: false,
+         });
+      
+         // 5. Save new OTP
+         await otpmodel.create({
+            email: email,
+            otp: otp,
+         });
+      
+         // 6. Send email
+         await sendemail(email, "Email verification code (resend):", otp);
+      
+         // 7. Respond
+         res.json({
+            message: "OTP_Resent",
+            email: email,
+         });
+      } catch (err) {
+         console.error("Error in /resendCode:", err);
+         res.status(500).json({
+            message: "Server_error",
+         });
+      }
+   })
+
 
  module.exports={
  patientRouter:patientRouter
