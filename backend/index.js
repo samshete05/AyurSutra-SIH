@@ -4,6 +4,7 @@ const express=require("express");
 
 const cors=require("cors");
 const { patientRouter } = require("./router/patient");
+const { PanchakarmaCenterRouter } = require("./router/PanchkarmaCenterAdmin");
 const app=express();
 
 app.use(cors({
@@ -14,7 +15,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/patient",patientRouter);
-
+app.use("/PanchKarmaCenter",PanchakarmaCenterRouter);
 
 
 app.listen(3000,()=>{
