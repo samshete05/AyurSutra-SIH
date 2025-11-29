@@ -14,6 +14,7 @@ import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess"
 import AllCenters from "../pages/AllCenters";
 import PatientRoutes from "./PatientRoutes";
 import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
+import AppointmentList from "../pages/AppointmentList";
 
 export const AppRoutes=()=>{
 
@@ -28,6 +29,8 @@ export const AppRoutes=()=>{
         <Route path="/login" element={<Login/>}/>
         <Route path="/otpverification" element={<OtpVerification/>}/>
         <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
+        <Route path="/dashboard" element={<PanchakarmaDashboard/>}/>
+        <Route path="/center-appointments" element={<AppointmentList/>}/>
 
         <Route path="/allcenters" element={<AllCenters />} />
         {/* Patient dashboard and nested pages */}

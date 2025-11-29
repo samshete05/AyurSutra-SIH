@@ -3,6 +3,7 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCalendar, faMoon, faUserDoctor } from "@fortawesome/free-solid-svg-icons";
 import { CircleDollarSign, Download, LayoutDashboard, Search, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // import PKLineChart from "./PKLineChart";
 
@@ -19,16 +20,19 @@ const patientValues = [80, 90, 110, 100, 120, 130, 150, 145, 140, 138, 142, 155]
 const therapyValues = [60, 72, 95, 90, 98, 105, 120, 118, 115, 117, 121, 130];
 
 const PanchakarmaDashboard = () => {
+    const navigate=useNavigate();
+
   return (
+
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
-        <div className="mb-8 flex items-center gap-2">
+        <div onClick={() => navigate("/")} className="mb-8 flex cursor-pointer items-center gap-2">
           <span className="text-xl font-semibold tracking-tight">
             <img
               src="Gemini_Generated_Image_97y8ep97y8ep97y8.png"
               alt="Logo 1"
-              className="h-9 w-auto"
+              className="h-9 w-auto cursor-pointer"
             />
           </span>
         </div>
@@ -38,23 +42,23 @@ const PanchakarmaDashboard = () => {
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               Main
             </p>
-            <button className="flex w-full items-center gap-3 rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white shadow-sm">
+            <button className="flex cursor-pointer w-full items-center gap-3 rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white shadow-sm">
               <LayoutDashboard className="h-6 w-6" />
               <span>Dashboard</span>
             </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
+            <button onClick={() => navigate("/center-appointments")} className="mt-1 cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
               <FontAwesomeIcon icon={faCalendar} className="text-xl" />
               <span>Appointments</span>
             </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
+            <button className="mt-1 cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
               <FontAwesomeIcon icon={faUserDoctor} className="text-xl" />
               <span>Therapists</span>
             </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
+            <button className="mt-1 cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
               <User className="h-6 w-6 text-gray-700" />
               <span>Treatment Packages</span>
             </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
+            <button className="mt-1 cursor-pointer flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
               <CircleDollarSign className="h-6 w-6" />
               <span>Billing</span>
             </button>
