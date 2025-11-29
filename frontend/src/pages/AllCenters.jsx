@@ -200,6 +200,13 @@ export default function AllCentersEnhanced() {
     setSortBy("relevance");
   };
 
+  // Small helper: custom inward arrow SVG (right-2)
+  const ArrowSVG = (
+    <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+
   return (
     <>
       <Navbar />
@@ -264,16 +271,15 @@ export default function AllCentersEnhanced() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="text-sm border rounded-full px-3 py-2 appearance-none pr-8"
+                    // remove browser arrow and any background-image, leave space for custom svg
+                    className="text-sm border rounded-full px-3 py-2 pr-8 appearance-none bg-[url('')]"
                   >
                     <option value="relevance">Sort: Relevance</option>
                     <option value="name">Sort: Name</option>
                     <option value="openingTime">Sort: Opening time</option>
                     <option value="city">Sort: City</option>
                   </select>
-                  <svg className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  {ArrowSVG}
                 </div>
               </div>
             </div>
@@ -282,41 +288,53 @@ export default function AllCentersEnhanced() {
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-sm w-28">Opens before</label>
-                <select className="flex-1 border rounded-full px-3 py-2 text-sm appearance-none pr-8" value={opensBefore} onChange={(e) => setOpensBefore(e.target.value)}>
-                  <option value="all">Any</option>
-                  {openingOptions.map((o) => (
-                    <option key={o} value={o}>{o}</option>
-                  ))}
-                </select>
-                <svg className="pointer-events-none absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <div className="relative flex-1">
+                  <select
+                    className="w-full border rounded-full px-3 py-2 text-sm pr-8 appearance-none bg-[url('')]"
+                    value={opensBefore}
+                    onChange={(e) => setOpensBefore(e.target.value)}
+                  >
+                    <option value="all">Any</option>
+                    {openingOptions.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  {ArrowSVG}
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <label className="text-sm w-28">Closes before</label>
-                <select className="flex-1 border rounded-full px-3 py-2 text-sm appearance-none pr-8" value={closesBefore} onChange={(e) => setClosesBefore(e.target.value)}>
-                  <option value="all">Any</option>
-                  {openingOptions.map((o) => (
-                    <option key={o} value={o}>{o}</option>
-                  ))}
-                </select>
-                <svg className="pointer-events-none absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <div className="relative flex-1">
+                  <select
+                    className="w-full border rounded-full px-3 py-2 text-sm pr-8 appearance-none bg-[url('')]"
+                    value={closesBefore}
+                    onChange={(e) => setClosesBefore(e.target.value)}
+                  >
+                    <option value="all">Any</option>
+                    {openingOptions.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  {ArrowSVG}
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <label className="text-sm w-28">Min open time</label>
-                <select className="flex-1 border rounded-full px-3 py-2 text-sm appearance-none pr-8" value={minOpening} onChange={(e) => setMinOpening(e.target.value)}>
-                  <option value="all">Any</option>
-                  {openingOptions.map((o) => (
-                    <option key={o} value={o}>{o}</option>
-                  ))}
-                </select>
-                <svg className="pointer-events-none absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <div className="relative flex-1">
+                  <select
+                    className="w-full border rounded-full px-3 py-2 text-sm pr-8 appearance-none bg-[url('')]"
+                    value={minOpening}
+                    onChange={(e) => setMinOpening(e.target.value)}
+                  >
+                    <option value="all">Any</option>
+                    {openingOptions.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  {ArrowSVG}
+                </div>
               </div>
             </div>
 
@@ -330,15 +348,16 @@ export default function AllCentersEnhanced() {
               <div className="flex items-center gap-2">
                 <label className="text-sm">Customer number</label>
                 <div className="relative">
-                  <select value={hasCustomerNumber} onChange={(e) => setHasCustomerNumber(e.target.value)} className="border rounded-full px-3 py-1 text-sm appearance-none pr-8">
+                  <select
+                    value={hasCustomerNumber}
+                    onChange={(e) => setHasCustomerNumber(e.target.value)}
+                    className="border rounded-full px-3 py-1 text-sm pr-8 appearance-none bg-[url('')]"
+                  >
                     <option value="all">Any</option>
                     <option value="yes">Has number</option>
                     <option value="no">No number</option>
                   </select>
-                  {/* inward arrow */}
-                  <svg className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 8l4 4 4-4" stroke="#334E3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  {ArrowSVG}
                 </div>
               </div>
 
