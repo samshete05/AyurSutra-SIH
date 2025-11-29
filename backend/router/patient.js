@@ -4,7 +4,8 @@ const patientRouter=express.Router();
 const z =require('zod');
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
-const { patientModel, otpmodel } = require("../db/db");
+const patientModel = require("../models/Patient.model");
+const otpmodel = require("../models/Otp.model");
 const JWT_KEY=process.env.JWT_KEY;
 const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
@@ -78,19 +79,19 @@ patientRouter.post("/register", async function(req,res){
 
 
 
-patientRouter.post("/logIn", async function(req,res){
-    const requiredatas=z.object({
-        email:z.string().min(3).max(100).email(),
-        password:z.string().min(5).max(100)
-     })
+patientRouter.post("/login", async function(req,res){
+   const requiredatas=z.object({
+      email:z.string().min(3).max(100).email(),
+      password:z.string().min(5).max(100)
+   })
 
-     const checkdata=requiredatas.safeParse(req.body);
-     if(!checkdata.success){
-        res.json({
+   const checkdata=requiredatas.safeParse(req.body);
+      if(!checkdata.success){
+         res.json({
             message:checkdata.error,
-        })
-        return;
-     }
+         })
+         return;
+      }
 
       const {email,password} =req.body;
       console.log("login in bac",email)
@@ -100,28 +101,28 @@ patientRouter.post("/logIn", async function(req,res){
       })
 
       if(!checkedUser){
-        res.json({
-            message:"User_not_exists"
-        })
-        return;
+         res.json({
+             message:"User_not_exists"
+         })
+         return;
       }
       const finduser= await bcrypt.compare(password,checkedUser.password);
       
 
       if(finduser){
-          const token=jwt.sign({
-             id:checkedUser._id
-            },JWT_KEY)
-            res.json({
-                token:token,
-                message:"logedin"
-            })
-        }else{
-            res.json({
-                message:"User_not_exists"
-            })
-            return;
-        }           
+         const token=jwt.sign({
+            id:checkedUser._id
+         },JWT_KEY)
+         res.json({
+            token:token,
+            message:"logedin"
+         })
+      }else{
+         res.json({
+            message:"User_not_exists"
+         })
+         return;
+      }           
 })
 
 
@@ -239,6 +240,6 @@ patientRouter.post("/logIn", async function(req,res){
    })
 
 
- module.exports={
- patientRouter:patientRouter
-        }
+module.exports={
+   patientRouter:patientRouter
+}
