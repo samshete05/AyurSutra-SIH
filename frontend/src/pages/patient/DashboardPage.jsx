@@ -12,6 +12,11 @@ function DashboardPage() {
   // For now static demo data; later wire to backend APIs
   const patientName = "Rajesh!";
   const wellnessScore = 8.2;
+  const activitiesData = [
+      { id: 1, name: "Abhyanga", status: "Ongoing", date: "3/10/2024" },
+      { id: 2, name: "Shirodhara", status: "Completed", date: "3/15/2024" },
+      { id: 3, name: "Panchakarma", status: "Completed", date: "3/20/2024" },
+    ];
 
   return (
     <div className="space-y-6">
@@ -33,7 +38,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      <RecentActivityCard />
+      <RecentActivityCard activities={activitiesData}/>
     </div>
   );
 }
