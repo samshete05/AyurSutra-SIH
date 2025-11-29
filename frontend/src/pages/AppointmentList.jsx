@@ -9,6 +9,8 @@ import {
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 import { CircleDollarSign, LayoutDashboard, Search, User } from "lucide-react";
+import SidePanel from "../components/CenterSidePanel";
+import Logo from "../components/SidePanelLogo";
 
 const patients = [
   {
@@ -59,50 +61,11 @@ const AppointmentList = () => {
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
-        <div className="mb-8 flex items-center gap-2">
-          <span className="text-xl font-semibold tracking-tight">
-            <img
-              src="Gemini_Generated_Image_97y8ep97y8ep97y8.png"
-              alt="Logo 1"
-              className="h-9 w-auto"
-            />
-          </span>
-        </div>
+       <Logo/>
 
         <nav className="space-y-6 text-sm">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Main
-            </p>
-
-            <Link
-              to="/dashboard"
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
-            >
-              <LayoutDashboard className="h-6 w-6" />
-              <span>Dashboard</span>
-            </Link>
-
-            <Link
-              to="/appointments"
-              className="mt-1 flex w-full items-center gap-3 rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white shadow-sm"
-            >
-              <FontAwesomeIcon icon={faCalendar} className="text-xl" />
-              <span>Appointments</span>
-            </Link>
-
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
-              <FontAwesomeIcon icon={faUserDoctor} className="text-xl" />
-              <span>Therapists</span>
-            </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
-              <User className="h-6 w-6 text-gray-700" />
-              <span>Treatment Packages</span>
-            </button>
-            <button className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100">
-              <CircleDollarSign className="h-6 w-6" />
-              <span>Billing</span>
-            </button>
+              <SidePanel/>
           </div>
         </nav>
       </aside>
