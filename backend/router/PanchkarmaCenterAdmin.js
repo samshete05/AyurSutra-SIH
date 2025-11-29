@@ -10,6 +10,9 @@ const { PanchkarmaModel } = require("../db/db");
 const JWT_KEY = process.env.JWT_KEY;
 const otpgenerator = require("otp-generator");
 const sendemail = require("../otplogic/otp");
+const { doctorModel, DoctorModel } = require("../models/Doctor.model");
+const SendEmailDoctor=require("../otplogic/doctorCredentialSendEmail");
+
 
 
 
@@ -26,7 +29,7 @@ PanchakarmaCenterRouter.post("/register", async (req, res) => {
     })
 
 
-    const checkdata = requiredatas.safeParse(req.body);
+    const checkdata = requireData.safeParse(req.body);
 
     if (!checkdata.success) {
         res.status(422).send("Invalid Input types");
@@ -82,7 +85,7 @@ PanchakarmaCenterRouter.post("/register", async (req, res) => {
         otp: otp
     })
 
-    await sendemail(registerUser.email, "Email verification code:", otp);
+    await sendemail(centerCreate.AdminEmail, "Email verification code:", otp);
 
     res.json({
         message: "OTP_Send",
@@ -93,9 +96,98 @@ PanchakarmaCenterRouter.post("/register", async (req, res) => {
 
 
 PanchakarmaCenterRouter.post("/logIn", async (req, res) => {
-   
+
     
 
+
+})
+
+
+PanchakarmaCenterRouter.post("/addDoctor",async(req,res)=>{
+    console.log("here!!!");
+     
+     const requireData = z.object({
+        Doctorname: z.string().min(3).max(100),
+        mobileNo: z.string().min(10).max(10),
+        password: z.string().min(5).max(100),
+        confirmPassword: z.string().min(5).max(100),
+        DoctorEmail:z.string().min(5).max(100),
+        YearOfExperience:z.string().min(1).max(100),
+        Specialization : z.string().min(3).max(100)
+    })
+
+
+     const checkdata = requireData.safeParse(req.body);
+
+    if (!checkdata.success) {
+        res.status(422).send("Invalid Input types");
+        return;
+    }
+
+    const {Doctorname, mobileNo, password,confirmPassword, DoctorEmail, YearOfExperience , Specialization} = req.body;
+
+    if (confirmPassword != password) {
+        res.json({
+            message: "both password Not Matched!!"
+        })
+        return;
+    }
+
+    console.log(DoctorEmail);
+    console.log(Doctorname);
+    console.log(mobileNo);
+    console.log(password);
+    console.log(confirmPassword);
+    console.log(YearOfExperience);
+    console.log(Specialization);
+
+    
+         const checkAlreadyEmailExistOrNot=await DoctorModel.findOne({
+            email:DoctorEmail
+         })
+    
+         console.log("check error  s ",checkAlreadyEmailExistOrNot);
+    
+         if(checkAlreadyEmailExistOrNot){
+            res.json({
+                message:"Dr_Email_Present_use_different_one!!"
+            })
+            return;
+         }
+   
+      const hashedpassword = await bcrypt.hash(password, 5);
+
+    const DoctorCreate = await DoctorModel.create({
+        name: Doctorname,
+        mobileNo: mobileNo,
+        password: hashedpassword,
+        email:DoctorEmail,
+        yoe:YearOfExperience,
+        specialization:Specialization  
+    })
+
+
+
+    await SendEmailDoctor(DoctorCreate.email, "Your Login Credential:",password,Doctorname);
+
+    //function call here
+
+    res.json({
+        message: "Login_Credential_Sended_to_Doctor",
+        email: DoctorEmail
+    })
+
+
+
+
+
+
+
+
+
+
+
+    
 
 })
 
