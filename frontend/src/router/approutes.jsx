@@ -12,6 +12,7 @@ import Login from "../pages/Login";
 import OtpVerification from "../pages/OtpVerification";
 import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess";
 import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
+import AppointmentList from "../pages/AppointmentList";
 
 export const AppRoutes=()=>{
 
@@ -26,7 +27,8 @@ export const AppRoutes=()=>{
         <Route path="/login" element={<Login/>}/>
         <Route path="/otpverification" element={<OtpVerification/>}/>
         <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
-        <Route path="/PanchaKarma-Dashboard" element={<PanchakarmaDashboard/>}/>
+        <Route path="/dashboard" element={<PanchakarmaDashboard/>}/>
+        <Route path="/center-appointments" element={<AppointmentList/>}/>
         </Routes>
     </div>
 }
