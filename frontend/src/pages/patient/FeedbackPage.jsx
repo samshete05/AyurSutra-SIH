@@ -10,7 +10,7 @@ import {
   ThumbsUp,
   Clock
 } from "lucide-react";
-import feedbackBG from "../../../public/feedback-bg.jpeg";
+// import feedbackBG from "../../../public/feedback-bg.jpeg";
 
 function FeedbackPage() {
   const [feedbackData, setFeedbackData] = useState({
@@ -125,7 +125,7 @@ function FeedbackPage() {
         <div 
           className="relative bg-white rounded-2xl shadow-lg p-6 border border-slate-200 overflow-hidden"
           style={{ 
-            backgroundImage: `url(${feedbackBG})`,
+            backgroundImage: "url('https://media.istockphoto.com/id/1451079337/photo/customer-review-good-rating-concept-hand-pressing-user-and-five-star-icon-on-visual-screen.jpg?s=612x612&w=0&k=20&c=KftvGEGrkQRLO_dqRyHmMW0EDFraAOjD9lrpMKpQR1w=')",
             backgroundSize: "cover",
             backgroundPosition: "center"
           }}
@@ -145,9 +145,9 @@ function FeedbackPage() {
           </div>
 
           {/* Therapy Info */}
-          <div className="relative z-10 bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+          <div className="relative z-10 bg-transparent rounded-xl p-4 border border-emerald-100">
             <h3 className="font-semibold text-emerald-900 mb-2">{completedTherapy.therapyName}</h3>
-            <div className="flex flex-wrap gap-4 text-sm text-emerald-700">
+            <div className="flex flex-wrap gap-4 text-sm text-emerald-900">
               <span>Completed: {completedTherapy.completedDate}</span>
               <span>•</span>
               <span>Duration: {completedTherapy.duration}</span>
