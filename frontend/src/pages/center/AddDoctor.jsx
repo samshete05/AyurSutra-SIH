@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { Search } from "lucide-react";
-import SidePanel from "../components/CenterSidePanel";
-import Logo from "../components/SidePanelLogo";
+// import <SidePanel></SidePanel> from "../components/CenterSidePanel";
+// import Logo from "../components/SidePanelLogo";
+// import SidePanel from "../../components/CenterSidePanel";
+import SidePanel from "../../components/CenterSidePanel";
+import Logo from "../../components/SidePanelLogo";
 
 const initialForm = {
   fullName: "",
