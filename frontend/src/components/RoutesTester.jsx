@@ -18,6 +18,9 @@ const RoutesTester = () => {
       to: "/center-head-application-success",
       label: "Center Head Success",
     },
+    {to:"/center-map",
+      label:"Map Center",
+    }
   ];
 
   return (
