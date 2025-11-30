@@ -4,13 +4,49 @@ import AdvancedCenterSearch from "../components/AdvancedCenterSearch";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import HeroCarousel from "../components/HeroCarousel";
+import PanchakarmaCentersMap from "../components/PanchakarmaCentersMap";
+import TelemedicineProcessTabs from "../components/PanchakarmaPatientFlow";
+import HealthBlogsFeature from "../components/HealthBlogsFeature";
+import EcommerceFeatureSection from "../components/EcommerceFeatureSection";
+import Marquee from "react-fast-marquee";
 
 export const Home = () => {
   return (
     <>
       <Navbar />
       <HeroCarousel />
+
+
+<div className="w-full bg-[#1E4B3C] py-8">
+  <Marquee
+  direction="right" 
+    gradient={false}
+    speed={60}
+    pauseOnHover={true}
+    className="flex items-center text-white text-xs md:text-sm"
+  >
+    <span className="mx-8 whitespace-nowrap">
+      Free scheduling dashboard for the first 3 months for new Panchakarma centers.
+    </span>
+
+    <span className="mx-2 opacity-60">|</span>
+
+    <span className="mx-8 whitespace-nowrap">
+      Secure digital records for every therapy session and patient visit.
+    </span>
+
+    <span className="mx-2 opacity-60">|</span>
+
+    <span className="mx-8 whitespace-nowrap">
+      Automated reminders for pre- and post-therapy precautions.
+    </span>
+  </Marquee>
+</div>
+
       <AdvancedCenterSearch />
+      <TelemedicineProcessTabs/>
+
+
 
       {/* Platform overview */}
       <section className="bg-emerald-50/40 py-10 md:py-14">
@@ -77,6 +113,7 @@ export const Home = () => {
           </div>
         </div>
       </section>
+      
 
       {/* Key features */}
       <section className="bg-white py-10 md:py-14">
@@ -129,6 +166,9 @@ export const Home = () => {
         </div>
       </section>
 
+      <PanchakarmaCentersMap/>
+
+
       {/* Workflow steps */}
       <section className="bg-emerald-900 py-10 md:py-14">
         <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8 text-emerald-50">
@@ -179,53 +219,39 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Role-based cards */}
-      <section className="bg-white py-10 md:py-14">
-        <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1E4B3C] text-center">
-            Designed for every role in your center.
-          </h2>
-          <p className="mt-2 text-xs md:text-sm text-gray-700 text-center max-w-2xl mx-auto">
-            Clear logins for patients, center heads, and doctors ensure that
-            each person sees exactly what they need – nothing more, nothing
-            less.
-          </p>
+      <HealthBlogsFeature/>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-              <h3 className="text-sm font-semibold text-[#1E4B3C]">
-                Patient View
-              </h3>
-              <ul className="mt-3 space-y-1.5 text-xs md:text-sm text-gray-700">
-                <li>• Upcoming therapy schedule and room details.</li>
-                <li>• Pre‑visit checklists and after‑care reminders.</li>
-                <li>• Simple symptom and feedback journal.</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-              <h3 className="text-sm font-semibold text-[#1E4B3C]">
-                Center Head View
-              </h3>
-              <ul className="mt-3 space-y-1.5 text-xs md:text-sm text-gray-700">
-                <li>• Real‑time occupancy of rooms and therapists.</li>
-                <li>• Revenue, package usage, and no‑show indicators.</li>
-                <li>• Staff assignment and leave planning support.</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-              <h3 className="text-sm font-semibold text-[#1E4B3C]">
-                Doctor View
-              </h3>
-              <ul className="mt-3 space-y-1.5 text-xs md:text-sm text-gray-700">
-                <li>• Full history of therapies and responses.</li>
-                <li>• At‑a‑glance charts for pain, sleep, energy, and mood.</li>
-                <li>• Notes synced across visits and branches.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
+      
+<div className="w-full bg-[#1E4B3C] py-8">
+  <Marquee
+  direction="left" 
+    gradient={false}
+    speed={150}
+    pauseOnHover={true}
+    className="flex items-center text-white text-xs md:text-sm"
+  >
+    <span className="mx-8 whitespace-nowrap">
+      Ayurveda ecommerce.
+    </span>
+
+    <span className="mx-2 opacity-60">|</span>
+
+    <span className="mx-8 whitespace-nowrap">
+      Central Ayurvedic store delivering trusted products across India.
+    </span>
+
+    <span className="mx-2 opacity-60">|</span>
+
+    <span className="mx-8 whitespace-nowrap">
+      Integrated with EMR.
+    </span>
+  </Marquee>
+</div>
+
+      <EcommerceFeatureSection/>
+
+      
       {/* Simple testimonials-style strip */}
       <section className="bg-emerald-50/70 py-8">
         <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
