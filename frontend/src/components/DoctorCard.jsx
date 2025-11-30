@@ -1,43 +1,71 @@
 import React from "react";
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, Info } from "lucide-react";
 
-const DoctorCard = ({ name, speciality, degree, experience, focus, fee, avatar }) => {
+const DoctorCard = ({
+  name,
+  speciality,
+  degree,
+  experience,
+  focus,
+  fee,
+  avatar,
+  onBook,
+}) => {
   return (
-    <div className="rounded-2xl bg-white border border-[#1E4B3C]/10 shadow-sm overflow-hidden text-xs md:text-sm flex flex-col">
-      <div className="flex items-center gap-3 p-4 pb-2">
-        {avatar && (
-          <img
-            src={avatar}
-            alt={name}
-            className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border border-[#1E4B3C]/20"
-          />
-        )}
-        <div className="flex-1 space-y-0.5">
-          <p className="font-semibold text-[#1E4B3C]">{name}</p>
-          <p className="text-[11px] md:text-xs text-[#1E4B3C]/85">
-            {degree}
-          </p>
-          <p className="text-[11px] md:text-xs text-[#1E4B3C]/80">
-            Speciality: {speciality}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <Stethoscope className="h-4 w-4 text-[#1E4B3C]" />
-          {fee && (
-            <span className="text-[11px] md:text-xs font-semibold text-[#1E4B3C]">
-              Fee: ₹{fee}
-            </span>
-          )}
-        </div>
+    <div className="rounded-2xl bg-white border border-[#1E4B3C]/15 shadow-md overflow-hidden flex flex-col w-full h-[430px]">
+      {/* FIXED IMAGE HEIGHT */}
+      <div className="h-48 w-full overflow-hidden bg-gray-100">
+        <img
+          src={
+            avatar ||
+            "https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg"
+          }
+          alt={name}
+          className="h-full w-full object-cover"
+        />
       </div>
 
-      <div className="px-4 pb-4 space-y-1">
-        <p className="text-[11px] md:text-xs text-[#1E4B3C]/80">
+      {/* FIXED CONTENT BOX */}
+      <div className="p-4 flex flex-col gap-2 flex-1 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-start justify-between text-[#1E4B3C]">
+          <div className="flex items-center gap-2">
+            <Stethoscope className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wide">
+              Doctor
+            </span>
+          </div>
+
+          {fee && <span className="text-sm font-semibold">₹{fee}</span>}
+        </div>
+
+        {/* Name */}
+        <p className="font-bold text-[#1E4B3C] text-lg leading-tight line-clamp-1">
+          {name}
+        </p>
+
+        <p className="text-sm text-black line-clamp-1">{degree}</p>
+        <p className="text-sm text-black line-clamp-1">
+          Speciality: {speciality}
+        </p>
+
+        <p className="text-sm text-black line-clamp-1">
           Experience: {experience}
         </p>
-        <p className="text-[11px] md:text-xs text-[#1E4B3C]/75 leading-snug">
-          Focus areas: {focus}
-        </p>
+
+        {/* Focus Areas */}
+        <div className="flex items-start gap-2 text-sm text-black leading-snug">
+          <Info className="h-4 w-4 mt-[2px] text-[#1E4B3C]" />
+          <p className="line-clamp-2">{focus}</p>
+        </div>
+
+        {/* Book button stuck at bottom */}
+        <button
+          onClick={onBook}
+          className="mt-auto inline-flex items-center justify-center rounded-full bg-[#1E4B3C] px-4 py-2 text-xs font-semibold text-white hover:bg-[#173a2f] transition-colors"
+        >
+          Book Appointment
+        </button>
       </div>
     </div>
   );
