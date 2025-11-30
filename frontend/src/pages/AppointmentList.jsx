@@ -42,13 +42,21 @@ const patients = [
   },
 ];
 
+// Small helper to escape CSV values
+const csvEscape = (value) => {
+  if (value == null) return "";
+  const str = String(value);
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
+
 const PaymentBadge = ({ paid }) => {
   return (
     <span
       className={`rounded-full px-3 py-1 text-xs font-semibold ${
-        paid
-          ? "bg-emerald-100 text-emerald-700"
-          : "bg-amber-100 text-amber-700"
+        paid ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
       }`}
     >
       {paid ? "Paid" : "Pending"}
@@ -57,15 +65,44 @@ const PaymentBadge = ({ paid }) => {
 };
 
 const AppointmentList = () => {
+  const handleExport = () => {
+    // 1. Build CSV header
+    const headers = ["Name", "Mobile", "Email", "Amount", "Payment Status"];
+    const rows = patients.map((p) => [
+      csvEscape(p.name),
+      csvEscape(p.mobile),
+      csvEscape(p.email),
+      csvEscape(p.amount),
+      csvEscape(p.paid ? "Paid" : "Pending"),
+    ]);
+
+    const csvContent =
+      headers.join(",") +
+      "\n" +
+      rows.map((row) => row.join(",")).join("\n");
+
+    // 2. Create blob & download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "appointments.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
-       <Logo/>
+        <Logo />
 
         <nav className="space-y-6 text-sm">
           <div>
-              <SidePanel/>
+            <SidePanel />
           </div>
         </nav>
       </aside>
@@ -123,10 +160,13 @@ const AppointmentList = () => {
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-                Export
+              <button
+                onClick={handleExport}
+                className="rounded-full cursor-pointer border border-grey-200 px-6 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Download CSV File
               </button>
-              <button className="rounded-full bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-600">
+              <button className="rounded-full bg-[#1E4B3C] cursor-pointer px-6 py-3 text-xs font-semibold text-white shadow-sm">
                 + New Appointment
               </button>
             </div>

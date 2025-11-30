@@ -20,6 +20,9 @@ import AddDoctorPage from "../pages/center/AddDoctor";
 import CenterDetails from "../pages/center/CenterDetails";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DocDashMain from "../pages/doctor/DocDashMain";
+import AddTherapist from "../pages/center/Addtherapist";
+import AddTherapy from "../pages/center/Addtherapy";
+import ViewTherapies from "../pages/center/ViewTherapy";
 
 export const AppRoutes=()=>{
 
@@ -37,8 +40,9 @@ export const AppRoutes=()=>{
         <Route path="/dashboard" element={<PanchakarmaDashboard/>}/>
         <Route path="/center-appointments" element={<AppointmentList/>}/>
         <Route path="/add-doctor" element={<AddDoctorPage/>}/>
-
-
+       <Route path="/add-therapist" element={<AddTherapist/>}/>
+    <Route path="/add-therapy" element={<AddTherapy/>}/>
+    <Route path="/view-therapy" element={<ViewTherapies/>}/>
 
         <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
 
