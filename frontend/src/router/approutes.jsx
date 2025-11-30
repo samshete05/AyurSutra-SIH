@@ -4,13 +4,13 @@ import { Routes, Route } from "react-router-dom";
 import { Home } from "../pages/home";
 import About from "../pages/About";
 import { Service } from "../pages/services";
-import { Center } from "../pages/center";
+import { Center } from "../pages/center/center";
 import { Contact } from "../pages/contact";
 import SignUp from "../pages/SignUp";
 import Login from "../pages/Login";
 import OtpVerification from "../pages/OtpVerification";
-import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess";
-import AllCenters from "../pages/AllCenters"; // or AllCentersEnhanced
+import CenterHeadApplicationSuccess from "../pages/center/CenterHeadApplicationSuccess";
+import AllCenters from "../pages/center/AllCenters"; // or AllCentersEnhanced
 import PatientRoutes from "./PatientRoutes";
 // import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
 import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
