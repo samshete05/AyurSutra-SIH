@@ -7,9 +7,13 @@ import { useNavigate } from "react-router-dom";
 
 // import PKLineChart from "./PKLineChart";
 
-import PKLineChart from "../components/PkLineChart";
-import SidePanel from "../components/CenterSidePanel";
-import Logo from "../components/SidePanelLogo";
+// import PKLineChart from "../components/PkLineChart";
+// import SidePanel from "../components/CenterSidePanel";
+// import Logo from "../components/SidePanelLogo";
+import SidePanel from "../../components/CenterSidePanel";
+import PKLineChart from "../../components/PkLineChart";
+// import SidePane
+import Logo from "../../components/SidePanelLogo";
 
 const monthLabels = [
   "Feb","Mar","Apr","May","Jun","Jul",

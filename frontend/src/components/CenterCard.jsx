@@ -98,8 +98,8 @@ const CenterCard = ({
           {/* <Link
             to={`/center/${encodeURIComponent(slug)}`}
             className="font-semibold text-[#1E4B3C] hover:underline"
-          >
-            View details → */}
+          > */}
+            View details →
         </div>
       </div>
     </div>

@@ -12,9 +12,11 @@ import OtpVerification from "../pages/OtpVerification";
 import CenterHeadApplicationSuccess from "../pages/CenterHeadApplicationSuccess";
 import AllCenters from "../pages/AllCenters"; // or AllCentersEnhanced
 import PatientRoutes from "./PatientRoutes";
-import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
+// import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
+import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
 import AppointmentList from "../pages/AppointmentList";
-import AddDoctorPage from "../pages/AddDoctor";
+// import <AddDoctorPage></AddDoctorPage> from "../pages/AddDoctor";
+import AddDoctorPage from "../pages/center/AddDoctor";
 import CenterDetails from "../pages/CenterDetails";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DocDashMain from "../pages/doctor/DocDashMain";
