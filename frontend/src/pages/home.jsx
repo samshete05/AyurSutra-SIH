@@ -4,6 +4,7 @@ import AdvancedCenterSearch from "../components/AdvancedCenterSearch";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import HeroCarousel from "../components/HeroCarousel";
+import PanchakarmaCentersMap from "../components/PanchakarmaCentersMap";
 
 export const Home = () => {
   return (
@@ -273,6 +274,7 @@ export const Home = () => {
         </div>
       </section>
 
+      <PanchakarmaCentersMap/>
       <Footer />
     </>
   );
