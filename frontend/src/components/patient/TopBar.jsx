@@ -1,7 +1,9 @@
 import React from "react";
 import { Bell , UserCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function TopBar() {
+    const navigate = useNavigate();
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8">
       <div className="md:hidden">
@@ -15,8 +17,11 @@ function TopBar() {
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-4">
-        <button className="relative p-2 rounded-full hover:bg-slate-100 text-slate-600">
-          <span className="sr-only">Notifications</span>
+        <button 
+          onClick={() => navigate('/patient/notifications')}
+          className="relative p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
+          aria-label="View notifications"
+        >
           <Bell size={20} className="stroke-[1.8]" />
           <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
             3
