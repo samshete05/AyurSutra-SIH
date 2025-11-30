@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import CenterCard from "../components/CenterCard";
-import centers from "../data/centers";
+import CenterCard from "../../components/CenterCard";
+import centers from "../../data/centers";
 // const centers = [
 //   {
 //     slug: "ayursutra-koramangala",

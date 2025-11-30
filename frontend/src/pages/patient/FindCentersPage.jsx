@@ -1,5 +1,5 @@
 
-import CenterList from "../CenterList";
+import CenterList from "../center/CenterList";
 
 
 function FindCentersPage() {
