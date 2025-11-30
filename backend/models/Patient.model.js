@@ -11,7 +11,8 @@ const patientSchema = new schema({
     verified:{
         type:Boolean,
         default:false
-    }
+    },
+    PhoneNum:String
 })
 
 module.exports.patientModel = mongoose.model("Patient",patientSchema);

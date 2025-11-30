@@ -24,7 +24,7 @@ const navItems = [
   { label: "My Treatments", to: "/patient/my-treatments", icon: Pill },
   { label: "Progress", to: "/patient/progress", icon: BarChart2 },
   { label: "Feedback", to: "/patient/feedback", icon: MessageSquare },
-  { label: "Notification", to: "/patient/notifications", badge: 3, icon: Bell },
+//   { label: "Notification", to: "/patient/notifications", badge: 3, icon: Bell },
   { label: "My Profile", to: "/patient/my-profile", icon: User },
   { label: "Setting", to: "/patient/settings", icon: Settings },
 ];

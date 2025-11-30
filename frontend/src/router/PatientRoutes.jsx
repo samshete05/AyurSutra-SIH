@@ -28,6 +28,7 @@ function PatientRoutes() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="my-profile" element={<MyProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        {/* <Route path=""/> */}
       </Routes>
     </PatientLayout>
   );
