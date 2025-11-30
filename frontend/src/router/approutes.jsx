@@ -17,41 +17,53 @@ import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
 import AppointmentList from "../pages/AppointmentList";
 // import <AddDoctorPage></AddDoctorPage> from "../pages/AddDoctor";
 import AddDoctorPage from "../pages/center/AddDoctor";
-import CenterDetails from "../pages/center/CenterDetails";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DocDashMain from "../pages/doctor/DocDashMain";
 
-export const AppRoutes=()=>{
+// center details and therapy-book and doctor book routes
+import CenterDetails from "../pages/center/CenterDetails";
+// import TherapyBooking from "../pages/TherapyBooking";
+// import DoctorBooking from "../pages/DoctorBooking";
 
-    return <div className="h-screen w-full">
-        <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/about" element={<About/>}/>
-        <Route path="/service" element={<Service/>}/>
-        <Route path="/center" element={<Center/>}/>
-        <Route path="/contact" element={<Contact/>}/>
-        <Route path="/signup" element={<SignUp/>}/>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/otpverification" element={<OtpVerification/>}/>
-        <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
-        <Route path="/dashboard" element={<PanchakarmaDashboard/>}/>
-        <Route path="/center-appointments" element={<AppointmentList/>}/>
-        <Route path="/add-doctor" element={<AddDoctorPage/>}/>
+export const AppRoutes = () => {
+  return (
+    <div className="h-screen w-full">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/service" element={<Service />} />
+        <Route path="/center" element={<Center />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/otpverification" element={<OtpVerification />} />
+        <Route
+          path="/center-head-application-success"
+          element={<CenterHeadApplicationSuccess />}
+        />
+        <Route path="/dashboard" element={<PanchakarmaDashboard />} />
+        <Route path="/center-appointments" element={<AppointmentList />} />
+        <Route path="/add-doctor" element={<AddDoctorPage />} />
 
-
-
-        <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
+        <Route path="/doctor-dashboard" element={<DocDashMain />} />
 
         <Route path="/allcenters" element={<AllCenters />} />
         <Route path="/patient/*" element={<PatientRoutes />} />
-        <Route path="/PanchaKarma-Dashboard" element={<PanchakarmaDashboard />} />
+        <Route
+          path="/PanchaKarma-Dashboard"
+          element={<PanchakarmaDashboard />}
+        />
 
         {/* Dynamic center route (prefixed to avoid collisions) */}
-        <Route path="/center/:slug" element={<CenterDetails />} />
+        {/* <Route path="/center/:slug" element={<CenterDetails />} /> */}
 
+        <Route path="/center/:centerSlug" element={<CenterDetails />} />
+        {/* <Route path="/center/:centerSlug/therapy-book" element={<TherapyBooking />} />
+        <Route path="/center/:centerSlug/doctor-book" element={<DoctorBooking />} /> */}
 
         {/* Optional: 404 route last */}
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </div>
+  );
 };
