@@ -1,7 +1,7 @@
 // src/pages/CenterDetails.jsx
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import centers from "../data/centers"; // make sure this file exists and exports the array
+import centers from "../../data/centers"; // make sure this file exists and exports the array
 import { MapPin, Phone, Clock } from "lucide-react";
 
 const CenterDetails = () => {

@@ -17,7 +17,7 @@ import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
 import AppointmentList from "../pages/AppointmentList";
 // import <AddDoctorPage></AddDoctorPage> from "../pages/AddDoctor";
 import AddDoctorPage from "../pages/center/AddDoctor";
-import CenterDetails from "../pages/CenterDetails";
+import CenterDetails from "../pages/center/CenterDetails";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DocDashMain from "../pages/doctor/DocDashMain";
 
