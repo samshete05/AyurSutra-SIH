@@ -12,6 +12,8 @@ export const Home = () => {
       <Navbar />
       <HeroCarousel />
       <AdvancedCenterSearch />
+      <PanchakarmaCentersMap/>
+
 
       {/* Platform overview */}
       <section className="bg-emerald-50/40 py-10 md:py-14">
@@ -274,7 +276,6 @@ export const Home = () => {
         </div>
       </section>
 
-      <PanchakarmaCentersMap/>
       <Footer />
     </>
   );

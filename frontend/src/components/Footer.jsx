@@ -1,4 +1,5 @@
 import React from "react";
+import RoutesTester from "./RoutesTester";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -182,6 +183,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <RoutesTester/>
+
     </footer>
   );
 };

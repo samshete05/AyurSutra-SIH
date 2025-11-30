@@ -168,7 +168,6 @@ const Navbar = () => {
       </div>
 
       {/* Dev-only routes tester bar */}
-      <RoutesTester />
 
       {/* Main navbar + mega menu area */}
       <div
