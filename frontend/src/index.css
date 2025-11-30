@@ -1,15 +1,10 @@
-/* ----------------------------
-   GLOBAL RESET + BASE STYLES
------------------------------ */
-/* Custom round marker */
 .marker-wrapper {
-  width: 54px;
-  height: 54px;
+  width: 60px;
+  height: 60px;
   border-radius: 9999px;
   overflow: hidden;
-  border: 3px solid #22c55e; /* green border */
+  border: 4px solid #22c55e;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  background: white;
 }
 
 .marker-img {
@@ -18,11 +13,26 @@
   object-fit: cover;
 }
 
-/* Popup animation */
-@keyframes popupScale {
-  0% { opacity: 0; transform: scale(0.85) translateY(10px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+.user-marker-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 4px solid #3b82f6;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
+
+.user-marker-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes popupScale {
+  from { opacity: 0; transform: translateY(10px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .animate-popup {
-  animation: popupScale 0.25s ease-out;
+  animation: popupScale 0.2s ease-out;
 }
