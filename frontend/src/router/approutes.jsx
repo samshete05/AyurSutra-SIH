@@ -25,6 +25,10 @@ import ViewTherapies from "../pages/center/ViewTherapy";
 
 // center details and therapy-book and doctor book routes
 import CenterDetails from "../pages/center/CenterDetails";
+import CenterSettingsPage from "../pages/center/CenterSetting";
+import CenterProfilePage from "../pages/center/CenterProfile";
+import ProfilePage from "../pages/center/CenterProfile";
+import CenterMap from "../pages/center/CenterMap";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 export const AppRoutes = () => {
@@ -49,12 +53,18 @@ export const AppRoutes = () => {
 
         <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
 
+        {/* <Route path="/center-setting" element={<CenterSettingsPage/>}/> */}
+        <Route path="/center-profile" element={<ProfilePage/>}/>
+        {/* <Route path="/center-setting"    /> */}
+
         <Route path="/allcenters" element={<AllCenters />} />
         <Route path="/patient/*" element={<PatientRoutes />} />
         <Route
           path="/PanchaKarma-Dashboard"
           element={<PanchakarmaDashboard />}
         />
+
+        {/* <Route p/> */}
 
         {/* Dynamic center route (prefixed to avoid collisions) */}
         {/* <Route path="/center/:slug" element={<CenterDetails />} /> */}
@@ -65,6 +75,8 @@ export const AppRoutes = () => {
 
         {/* Optional: 404 route last */}
         {/* <Route path="*" element={<NotFound />} /> */}
+
+        <Route path="/center-map" element={<CenterMap/>}/>
       </Routes>
     </div>
   );

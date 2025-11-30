@@ -1,43 +1,45 @@
+// Put your image file (e.g. bg-hero.jpg) in /src/assets and adjust the path below.
 import React from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faCalendar, faMoon, faUserDoctor } from "@fortawesome/free-solid-svg-icons";
-import { CircleDollarSign, Download, LayoutDashboard, Search, User } from "lucide-react";
+import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { Download, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// import PKLineChart from "./PKLineChart";
-
-// import PKLineChart from "../components/PkLineChart";
-// import SidePanel from "../components/CenterSidePanel";
-// import Logo from "../components/SidePanelLogo";
 import SidePanel from "../../components/CenterSidePanel";
 import PKLineChart from "../../components/PkLineChart";
-// import SidePane
 import Logo from "../../components/SidePanelLogo";
+import heroBg from "../../assets/ayurveda-background_1022134-25291.avif"; // <-- add your background image
 
 const monthLabels = [
-  "Feb","Mar","Apr","May","Jun","Jul",
-  "Aug","Sep","Oct","Nov","Dec","Jan"
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+  "Jan",
 ];
 
-// dummy data
 const revenueValues = [195, 150, 230, 170, 185, 194, 183, 205, 210, 208, 222, 235];
 const patientValues = [80, 90, 110, 100, 120, 130, 150, 145, 140, 138, 142, 155];
 const therapyValues = [60, 72, 95, 90, 98, 105, 120, 118, 115, 117, 121, 130];
 
 const PanchakarmaDashboard = () => {
-    const navigate=useNavigate();
+  const navigate = useNavigate();
 
   return (
-
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
-      
-        <Logo/>
-
+        <Logo />
         <nav className="space-y-6 text-sm">
-             <SidePanel/>
+          <SidePanel />
         </nav>
       </aside>
 
@@ -72,9 +74,7 @@ const PanchakarmaDashboard = () => {
               </div>
               <div className="hidden text-left text-xs md:block">
                 <div className="font-semibold">Ayur Admin</div>
-                <div className="text-[11px] text-slate-500">
-                  Center Admin ▾
-                </div>
+                <div className="text-[11px] text-slate-500">Center Admin ▾</div>
               </div>
             </div>
           </div>
@@ -82,15 +82,35 @@ const PanchakarmaDashboard = () => {
 
         {/* Page content */}
         <main className="flex-1 bg-slate-100 px-4 py-4 md:px-8 md:py-6">
+          {/* Hero background section */}
+          <section
+            className="mb-6 h-52 w-full overflow-hidden rounded-3xl bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${heroBg})` }}
+          >
+            <div className="flex h-full items-center px-6 md:px-10">
+              <div className="max-w-lg rounded-2xl bg-black/30 px-6 py-4 text-white backdrop-blur-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                  Patient Portal
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold md:text-3xl">
+                  Welcome back, Rajesh!
+                </h2>
+                <p className="mt-1 text-xs md:text-sm">
+                  Your wellness journey continues with excellence and personalized Ayurvedic care.
+                </p>
+                <div className="mt-3 inline-flex items-center rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold">
+                  <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-200" />
+                  Active
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Title + filters */}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-500">
-                Welcome back, Ayur Admin
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Panchakarma Dashboard
-              </h1>
+              <p className="text-sm text-slate-500">Welcome back, Ayur Admin</p>
+              <h1 className="text-2xl font-semibold tracking-tight">Panchakarma Dashboard</h1>
             </div>
             <div className="flex cursor-pointer items-center gap-3">
               <select className="h-9 cursor-pointer rounded-full border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 shadow-sm">
@@ -131,18 +151,14 @@ const PanchakarmaDashboard = () => {
             ))}
           </div>
 
-          {/* Three line charts – all same style, different data */}
+          {/* Three line charts */}
           <div className="grid gap-4 2xl:grid-cols-3 lg:grid-cols-2">
             {/* Revenue line chart */}
             <div className="rounded-2xl bg-white p-5 shadow-sm shadow-slate-100">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    Revenue Trend
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Dummy revenue (in thousands)
-                  </p>
+                  <p className="text-sm font-semibold text-slate-800">Revenue Trend</p>
+                  <p className="text-xs text-slate-400">Dummy revenue (in thousands)</p>
                 </div>
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600">
                   12 months
@@ -161,12 +177,8 @@ const PanchakarmaDashboard = () => {
             <div className="rounded-2xl bg-white p-5 shadow-sm shadow-slate-100">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    Patients Trend
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Dummy monthly patient visits
-                  </p>
+                  <p className="text-sm font-semibold text-slate-800">Patients Trend</p>
+                  <p className="text-xs text-slate-400">Dummy monthly patient visits</p>
                 </div>
                 <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-600">
                   12 months
@@ -185,12 +197,8 @@ const PanchakarmaDashboard = () => {
             <div className="rounded-2xl bg-white p-5 shadow-sm shadow-slate-100">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    Therapy Sessions
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Dummy total sessions per month
-                  </p>
+                  <p className="text-sm font-semibold text-slate-800">Therapy Sessions</p>
+                  <p className="text-xs text-slate-400">Dummy total sessions per month</p>
                 </div>
                 <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-600">
                   12 months
