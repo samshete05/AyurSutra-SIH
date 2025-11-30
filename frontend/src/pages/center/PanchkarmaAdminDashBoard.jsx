@@ -98,7 +98,7 @@ const PanchakarmaDashboard = () => {
                 <option>Last Month</option>
                 <option>Last 3 Months</option>
               </select>
-              <button className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-600">
+              <button className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#1E4B3C] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-600">
                 Download <Download className="h-5 w-5 text-white" />
               </button>
             </div>
