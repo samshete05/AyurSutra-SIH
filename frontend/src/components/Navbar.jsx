@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Marquee from "react-fast-marquee"; // npm install react-fast-marquee
 import RoutesTester from "./RoutesTester";
 import AdvancedCenterSearch from "./AdvancedCenterSearch";
+import MainNavbar from "./MainNavbar";
 
 const megaMenuConfig = {
   concern: {
@@ -168,6 +169,7 @@ const Navbar = () => {
       </div>
 
       {/* Dev-only routes tester bar */}
+      <MainNavbar/>
 
       {/* Main navbar + mega menu area */}
       <div
