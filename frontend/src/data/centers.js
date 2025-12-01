@@ -6,6 +6,13 @@ const centers = [
     address: "3rd Cross, 5th Block, Koramangala",
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu.jpg",
+    images: [
+      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu.jpg",
+      "https://sppc.in/wp-content/uploads/2023/12/Untitled-design-32.png",
+      "https://fazlaninaturesnest.com/wp-content/uploads/2022/07/panchakarma-768x422-1.webp",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d7052.185069047616!2d72.89401292326501!3d19.066139511896278!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDAzJzU3LjMiTiA3MsKwNTMnNDQuMCJF!5e1!3m2!1sen!2sin!4v1764531916912!5m2!1sen!2sin",
     bookingAiNumber: "+91-80-4000-1234",
     customerNumber: "+91-80-4000-5678",
     openingTime: "07:00",
@@ -13,14 +20,14 @@ const centers = [
     therapies: [
       {
         id: "abhyanga",
-        name: "Abhyanga (Full Body Oil Massage)",
+        name: "Abhyanga",
         focus: "Joint stiffness • Fatigue • Sleep",
         duration: "60–75 mins",
         summary:
           "Warm medicated oil massage to calm the nervous system and relieve muscular tension.",
         price: "1800",
         therapyImage:
-          "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
+          "https://sppc.in/wp-content/uploads/2023/12/Untitled-design-32.png",
       },
       {
         id: "shirodhara",
@@ -31,7 +38,7 @@ const centers = [
           "Gentle pouring of warm oil on the forehead to balance mind and support deep relaxation.",
         price: "2200",
         therapyImage:
-          "https://images.pexels.com/photos/3738342/pexels-photo-3738342.jpeg",
+          "https://fazlaninaturesnest.com/wp-content/uploads/2022/07/panchakarma-768x422-1.webp",
       },
       {
         id: "basti",
@@ -42,12 +49,12 @@ const centers = [
           "Localized warm oil pooling over spine areas to support chronic back and neck issues.",
         price: "1600",
         therapyImage:
-          "https://images.pexels.com/photos/3738345/pexels-photo-3738345.jpeg",
+          "https://www.ayurwakeup.com/wp-content/uploads/2024/07/Panchakarma-Treatment.jpg.webp",
       },
     ],
     doctors: [
       {
-        id: "dr-meera",
+        id: "dr-meera-1",
         name: "Dr. Meera Nair",
         degree: "MD (Ayurveda)",
         speciality: "Panchakarma & Chronic Pain",
@@ -55,10 +62,10 @@ const centers = [
         focus: "Chronic pain, metabolic disorders, post-viral recovery",
         fee: "900",
         avatar:
-          "https://images.pexels.com/photos/8460124/pexels-photo-8460124.jpeg",
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0N0L27driTXyBhnIfssxzlHuG_EwtXgHGPA&s",
       },
       {
-        id: "dr-arjun",
+        id: "dr-arjun-1",
         name: "Dr. Arjun Rao",
         degree: "BAMS",
         speciality: "Lifestyle & Stress",
@@ -66,7 +73,51 @@ const centers = [
         focus: "Stress, sleep, migraine, lifestyle diseases",
         fee: "750",
         avatar:
-          "https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg",
+          "https://media.istockphoto.com/id/671290874/photo/portrait-of-a-female-doctor.jpg?s=612x612&w=0&k=20&c=mQXp_gLFIN2YyyO_hlLc0VFlAYfbHiHK6lroJp0dtVw=",
+      },
+      {
+        id: "dr-meera-2",
+        name: "Dr. Meera Nair",
+        degree: "MD (Ayurveda)",
+        speciality: "Panchakarma & Chronic Pain",
+        experience: "12+ years",
+        focus: "Chronic pain, metabolic disorders, post-viral recovery",
+        fee: "900",
+        avatar:
+          "https://somatheeram-c3c5.kxcdn.com/wp-content/uploads/2019/09/Somatheeram-Ayurveda-Physician-Dr-Sooraj.png",
+      },
+      {
+        id: "dr-arjun-2",
+        name: "Dr. Arjun Rao",
+        degree: "BAMS",
+        speciality: "Lifestyle & Stress",
+        experience: "8+ years",
+        focus: "Stress, sleep, migraine, lifestyle diseases",
+        fee: "750",
+        avatar:
+          "https://www.shutterstock.com/image-photo/ayurvedic-doctor-smiling-looking-camera-600nw-2562958583.jpg",
+      },
+      {
+        id: "dr-meera-3",
+        name: "Dr. Meera Nair",
+        degree: "MD (Ayurveda)",
+        speciality: "Panchakarma & Chronic Pain",
+        experience: "12+ years",
+        focus: "Chronic pain, metabolic disorders, post-viral recovery",
+        fee: "900",
+        avatar:
+          "https://ayurvedahealingashram.com/wp-content/uploads/2022/05/shavanavas.jpg",
+      },
+      {
+        id: "dr-arjun-3",
+        name: "Dr. Arjun Rao",
+        degree: "BAMS",
+        speciality: "Lifestyle & Stress",
+        experience: "8+ years",
+        focus: "Stress, sleep, migraine, lifestyle diseases",
+        fee: "750",
+        avatar:
+          "https://www.vaidyagrama.com/uploads/1/8/1/5/18153735/published/doctor-vaidyagrama-ayurveda-village-indiavg-18.jpg?1756887602",
       },
     ],
   },
@@ -77,6 +128,13 @@ const centers = [
     address: "12, Lake Road, Rabindra Sarobar",
     image:
       "https://ayusanjivani.com/wp-content/uploads/2023/08/Ayusanjivani-Ayurveda-is-a-Pune-based-clinic-that-specializes-in-Ayurvedic-therapy-and-treatment.-The-firm-is-the-brain-child-of-Dr.Shailesh-Shamkant-Phalle.jpg",
+    images: [
+      "https://ayusanjivani.com/wp-content/uploads/2023/08/Ayusanjivani-Ayurveda-is-a-Pune-based-clinic-that-specializes-in-Ayurvedic-therapy-and-treatment.-The-firm-is-the-brain-child-of-Dr.Shailesh-Shamkant-Phalle.jpg",
+      "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
+      "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_SWASTHYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-33-3000-3344",
     openingTime: "08:00",
@@ -114,8 +172,7 @@ const centers = [
         experience: "10+ years",
         focus: "PCOS, skin issues, menstrual health",
         fee: "800",
-        avatar:
-          "https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg",
+        avatar: "https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg",
       },
     ],
   },
@@ -126,6 +183,13 @@ const centers = [
     address: "D-21, South Extension",
     image:
       "https://ind.5bestincity.com/profileimages/india/dr-raghavendra-nadargis-ayurveda-and-panchakarma-center-ayurvedic-clinics-akkalkot-solapur-maharashtra/34736-453d0-1.jpg",
+    images: [
+      "https://ind.5bestincity.com/profileimages/india/dr-raghavendra-nadargis-ayurveda-and-panchakarma-center-ayurvedic-clinics-akkalkot-solapur-maharashtra/34736-453d0-1.jpg",
+      "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
+      "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_PRANA_EMBED_URL_HERE",
     bookingAiNumber: "+91-11-4555-7788",
     customerNumber: "+91-11-4555-9900",
     openingTime: "06:30",
@@ -163,8 +227,7 @@ const centers = [
         experience: "14+ years",
         focus: "Acidity, IBS, eczema, psoriasis",
         fee: "1000",
-        avatar:
-          "https://images.pexels.com/photos/2182979/pexels-photo-2182979.jpeg",
+        avatar: "https://images.pexels.com/photos/2182979/pexels-photo-2182979.jpeg",
       },
       {
         id: "dr-neha",
@@ -174,8 +237,7 @@ const centers = [
         experience: "7+ years",
         focus: "Sinusitis, asthma, allergic rhinitis",
         fee: "850",
-        avatar:
-          "https://images.pexels.com/photos/3957987/pexels-photo-3957987.jpeg",
+        avatar: "https://images.pexels.com/photos/3957987/pexels-photo-3957987.jpeg",
       },
     ],
   },
@@ -186,6 +248,13 @@ const centers = [
     address: "2nd Floor, Palm Avenue, Andheri West",
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/g7/022pxx22.xx22.180212134536.a2g7/catalogue/ojas-ayurved-chikitsalay-juinagar-navi-mumbai-ayurvedic-doctors-for-abdominal-problem-rwoo8d1l1s.jpg",
+    images: [
+      "https://content.jdmagicbox.com/v2/comp/mumbai/g7/022pxx22.xx22.180212134536.a2g7/catalogue/ojas-ayurved-chikitsalay-juinagar-navi-mumbai-ayurvedic-doctors-for-abdominal-problem-rwoo8d1l1s.jpg",
+      "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
+      "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_SATTVA_EMBED_URL_HERE",
     bookingAiNumber: "+91-22-6000-1212",
     customerNumber: "+91-22-6000-3434",
     openingTime: "07:30",
@@ -223,8 +292,7 @@ const centers = [
         experience: "9+ years",
         focus: "Corporate stress, insomnia, anxiety",
         fee: "900",
-        avatar:
-          "https://images.pexels.com/photos/7659877/pexels-photo-7659877.jpeg",
+        avatar: "https://images.pexels.com/photos/7659877/pexels-photo-7659877.jpeg",
       },
     ],
   },
@@ -235,6 +303,12 @@ const centers = [
     address: "Near Mulshi Road, Bavdhan",
     image:
       "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+    images: [
+      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+      "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
     bookingAiNumber: "+91-20-5500-9090",
     customerNumber: "+91-20-5500-8080",
     openingTime: "06:00",
@@ -261,8 +335,7 @@ const centers = [
         experience: "11+ years",
         focus: "Diabetes, obesity, fatty liver",
         fee: "950",
-        avatar:
-          "https://images.pexels.com/photos/1170979/pexels-photo-1170979.jpeg",
+        avatar: "https://images.pexels.com/photos/1170979/pexels-photo-1170979.jpeg",
       },
     ],
   },
@@ -273,6 +346,12 @@ const centers = [
     address: "Nr. Law Garden, Ellis Bridge",
     image:
       "https://content.jdmagicbox.com/v2/comp/delhi/r1/011pxx11.xx11.201024140500.m8r1/catalogue/kerala-ayurarogya-green-park-delhi-ayurvedic-clinics-ugtpul99cf.jpg",
+    images: [
+      "https://content.jdmagicbox.com/v2/comp/delhi/r1/011pxx11.xx11.201024140500.m8r1/catalogue/kerala-ayurarogya-green-park-delhi-ayurvedic-clinics-ugtpul99cf.jpg",
+      "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_AMRUTA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-79-4500-6677",
     openingTime: "09:00",
@@ -299,8 +378,7 @@ const centers = [
         experience: "15+ years",
         focus: "Arthritis, spondylosis, knee pain",
         fee: "800",
-        avatar:
-          "https://images.pexels.com/photos/2182978/pexels-photo-2182978.jpeg",
+        avatar: "https://images.pexels.com/photos/2182978/pexels-photo-2182978.jpeg",
       },
     ],
   },
@@ -310,6 +388,12 @@ const centers = [
     city: "Kochi",
     address: "Beach Road, Fort Kochi",
     image: "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
+    images: [
+      "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
+      "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_SHANTI_EMBED_URL_HERE",
     bookingAiNumber: "+91-48-4400-2233",
     customerNumber: "+91-48-4400-8899",
     openingTime: "07:00",
@@ -336,8 +420,7 @@ const centers = [
         experience: "9+ years",
         focus: "General wellness, immunity, fatigue",
         fee: "700",
-        avatar:
-          "https://images.pexels.com/photos/5722165/pexels-photo-5722165.jpeg",
+        avatar: "https://images.pexels.com/photos/5722165/pexels-photo-5722165.jpeg",
       },
     ],
   },
@@ -348,6 +431,12 @@ const centers = [
     address: "Jubilee Hills Road No. 36",
     image:
       "https://content.jdmagicbox.com/v2/comp/malappuram/x6/9999px483.x483.230821210649.r8x6/catalogue/dr-lazima-s-avicenna-ayurveda-malappuram-ayurvedic-clinics-7n1us31ogf.jpg",
+    images: [
+      "https://content.jdmagicbox.com/v2/comp/malappuram/x6/9999px483.x483.230821210649.r8x6/catalogue/dr-lazima-s-avicenna-ayurveda-malappuram-ayurvedic-clinics-7n1us31ogf.jpg",
+      "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_VEDYA_EMBED_URL_HERE",
     bookingAiNumber: "+91-40-6600-7788",
     customerNumber: "+91-40-6600-7799",
     openingTime: "08:00",
@@ -374,8 +463,7 @@ const centers = [
         experience: "10+ years",
         focus: "Stress, anxiety, sleep disorders",
         fee: "900",
-        avatar:
-          "https://images.pexels.com/photos/1170978/pexels-photo-1170978.jpeg",
+        avatar: "https://images.pexels.com/photos/1170978/pexels-photo-1170978.jpeg",
       },
     ],
   },
@@ -386,6 +474,12 @@ const centers = [
     address: "Besant Nagar Beach Road",
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
+    images: [
+      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
+      "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
+    ],
+    locationUrl:
+      "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-44-4300-5566",
     openingTime: "07:30",
@@ -412,8 +506,7 @@ const centers = [
         experience: "8+ years",
         focus: "Postnatal care, hormonal balance",
         fee: "850",
-        avatar:
-          "https://images.pexels.com/photos/3957988/pexels-photo-3957988.jpeg",
+        avatar: "https://images.pexels.com/photos/3957988/pexels-photo-3957988.jpeg",
       },
     ],
   },

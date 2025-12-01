@@ -180,11 +180,11 @@ const Navbar = () => {
         <nav className="flex w-full items-center justify-between px-4 py-3 md:px-6 lg:px-10">
           {/* LEFT: only 3 logos */}
           <Link to="/" className="flex items-center text-gray-400">
-            <img src="Gemini_Generated_Image_97y8ep97y8ep97y8.png" alt="Logo 1" className="h-7 w-auto" />
+            <img src="public/Gemini_Generated_Image_97y8ep97y8ep97y8.png" alt="Logo 1" className="h-7 w-auto" />
             <span className="mx-3 text-gray-300 text-sm">|</span>
-            <img src="All_India_Institute_of_Ayurveda.jpg" alt="Logo 2" className="h-7 w-auto" />
+            <img src="public/All_India_Institute_of_Ayurveda.jpg" alt="Logo 2" className="h-7 w-auto" />
             <span className="mx-3 text-gray-300 text-sm">|</span>
-            <img src="ministry-of-ayush-logo.png" alt="Logo 3" className="h-7 w-auto" />
+            <img src="public/ministry-of-ayush-logo.png" alt="Logo 3" className="h-7 w-auto" />
           </Link>
 
           {/* Center nav items that control mega menu */}
