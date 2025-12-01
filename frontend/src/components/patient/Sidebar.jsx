@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import {NavLink, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarClock,
@@ -12,7 +12,7 @@ import {
   Bell,
   User,
   Settings,
-} from "lucide-react";
+} from "lucide-react"; 
 
 
 const navItems = [
@@ -34,11 +34,13 @@ function Sidebar() {
     <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
         <div className="h-16 flex items-center px-5 border-b border-slate-100">
             <div className="flex items-center gap-2">
-                <img
-                  src='Gemini_Generated_Image_97y8ep97y8ep97y8.png'
-                  alt="AyurSutra logo"
-                  className="h-8 w-auto object-contain"
-                />
+                <Link to="/" className="flex items-center gap-2 cursor-pointer">
+                  <img
+                    src='Gemini_Generated_Image_97y8ep97y8ep97y8.png'
+                    alt="AyurSutra logo"
+                    className="h-8 w-auto object-contain"
+                  />
+                </Link>
             </div>
         </div>
 

@@ -388,15 +388,7 @@ function ProgressPage() {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-teal-400/20 to-cyan-400/20 blur-3xl animate-pulse"></div>
           
-          <div 
-            className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/50"
-            style={{
-              backgroundImage: 'url("https://t4.ftcdn.net/jpg/06/44/15/17/240_F_644151789_uizbhoLQ6hAuDZPwfysnj7i8VAkB3c8g.jpg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/50">
             <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-emerald-50/85 to-teal-50/80 backdrop-blur-xl"></div>
 
             <div className="relative z-10 p-8 md:p-12">
