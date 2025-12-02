@@ -2,6 +2,7 @@ const express = require("express");
 
 const PanchakarmaCenterRouter = express.Router();
 
+
 const z = require('zod');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -10,8 +11,10 @@ const { PanchkarmaModel } = require("../db/db");
 const JWT_KEY = process.env.JWT_KEY;
 const otpgenerator = require("otp-generator");
 const sendemail = require("../otplogic/otp");
-const { doctorModel, DoctorModel } = require("../models/Doctor.model");
+const  DoctorModel = require("../models/Doctor.model");
 const SendEmailDoctor=require("../otplogic/doctorCredentialSendEmail");
+const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
+const TherapyModel = require("../models/Therapy.model");
 
 
 
@@ -107,43 +110,45 @@ PanchakarmaCenterRouter.post("/addDoctor",async(req,res)=>{
     console.log("here!!!");
      
      const requireData = z.object({
-        Doctorname: z.string().min(3).max(100),
-        mobileNo: z.string().min(10).max(10),
-        password: z.string().min(5).max(100),
-        confirmPassword: z.string().min(5).max(100),
-        DoctorEmail:z.string().min(5).max(100),
-        YearOfExperience:z.string().min(1).max(100),
-        Specialization : z.string().min(3).max(100)
+        name: z.string().min(3).max(100),
+        phone: z.string().min(10).max(13),
+        email:z.string().min(5).max(100),
+        experience:z.string().min(1).max(100),
+        speciality: z.string().min(3).max(100),
+        consultationFee:z.string().min(1).max(100000),
+        degree:z.string().min(2).max(100),
+        licenseNo:z.string().min(10).max(1000),
+         address:z.string().min(5).max(100),
+         bio:z.string().min(10).max(1000),
     })
 
 
      const checkdata = requireData.safeParse(req.body);
+     console.log(req.body);
 
     if (!checkdata.success) {
         res.status(422).send("Invalid Input types");
         return;
     }
 
-    const {Doctorname, mobileNo, password,confirmPassword, DoctorEmail, YearOfExperience , Specialization} = req.body;
+    const {name, Adminemail,phone, email, experience ,speciality,consultationFee,degree,licenseNo,address,bio,gender,status} = req.body;
 
-    if (confirmPassword != password) {
-        res.json({
-            message: "both password Not Matched!!"
-        })
-        return;
-    }
 
-    console.log(DoctorEmail);
-    console.log(Doctorname);
-    console.log(mobileNo);
-    console.log(password);
-    console.log(confirmPassword);
-    console.log(YearOfExperience);
-    console.log(Specialization);
+    // console.log(name);
+    // console.log(phone);
+    // console.log(phone);
+    // // console.log(password);
+    // // console.log(confirmPassword);
+    // console.log(experience);
+    // // console.log(Specialization);
+       
+      const checkCenterUser=await PanchakarmaCenterModel.findOne({
+             email:Adminemail
+          })
 
-    
+    console.log("",checkCenterUser);
          const checkAlreadyEmailExistOrNot=await DoctorModel.findOne({
-            email:DoctorEmail
+            email:email
          })
     
          console.log("check error  s ",checkAlreadyEmailExistOrNot);
@@ -154,40 +159,29 @@ PanchakarmaCenterRouter.post("/addDoctor",async(req,res)=>{
             })
             return;
          }
-   
-      const hashedpassword = await bcrypt.hash(password, 5);
+
 
     const DoctorCreate = await DoctorModel.create({
-        name: Doctorname,
-        mobileNo: mobileNo,
-        password: hashedpassword,
-        email:DoctorEmail,
-        yoe:YearOfExperience,
-        specialization:Specialization  
+        centerId:checkCenterUser._id,
+        fullName: name,
+        phone:phone,
+        email:email,
+        experience:experience,
+        speciality:speciality,
+         consultationFee:consultationFee,
+         degree:degree,
+         bio:bio,
+         status:status,
+         gender:gender,
+         address:address,
+         licenseNo:licenseNo
     })
 
-
-
-    await SendEmailDoctor(DoctorCreate.email, "Your Login Credential:",password,Doctorname);
-
-    //function call here
 
     res.json({
-        message: "Login_Credential_Sended_to_Doctor",
-        email: DoctorEmail
+        message:"doctor_added_success"
     })
 
-
-
-
-
-
-
-
-
-
-
-    
 
 })
 
@@ -257,6 +251,64 @@ PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
       })
 
 })
+
+
+PanchakarmaCenterRouter.post("/addTherapy", async (req, res) => {
+  console.log("Therapy API called!");
+  
+  const requireData = z.object({
+    name: z.string().min(3).max(100),
+    duration: z.string().min(2).max(50),
+    price: z.string().min(1).max(100000),
+    category: z.string().min(2).max(100),
+    maxPatientsPerDay: z.string().min(1).max(100),
+    description: z.string().min(5).max(2000),
+    Adminemail: z.string().min(5).max(100)
+  });
+
+  const checkdata = requireData.safeParse(req.body);
+  console.log(req.body);
+
+  if (!checkdata.success) {
+    res.status(422).json({ message: "Invalid Input types" });
+    return;
+  }
+
+  const {
+    name,
+    duration,
+    price,
+    category,
+    maxPatientsPerDay,
+    description,
+    Adminemail
+  } = req.body;
+
+  const center = await PanchakarmaCenterModel.findOne({
+    email: Adminemail
+  });
+
+  if (!center) {
+    res.json({
+      message: "Center_Not_Found"
+    });
+    return;
+  }
+
+  await TherapyModel.create({
+    centerId: center._id,
+    therapyName:name,
+    duration,
+    price,
+    category,
+    maxPatientsPerDay,
+    description
+  });
+
+  res.json({
+    message: "therapy_added_success"
+  });
+});
 
 
 module.exports = {

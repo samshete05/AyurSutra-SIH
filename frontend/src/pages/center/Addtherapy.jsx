@@ -5,6 +5,7 @@ import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { Search, PlusCircle, Clock, DollarSign } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
+import axios from "axios";
 
 const initialForm = {
   name: "",
@@ -18,18 +19,35 @@ const initialForm = {
 const AddTherapy = () => {
   const [form, setForm] = useState(initialForm);
   const navigate = useNavigate();
+  const Adminemail=localStorage.getItem("email");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     console.log("Therapy Data:", form);
-    alert("Therapy added successfully!");
-    setForm(initialForm);
-    navigate("/dashboard");
+   
+    const resp=await axios.post("http://localhost:3000/PanchKarmaCenter/addTherapy",{
+      name:form.name,
+    duration:form.duration,
+    price:form.price,
+    category:form.category,
+    maxPatientsPerDay:form.maxPatients,
+    description:form.description,
+    Adminemail:Adminemail
+    })
+    if(resp.data.message=='therapy_added_success'){
+      alert("Therapy Added Successfully!!!");
+      window.location.reload()
+      return;
+    } else{
+      alert("something went wrong!!");
+    }
+    
+    
   };
 
   const labelCls = "mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500";

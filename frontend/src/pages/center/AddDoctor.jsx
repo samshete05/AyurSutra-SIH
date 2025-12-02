@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 // import SidePanel from "../../components/CenterSidePanel";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
+import axios from "axios";
 
 const initialForm = {
   fullName: "",
@@ -27,19 +28,47 @@ const AddDoctorPage = () => {
   const [gender, setGender] = useState("Male");
   const [status, setStatus] = useState("Active");
   const navigate = useNavigate();
+  const Adminemail=localStorage.getItem("email");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log("New doctor profile:", { ...form, gender, status });
-    setForm(initialForm);
+    // console.log("New doctor profile:", { ...form, gender, status });
+    // setForm(initialForm);
     setGender("Male");
     setStatus("Active");
-    navigate("/doctors"); // or /dashboard
+     
+    // console.log(form.fee);
+    const resp=await axios.post("http://localhost:3000/PanchKarmaCenter/addDoctor",{
+      Adminemail:Adminemail,
+      name:form.fullName,
+      email:form.email,
+      phone:form.phone,
+      speciality:form.speciality,
+      experience:form.experience,
+      consultationFee:form.fee,
+     degree:form.degree,
+     licenseNo:form.registrationNo,
+      address:form.address,
+      bio:form.bio,
+      experience:form.experience,
+      gender:gender,
+      status:status
+    })
+   
+    if(resp.data.message=='doctor_added_success'){
+      alert("doctor added successfully!!!");
+      window.location.reload();
+      return;
+    } else if(resp.data.message=='Dr_Email_Present_use_different_one!!'){
+      alert("Doctor Already Present!!!");
+      return;
+    }
+
   };
 
   const labelCls =
