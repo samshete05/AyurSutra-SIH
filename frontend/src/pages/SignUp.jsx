@@ -6,7 +6,7 @@ import axios from 'axios'
 
 const SignUp = () => {
   const navigate=useNavigate();
-  const [selectedUserRole, setSelectedUserRole] = useState("normal"); // 'normal' | 'centerHead'
+  const [selectedUserRole, setSelectedUserRole] = useState("patient"); // 'patient' | 'centerHead'
   const [formData, setFormData] = useState({
     fullName: "",
     emailAddress: "",
@@ -40,13 +40,14 @@ const SignUp = () => {
       alert("Both password isn't match");
       return;
     }
-    if(selectedUserRole=='normal'){
+    if(selectedUserRole=='patient'){
      const resp=await axios.post("http://localhost:3000/patient/register",{
               name:formData.fullName,
                 email:formData.emailAddress,
                 phoneNumber:formData.phoneNumber,
                 password:formData.password,
-                confirmPassword:formData.confirmPassword
+                confirmPassword:formData.confirmPassword,
+                role:"patient"
             },{withCredentials:true})
       
             if(resp.data.message=="Email_Present"){
@@ -54,7 +55,7 @@ const SignUp = () => {
               return;
             }
            else if(resp.data.message=='OTP_Send'){
-              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,role:selectedUserRole}})
+              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
            }
             console.log(resp);
     } else{
@@ -84,9 +85,9 @@ const SignUp = () => {
           <div className="mx-auto max-w-md rounded-full bg-emerald-50 flex text-sm md:text-base font-semibold overflow-hidden">
             <button
               type="button"
-              onClick={() => handleRoleChange("normal")}
+              onClick={() => handleRoleChange("patient")}
               className={`flex-1 flex items-center justify-center gap-1 py-3 transition-all ${
-                selectedUserRole === "normal"
+                selectedUserRole === "patient"
                   ? "bg-[#1E4B3C] text-white shadow-md"
                   : "text-gray-700 hover:bg-emerald-100"
               }`}
@@ -106,7 +107,7 @@ const SignUp = () => {
                   <path d="M4 20a8 8 0 0 1 16 0" />
                 </svg>
               </span>
-              <span>Normal User</span>
+              <span>Patient User</span>
             </button>
 
             <button

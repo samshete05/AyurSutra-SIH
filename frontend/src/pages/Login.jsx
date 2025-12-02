@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate=useNavigate();
-  const [selectedRole, setSelectedRole] = useState("normal"); // normal | centerHead | doctor
+  const [selectedRole, setSelectedRole] = useState("patient"); // patient | centerHead | doctor
   const [formData, setFormData] = useState({
     emailOrPhone: "",
     password: "",
@@ -41,7 +41,8 @@ const Login = () => {
 
     const resp=await axios.post("http://localhost:3000/patient/login",{
         email:formData.emailOrPhone,
-        password:formData.password
+        password:formData.password,
+        role:selectedRole
     },{withCredentials:true})
     console.log("yahi toh han vo",resp);
 
@@ -80,14 +81,14 @@ const Login = () => {
           <div className="grid grid-cols-3 rounded-full bg-emerald-50 text-xs font-semibold overflow-hidden">
             <button
               type="button"
-              onClick={() => handleRoleChange("normal")}
+              onClick={() => handleRoleChange("patient")}
               className={`py-2.5 flex items-center justify-center gap-1 transition-all ${
-                selectedRole === "normal"
+                selectedRole === "patient"
                   ? "bg-[#1E4B3C] text-white shadow-md"
                   : "text-emerald-900 hover:bg-emerald-100"
               }`}
             >
-              <span>Normal</span>
+              <span>Patient</span>
             </button>
             <button
               type="button"
@@ -131,7 +132,7 @@ const Login = () => {
               onChange={handleInputChange}
               required
               placeholder={
-                selectedRole === "normal"
+                selectedRole === "patient"
                   ? "your.email@example.com or +91 XXXXX XXXXX"
                   : "Registered email / phone"
               }

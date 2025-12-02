@@ -24,7 +24,7 @@ patientRouter.post("/register", async function(req,res){
         password:z.string().min(5).max(100),
         confirmPassword:z.string().min(5).max(100),
      })
- const registerUser=null;
+ let registerUser=null;
      const checkdata=requiredatas.safeParse(req.body);
 
 
@@ -126,6 +126,7 @@ patientRouter.post("/login", async function(req,res){
       const {email,password,role} =req.body;
       console.log("login in bac",email)
       console.log("login in bac",password)
+      console.log(role);
       const checkedUser=await patientModel.findOne({
          email:email
       })
@@ -137,7 +138,7 @@ patientRouter.post("/login", async function(req,res){
       if(checkedUser){
           const finduser= await bcrypt.compare(password,checkedUser.password);
       
-
+      
       if(finduser){
          const token=jwt.sign({
             id:checkedUser._id
@@ -152,7 +153,8 @@ patientRouter.post("/login", async function(req,res){
             message:"User_not_exists"
          })
          return;
-      }           
+      }     
+
       } else if(checkCenterUser){
           const finduser= await bcrypt.compare(password,checkedUser.password);
       
@@ -173,6 +175,22 @@ patientRouter.post("/login", async function(req,res){
          return;
       }            
       }
+
+      if(role=='patient') {
+             res.json({
+            message:"User_not_exists"
+         })
+         return;
+      } else{
+          res.json({
+            message:"center_not_exists"
+         })
+         return; 
+      }
+
+   
+
+      
 
      
 })

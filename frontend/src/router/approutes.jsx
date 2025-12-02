@@ -29,6 +29,8 @@ import CenterSettingsPage from "../pages/center/CenterSetting";
 import CenterProfilePage from "../pages/center/CenterProfile";
 import ProfilePage from "../pages/center/CenterProfile";
 import CenterMap from "../pages/center/CenterMap";
+import NotFound from "../pages/404";
+import ProtectedRoute from "../pages/center/PanchakarmaProtected";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 export const AppRoutes = () => {
@@ -59,10 +61,15 @@ export const AppRoutes = () => {
 
         <Route path="/allcenters" element={<AllCenters />} />
         <Route path="/patient/*" element={<PatientRoutes />} />
-        <Route
-          path="/PanchaKarma-Dashboard"
-          element={<PanchakarmaDashboard />}
-        />
+        <Route path="/NotFound" element={<NotFound/>} />
+         <Route 
+    path="/PanchaKarma-Dashboard"
+    element={
+      <ProtectedRoute allowedRole="centerHead">
+        <PanchakarmaDashboard />
+      </ProtectedRoute>
+    }
+  />
 
         {/* <Route p/> */}
 

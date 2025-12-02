@@ -59,6 +59,9 @@ const role = localStorage.getItem("role");
   const handleLogout = async () => {
     await axios.post("http://localhost:3000/patient/logout");
     localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("email");
     window.location.reload();
   };
 
@@ -66,7 +69,7 @@ const role = localStorage.getItem("role");
     console.log("clicked ho gaya!!!");
     console.log(email)
     console.log(role);
-    if(role=='normal'){
+    if(role=='patient'){
       navigate("/patient")
     }
   }

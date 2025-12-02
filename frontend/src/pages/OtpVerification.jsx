@@ -11,6 +11,8 @@ const OtpVerification = () => {
    const email = location.state?.email;
    const password = location.state?.password;
    const selectedRole=location.state?.selectedRole;
+
+   console.log("role is ss",selectedRole)
    
 
    console.log("here mail",email);
