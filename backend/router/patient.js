@@ -123,96 +123,68 @@ patientRouter.post("/register", async function(req,res){
 
 
 // *************************** LOGIN ********************************
-patientRouter.post("/login", async function(req,res){
-   const requiredatas=z.object({
-      email:z.string().min(3).max(100).email(),
-      password:z.string().min(5).max(100)
-   })
+patientRouter.post("/login", async function (req, res) {
+  const requiredatas = z.object({
+    email: z.string().min(3).max(100).email(),
+    password: z.string().min(5).max(100),
+  });
 
-   const checkdata=requiredatas.safeParse(req.body);
-      if(!checkdata.success){
-         res.json({
-            message:checkdata.error,
-         })
-         return;
-      }
+  const checkdata = requiredatas.safeParse(req.body);
+  if (!checkdata.success) {
+    return res.json({ message: checkdata.error });
+  }
 
-      const {email,password,role} =req.body;
-      console.log("login in bac",email)
-      console.log("login in bac",password)
-      console.log(role);
-   
+  const { email, password, role } = req.body;
 
-      if(role=='patient'){
+  // ---------------- PATIENT LOGIN ----------------
+  if (role === "patient") {
+    const checkedUser = await patientModel.findOne({ email });
 
-            const checkedUser=await patientModel.findOne({
-         email:email
-      })
-          const finduser= await bcrypt.compare(password,checkedUser.password);
-      
-       console.log("yaya1");
-      if(finduser){
-         const token=jwt.sign({
-            id:checkedUser._id
-         },JWT_KEY)
-         res.json({
-            token:token,
-            message:"logedin",
-            role:checkedUser.role
-         })
-      }else{
-         res.json({
-            message:"User_not_exists"
-         })
-         return;
-      }     
+    if (!checkedUser) {
+      return res.json({ message: "User_not_exists" });
+    }
 
-      } else if(role=='centerHead'){
+    const finduser = await bcrypt.compare(password, checkedUser.password);
 
-         
-      const checkCenterUser=await PanchakarmaCenterModel.findOne({
-         email:email
-      })
+    if (!finduser) {
+      return res.json({ message: "User_not_exists" });
+    }
 
-      console.log("center data",checkCenterUser);
-     const finduser= await bcrypt.compare(password,checkCenterUser.password);
-      
-   console.log("yah2222")
-      if(finduser){
-         const token=jwt.sign({
-            id:checkCenterUser._id
-         },JWT_KEY)
-         res.json({
-            token:token,
-            message:"logedin",
-            role:checkCenterUser.role
-         })
-      }else{
-         res.json({
-            message:"center_not_exists"
-         })
-         return;
-      }            
-      }
+    const token = jwt.sign({ id: checkedUser._id }, JWT_KEY);
 
-      if(role=='patient') {
-             res.json({
-            message:"User_not_exists"
-         })
-         return;
-      } else{
-          res.json({
-            message:"center_not_exists"
-         })
-         return; 
-      }
+    return res.json({
+      token,
+      message: "logedin",
+      role: checkedUser.role,
+    });
+  }
 
-   
+  // ---------------- CENTER HEAD LOGIN ----------------
+  if (role === "centerHead") {
+    const centerUser = await PanchakarmaCenterModel.findOne({ email });
 
-      
+    if (!centerUser) {
+      return res.json({ message: "center_not_exists" });
+    }
 
-     
-})
+    const finduser = await bcrypt.compare(password, centerUser.password);
+
+    if (!finduser) {
+      return res.json({ message: "center_not_exists" });
+    }
+
+    const token = jwt.sign({ id: centerUser._id }, JWT_KEY);
+
+    return res.json({
+      token,
+      message: "logedin",
+      role: centerUser.role,
+    });
+  }
+
+  return res.json({ message: "Invalid_role" });
+});
+
 
 patientRouter.post("/verifyOTP", async (req, res) => {
   const { email, otp, password,role } = req.body;

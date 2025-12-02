@@ -310,6 +310,67 @@ PanchakarmaCenterRouter.post("/addTherapy", async (req, res) => {
   });
 });
 
+// ADD THERAPIST
+PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
+  console.log("Adding therapist...");
+  
+  const schema = z.object({
+    fullName: z.string().min(3).max(100),
+    phone: z.string().min(10).max(13),
+    email: z.string().optional(),
+    specialization: z.string().min(3).max(100),
+    experience: z.string().min(1).max(50),
+    qualification: z.string().min(2).max(200),
+    address: z.string().min(5).max(200),
+    centerAdminEmail: z.string().email()
+  });
+
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(422).json({ message: "Invalid_Input" });
+  }
+
+  const {
+    fullName,
+    phone,
+    email,
+    specialization,
+    experience,
+    qualification,
+    address,
+    centerAdminEmail
+  } = parsed.data;
+
+  // Get center from admin email
+  const center = await PanchakarmaCenterModel.findOne({ email: centerAdminEmail });
+
+  if (!center) {
+    return res.json({ message: "Center_Not_Found" });
+  }
+
+  // Optional email check
+  if (email) {
+    const emailExists = await TherapistModel.findOne({ email });
+    if (emailExists) {
+      return res.json({ message: "Therapist_Email_Already_Used" });
+    }
+  }
+
+  await TherapistModel.create({
+    centerId: center._id,
+    fullName,
+    phone,
+    email,
+    specialization,
+    experience,
+    qualification,
+    address
+  });
+
+  return res.json({ message: "therapist_added_success" });
+});
+
+
 
 module.exports = {
     PanchakarmaCenterRouter: PanchakarmaCenterRouter
