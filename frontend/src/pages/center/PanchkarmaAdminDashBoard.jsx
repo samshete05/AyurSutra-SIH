@@ -1,14 +1,15 @@
-// Put your image file (e.g. bg-hero.jpg) in /src/assets and adjust the path below.
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
-import { Download, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 import SidePanel from "../../components/CenterSidePanel";
 import PKLineChart from "../../components/PkLineChart";
 import Logo from "../../components/SidePanelLogo";
 import heroBg from "../../assets/ayurveda-background_1022134-25291.avif";
+import CenterNavbarProfile from "./CenterNavbarProfile";
 
 const monthLabels = ["Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan"];
 const revenueValues = [195,150,230,170,185,194,183,205,210,208,222,235];
@@ -16,6 +17,25 @@ const patientValues = [80,90,110,100,120,130,150,145,140,138,142,155];
 const therapyValues = [60,72,95,90,98,105,120,118,115,117,121,130];
 
 const PanchakarmaDashboard = () => {
+  const navigate = useNavigate();
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close the dropdown when clicked outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
 
@@ -32,6 +52,7 @@ const PanchakarmaDashboard = () => {
 
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
+
           <div className="flex items-center gap-3">
             <button className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-xl md:hidden">
               ☰
@@ -48,25 +69,21 @@ const PanchakarmaDashboard = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* RIGHT SIDE PROFILE */}
+          <div className="flex items-center gap-3 relative" ref={dropdownRef}>
             <button className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100">
               <FontAwesomeIcon icon={faMoon} className="text-xl" />
             </button>
+
             <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
               <FontAwesomeIcon icon={faBell} className="text-xl" />
             </button>
 
-            <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm font-semibold text-white">
-                A
-              </div>
-              <div className="hidden text-left text-xs md:block">
-                <div className="font-semibold">Ayur Admin</div>
-                <div className="text-[11px] text-slate-500">Center Admin ▾</div>
-              </div>
-            </div>
+            <CenterNavbarProfile/>
           </div>
         </header>
+
+        {/* ---------- Rest of your Dashboard remains EXACTLY same ---------- */}
 
         {/* Page content */}
         <main className="flex-1 bg-slate-100 px-4 py-4 md:px-8 md:py-6">

@@ -6,6 +6,7 @@ import { Search, UserPlus, Phone, Mail, Stethoscope } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import axios from "axios";
+import CenterNavbarProfile from "./CenterNavbarProfile";
 
 const initialForm = {
   name: "",
@@ -93,15 +94,7 @@ const AddTherapist = () => {
             <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-100">
               <FontAwesomeIcon icon={faBell} className="text-base text-slate-600" />
             </button>
-            <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm font-semibold text-white">
-                A
-              </div>
-              <div className="hidden text-left text-xs md:block">
-                <div className="font-semibold">Ayur Admin</div>
-                <div className="text-[11px] text-slate-500">Center Admin ▾</div>
-              </div>
-            </div>
+             <CenterNavbarProfile/>
           </div>
         </header>
 
