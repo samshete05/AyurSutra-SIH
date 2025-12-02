@@ -33,6 +33,7 @@ import {
   XCircle,
   MinusCircle
 } from "lucide-react";
+import Loader from "../../components/Loader";
 
 function ProgressPage() {
   const [loading, setLoading] = useState(true);
@@ -364,16 +365,7 @@ function ProgressPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-20 h-20 mx-auto mb-6">
-            <div className="absolute inset-0 border-4 border-emerald-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-emerald-600 rounded-full border-t-transparent animate-spin"></div>
-            <Activity className="absolute inset-0 m-auto w-8 h-8 text-emerald-600 animate-pulse" />
-          </div>
-          <p className="text-lg font-medium text-slate-700">Loading your wellness progress...</p>
-        </div>
-      </div>
+      <Loader />
     );
   }
 
