@@ -5,6 +5,7 @@ import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { Search, UserPlus, Phone, Mail, Stethoscope } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
+import axios from "axios";
 
 const initialForm = {
   name: "",
@@ -17,6 +18,7 @@ const initialForm = {
 };
 
 const AddTherapist = () => {
+  const email=localStorage.getItem("email");
   const [form, setForm] = useState(initialForm);
   const navigate = useNavigate();
 
@@ -25,12 +27,34 @@ const AddTherapist = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     console.log("Therapist Data:", form);
-    alert("Therapist added successfully!");
-    setForm(initialForm);
-    navigate("/dashboard");
+
+    const resp=await axios.post("http://localhost:3000/PanchKarmaCenter/addTherapist",{
+      fullName:form.name,
+      phone:form.phone,
+      email:form.email,
+      specialization:form.specialization,
+      experience:form.experience,
+      qualification:form.qualification,
+      address:form.address,
+      centerAdminEmail:email
+    }) 
+    console.log(resp);
+
+    if(resp.data.message=='Therapist_Email_Already_Used'){
+      alert("Already Present!!");
+      return;
+    } else{
+        alert("therapist added successfully!!!");
+      window.location.reload();
+      return;
+    }
+    
+
+
+    // navigate("/dashboard");
   };
 
   const labelCls = "mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500";
@@ -158,13 +182,14 @@ const AddTherapist = () => {
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className={labelCls}>Experience</label>
-                  <select name="experience" value={form.experience} onChange={handleChange} className={inputCls}>
-                    <option value="">Select experience</option>
-                    <option value="1-3">1-3 years</option>
-                    <option value="3-5">3-5 years</option>
-                    <option value="5-10">5-10 years</option>
-                    <option value="10+">10+ years</option>
-                  </select>
+                   <input
+                    type="experience"
+                    name="experience"
+                    value={form.experience}
+                    onChange={handleChange}
+                    className={inputCls}
+                    placeholder="5 Years"
+                  />
                 </div>
                 <div>
                   <label className={labelCls}>Qualification</label>
