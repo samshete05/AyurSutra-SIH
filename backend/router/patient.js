@@ -33,14 +33,23 @@ patientRouter.post("/register", async function(req,res){
         return;
     }
 
-     const {name,phoneNumber,email,password,confirmPassword,role}=req.body;
-     console.log(req);
+     const {name,phoneNumber,email,password,confirmPassword,role,lattitude,longitude,LicenseNo
+      ,CenterName,BotNumber
+     }=req.body;
+   //   console.log(req);
      const hashedpassword=await bcrypt.hash(password,5);
+     console.log("start");
      console.log(name);
      console.log(phoneNumber);
      console.log(email);
      console.log(password);
+    console.log(CenterName)
+    console.log(lattitude);
+    console.log(longitude);
+     console.log(LicenseNo);
+     console.log(role);
 
+     console.log("end!")
 
      if(role=='patient'){
       
@@ -79,10 +88,13 @@ patientRouter.post("/register", async function(req,res){
      }
 
       registerUser=await PanchakarmaCenterModel.create({
-          name:name,
-          mobileNo:phoneNumber,
+          Adminname:name,
+          MobileNo:phoneNumber,
           password:hashedpassword,
-          email:email
+          email:email,
+          licenseNo:LicenseNo,
+          CenterName:CenterName,
+
      })
 
      }
@@ -96,13 +108,15 @@ patientRouter.post("/register", async function(req,res){
             otp:otp
         })
 
+        console.log("here!!!",role," ",otp);
+
           res.json({
         message:"OTP_Send",
         email:email,
         role:registerUser.role
      })
 
-     await sendemail(registerUser.email,"Email verification code:",otp);
+    if(registerUser!=null) await sendemail(registerUser.email,"Email verification code:",otp);
                
 
 })
@@ -127,18 +141,16 @@ patientRouter.post("/login", async function(req,res){
       console.log("login in bac",email)
       console.log("login in bac",password)
       console.log(role);
-      const checkedUser=await patientModel.findOne({
+   
+
+      if(role=='patient'){
+
+            const checkedUser=await patientModel.findOne({
          email:email
       })
-
-      const checkCenterUser=await PanchakarmaCenterModel.findOne({
-         email:email
-      })
-
-      if(checkedUser){
           const finduser= await bcrypt.compare(password,checkedUser.password);
       
-      
+       console.log("yaya1");
       if(finduser){
          const token=jwt.sign({
             id:checkedUser._id
@@ -155,10 +167,17 @@ patientRouter.post("/login", async function(req,res){
          return;
       }     
 
-      } else if(checkCenterUser){
-          const finduser= await bcrypt.compare(password,checkedUser.password);
-      
+      } else if(role=='centerHead'){
 
+         
+      const checkCenterUser=await PanchakarmaCenterModel.findOne({
+         email:email
+      })
+
+      console.log("center data",checkCenterUser);
+     const finduser= await bcrypt.compare(password,checkCenterUser.password);
+      
+   console.log("yah2222")
       if(finduser){
          const token=jwt.sign({
             id:checkCenterUser._id
@@ -166,7 +185,7 @@ patientRouter.post("/login", async function(req,res){
          res.json({
             token:token,
             message:"logedin",
-            role:checkedUser.role
+            role:checkCenterUser.role
          })
       }else{
          res.json({

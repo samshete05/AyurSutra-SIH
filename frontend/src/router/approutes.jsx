@@ -31,6 +31,8 @@ import ProfilePage from "../pages/center/CenterProfile";
 import CenterMap from "../pages/center/CenterMap";
 import NotFound from "../pages/404";
 import ProtectedRoute from "../pages/center/PanchakarmaProtected";
+import { elements } from "chart.js";
+import PatientProtectedRoute from "../pages/patient/patientProtectedRoute";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 export const AppRoutes = () => {
@@ -46,21 +48,21 @@ export const AppRoutes = () => {
         <Route path="/login" element={<Login/>}/>
         <Route path="/otpverification" element={<OtpVerification/>}/>
         <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
-        <Route path="/dashboard" element={<PanchakarmaDashboard/>}/>
-        <Route path="/center-appointments" element={<AppointmentList/>}/>
-        <Route path="/add-doctor" element={<AddDoctorPage/>}/>
-       <Route path="/add-therapist" element={<AddTherapist/>}/>
-    <Route path="/add-therapy" element={<AddTherapy/>}/>
-    <Route path="/view-therapy" element={<ViewTherapies/>}/>
+        <Route path="/dashboard" element={ <ProtectedRoute allowedRole="centerHead"><PanchakarmaDashboard/> </ProtectedRoute> }/>
+        <Route path="/center-appointments" element={ <ProtectedRoute allowedRole="centerHead"> <AppointmentList/> </ProtectedRoute>}/>
+        <Route path="/add-doctor" element={ <ProtectedRoute allowedRole="centerHead"> <AddDoctorPage/> </ProtectedRoute>}/>
+       <Route path="/add-therapist"  element={ <ProtectedRoute allowedRole="centerHead"> <AddTherapist/> </ProtectedRoute>}/>
+    <Route path="/add-therapy"  element={ <ProtectedRoute allowedRole="centerHead" > <AddTherapy/> </ProtectedRoute>}/>
+    <Route path="/view-therapy" element={ <ProtectedRoute allowedRole="centerHead"> <ViewTherapies/> </ProtectedRoute>}/>
 
         <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
 
         {/* <Route path="/center-setting" element={<CenterSettingsPage/>}/> */}
-        <Route path="/center-profile" element={<ProfilePage/>}/>
+        <Route path="/center-profile" element={ <ProtectedRoute allowedRole="centerHead"> <ProfilePage/> </ProtectedRoute>}/> 
         {/* <Route path="/center-setting"    /> */}
 
         <Route path="/allcenters" element={<AllCenters />} />
-        <Route path="/patient/*" element={<PatientRoutes />} />
+        <Route  path="/patient/*" element={ <PatientProtectedRoute allowedRole="patient"> <PatientRoutes /> </PatientProtectedRoute>} />
         <Route path="/NotFound" element={<NotFound/>} />
          <Route 
     path="/PanchaKarma-Dashboard"

@@ -1,3 +1,4 @@
+const { verify } = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const schema = mongoose.Schema;
 
@@ -7,15 +8,24 @@ const PanchakarmaCenterSchema=new schema({
     type:String,
   default:"centerHead"
   },
-    name:String,
+    Adminname:String,
+    CenterName:String,
     licenseNo:String,
-    AdminEmail:{
+    password:String,
+    email:{
         type:String,unique:true
     },
-  location: { type: String, required: true },
-  latitude: { type: Number, required: true },
-  longitude: { type: Number, required: true },
-
+  location: { type: String },
+  latitude: { type: Number },
+  longitude: { type: Number},
+  MobileNo:{type:String,required:true},
+  BotNumber:{
+    type:String
+  },
+   verified:{
+        type:Boolean,
+        default:false
+    }
 })
 
 module.exports = mongoose.model("PanchakarmaCenter",PanchakarmaCenterSchema);

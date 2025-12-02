@@ -71,6 +71,9 @@ const role = localStorage.getItem("role");
     console.log(role);
     if(role=='patient'){
       navigate("/patient")
+    } else if(role=='centerHead'){
+      console.log("ahahaha")
+      navigate("/PanchaKarma-Dashboard")
     }
   }
 
