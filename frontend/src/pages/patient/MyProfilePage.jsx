@@ -347,21 +347,40 @@ function ProfilePage() {
   }
 
   if (!patientData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-slate-600">Failed to load profile</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-          >
-            Retry
-          </button>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 px-4">
+      <div className="relative bg-white/70 backdrop-blur-xl shadow-2xl rounded-2xl p-10 max-w-md w-full text-center border border-white/40 animate-fadeIn">
+        
+        {/* Decorative glow */}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-red-100 shadow-lg flex items-center justify-center">
+          <AlertCircle className="w-7 h-7 text-red-500" />
         </div>
+
+        <h2 className="mt-6 text-2xl font-semibold text-slate-900">
+          Unable to Load Profile
+        </h2>
+
+        <p className="mt-2 text-slate-600 leading-relaxed">
+          Something went wrong while fetching your data.
+          Please check your connection and try again.
+        </p>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-6 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-300 hover:brightness-110 active:scale-95"
+        >
+          Retry
+        </button>
+
+        {/* Subtle bottom note */}
+        <p className="mt-3 text-xs text-slate-500">
+          If the issue continues, please contact support.
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
