@@ -164,6 +164,12 @@ patientRouter.post("/verifyOTP", async (req, res) => {
   return res.json({ message: "User_not_exists" });
 });
 
+// patientRouter.get("/getPatientInfo",async(req,res)=>{
+   
+//    const 
+
+// })
+
 
 
 // *************************** RESEND CODE ********************************

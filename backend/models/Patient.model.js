@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const schema = mongoose.Schema;
 
 const patientSchema = new schema({
+    role:{
+        type:String,
+    default:"patient" 
+    },
     email:{
         type:String,unique:true
     },

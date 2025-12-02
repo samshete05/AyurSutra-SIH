@@ -1,11 +1,13 @@
 // Navbar.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 import MainNavbar from "./MainNavbar";
 import axios from "axios";
 
 const megaMenuConfig = {
+ 
+
   concern: {
     title: "Therapies by Concern",
     columns: [
@@ -38,6 +40,8 @@ const megaMenuConfig = {
 };
 
 const Navbar = () => {
+    const location = useLocation();
+     const email = location.state?.email;
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
   const [activeMegaKey, setActiveMegaKey] = useState(null);
