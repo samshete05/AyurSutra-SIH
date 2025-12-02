@@ -17,6 +17,9 @@ const SignUp = () => {
     // optional extra fields for center head
     centerName: "",
     licenseNumber: "",
+    BotNumber:"",
+    lattitude:"",
+    longitude:""
   });
 
   const handleRoleChange = (role) => {
@@ -40,14 +43,17 @@ const SignUp = () => {
       alert("Both password isn't match");
       return;
     }
-    if(selectedUserRole=='patient'){
+    
      const resp=await axios.post("http://localhost:3000/patient/register",{
               name:formData.fullName,
                 email:formData.emailAddress,
                 phoneNumber:formData.phoneNumber,
                 password:formData.password,
                 confirmPassword:formData.confirmPassword,
-                role:"patient"
+                role:selectedUserRole,
+                 LicenseNo:formData.licenseNumber,
+                CenterName:formData.centerName,
+                BotNumber:formData.BotNumber
             },{withCredentials:true})
       
             if(resp.data.message=="Email_Present"){
@@ -58,9 +64,6 @@ const SignUp = () => {
               navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
            }
             console.log(resp);
-    } else{
-
-    }
   };
 
   const isCenterHead = selectedUserRole === "centerHead";

@@ -16,91 +16,91 @@ const SendEmailDoctor=require("../otplogic/doctorCredentialSendEmail");
 
 
 
-PanchakarmaCenterRouter.post("/register", async (req, res) => {
-    const requireData = z.object({
-        Adminname: z.string().min(3).max(100),
-        mobileNo: z.string().min(10).max(10),
-        AdminEmail: z.string().min(5).max(100),
-        CenterName: z.string().min().max(100),
-        LicenseNo: z.string().min(5).max(100),
-        password: z.string().min(5).max(100),
-        confirmPassword: z.string().min(5).max(100),
-        BotNumber:z.string().min(5).max(100)
-    })
+// PanchakarmaCenterRouter.post("/register", async (req, res) => {
+//     const requireData = z.object({
+//         Adminname: z.string().min(3).max(100),
+//         mobileNo: z.string().min(10).max(10),
+//         AdminEmail: z.string().min(5).max(100),
+//         CenterName: z.string().min().max(100),
+//         LicenseNo: z.string().min(5).max(100),
+//         password: z.string().min(5).max(100),
+//         confirmPassword: z.string().min(5).max(100),
+//         BotNumber:z.string().min(5).max(100)
+//     })
 
 
-    const checkdata = requireData.safeParse(req.body);
+//     const checkdata = requireData.safeParse(req.body);
 
-    if (!checkdata.success) {
-        res.status(422).send("Invalid Input types");
-        return;
-    }
+//     if (!checkdata.success) {
+//         res.status(422).send("Invalid Input types");
+//         return;
+//     }
 
-    const { Adminname, mobileNo, AdminEmail, CenterName, LicenseNo, password, confirmPassword,
-        Centerlattitude, Centerlongitude , BotNumber
-    } = req.body;
+//     const { Adminname, mobileNo, AdminEmail, CenterName, LicenseNo, password, confirmPassword,
+//         Centerlattitude, Centerlongitude , BotNumber
+//     } = req.body;
 
-    if (confirmPassword != password) {
-        res.json({
-            message: "both password Not Matched!!"
-        })
-        return;
-    }
+//     if (confirmPassword != password) {
+//         res.json({
+//             message: "both password Not Matched!!"
+//         })
+//         return;
+//     }
 
-    const checkAlreadyEmailExistOrNot = await PanchkarmaModel.findOne({
-        AdminEmail: AdminEmail
-    })
+//     const checkAlreadyEmailExistOrNot = await PanchkarmaModel.findOne({
+//         AdminEmail: AdminEmail
+//     })
 
-    console.log("check error  s ", checkAlreadyEmailExistOrNot);
+//     console.log("check error  s ", checkAlreadyEmailExistOrNot);
 
-    if (checkAlreadyEmailExistOrNot) {
-        res.json({
-            message: "Admin_Email_Already_Present"
-        })
-        return;
-    }
+//     if (checkAlreadyEmailExistOrNot) {
+//         res.json({
+//             message: "Admin_Email_Already_Present"
+//         })
+//         return;
+//     }
 
-    const hashedpassword = await bcrypt.hash(password, 5);
+//     const hashedpassword = await bcrypt.hash(password, 5);
 
-    const centerCreate = await PanchkarmaModel.create({
-        Centername: CenterName,
-        licenseNo: LicenseNo,
-        AdminEmail: AdminEmail,
-        lattitude: Centerlattitude,
-        longitude: Centerlongitude,
-        AdminName: Adminname,
-        MobileNo: mobileNo,
-        Password: hashedpassword,
-        BotNumber:BotNumber
-    })
-
-
-
-    const otp = otpgenerator.generate(6, {
-        digits: true, upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false
-    })
-
-    const response = await otpmodel.create({
-        email: email,
-        otp: otp
-    })
-
-    await sendemail(centerCreate.AdminEmail, "Email verification code:", otp);
-
-    res.json({
-        message: "OTP_Send",
-        email: email
-    })
-
-})
+//     const centerCreate = await PanchkarmaModel.create({
+//         Centername: CenterName,
+//         licenseNo: LicenseNo,
+//         AdminEmail: AdminEmail,
+//         lattitude: Centerlattitude,
+//         longitude: Centerlongitude,
+//         AdminName: Adminname,
+//         MobileNo: mobileNo,
+//         Password: hashedpassword,
+//         BotNumber:BotNumber
+//     })
 
 
-PanchakarmaCenterRouter.post("/logIn", async (req, res) => {
+
+//     const otp = otpgenerator.generate(6, {
+//         digits: true, upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false
+//     })
+
+//     const response = await otpmodel.create({
+//         email: email,
+//         otp: otp
+//     })
+
+//     await sendemail(centerCreate.AdminEmail, "Email verification code:", otp);
+
+//     res.json({
+//         message: "OTP_Send",
+//         email: email
+//     })
+
+// })
+
+
+// PanchakarmaCenterRouter.post("/logIn", async (req, res) => {
 
     
 
 
-})
+// })
 
 
 PanchakarmaCenterRouter.post("/addDoctor",async(req,res)=>{
