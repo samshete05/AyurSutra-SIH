@@ -19,7 +19,62 @@ const patientSchema = new schema({
   mobileNo: String,
   ProfileImg: String,
 
-  // New Settings Fields
+  // Personal Info Fields
+  dateOfBirth: String,
+  gender: String,
+  bloodGroup: String,
+  maritalStatus: String,
+  occupation: String,
+  address: String,
+  city: String,
+  state: String,
+  pincode: String,
+  country: {
+    type: String,
+    default: "India",
+  },
+
+  // Medical History Fields
+  height: String,
+  weight: String,
+  bmi: String,
+  allergies: [String],
+  chronicConditions: [String],
+  currentMedications: [String],
+  smokingStatus: {
+    type: String,
+    default: "Non-smoker",
+  },
+  alcoholConsumption: {
+    type: String,
+    default: "Never",
+  },
+  exerciseFrequency: String,
+  dietaryPreferences: {
+    type: String,
+    default: "Vegetarian",
+  },
+
+  // Ayurveda Profile Fields
+  constitution: String,
+  primaryDosha: String,
+  secondaryDosha: String,
+  prakriti: String,
+  currentImbalance: String,
+  preferredTreatments: [String],
+
+  // Emergency Contact Fields
+  emergencyContact: {
+    contactName: String,
+    relationship: String,
+    contactPhone: String,
+    contactEmail: String,
+    alternateContactName: String,
+    alternateRelationship: String,
+    alternatePhone: String,
+  },
+
+  // Settings Fields
   settings: {
     darkMode: {
       type: Boolean,
@@ -41,7 +96,7 @@ const patientSchema = new schema({
     },
     textSize: {
       type: Number,
-      default: 100, // percentage
+      default: 100,
       min: 80,
       max: 120,
     },

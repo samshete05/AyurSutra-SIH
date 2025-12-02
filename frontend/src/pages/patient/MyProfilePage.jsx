@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -20,73 +20,116 @@ import {
   Ruler,
   Activity
 } from "lucide-react";
+import Loader from "../../components/Loader";
 
 function ProfilePage() {
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
   const [profileImage, setProfileImage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  // Initial patient data - fetch from backend API
-  const [patientData, setPatientData] = useState({
-    personal: {
-      firstName: "Rajesh",
-      lastName: "Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+91 98765 43210",
-      dateOfBirth: "1985-06-15",
-      gender: "Male",
-      bloodGroup: "O+",
-      maritalStatus: "Married",
-      occupation: "Software Engineer",
-      address: "123, MG Road, Indiranagar",
-      city: "Bangalore",
-      state: "Karnataka",
-      pincode: "560038",
-      country: "India"
-    },
-    medical: {
-      height: "175",
-      weight: "72",
-      bmi: "23.5",
-      allergies: ["Peanuts", "Penicillin"],
-      chronicConditions: ["Hypertension"],
-      currentMedications: ["Amlodipine 5mg"],
-      smokingStatus: "Non-smoker",
-      alcoholConsumption: "Occasional",
-      exerciseFrequency: "3-4 times/week",
-      dietaryPreferences: "Vegetarian"
-    },
-    ayurveda: {
-      constitution: "Pitta-Vata",
-      primaryDosha: "Pitta",
-      secondaryDosha: "Vata",
-      prakriti: "Pitta dominant with moderate Vata",
-      currentImbalance: "Mild Pitta aggravation",
-      preferredTreatments: ["Abhyanga", "Shirodhara", "Panchakarma"]
-    },
-    emergency: {
-      contactName: "Priya Kumar",
-      relationship: "Spouse",
-      contactPhone: "+91 98765 12345",
-      contactEmail: "priya.kumar@example.com",
-      alternateContactName: "Amit Kumar",
-      alternateRelationship: "Brother",
-      alternatePhone: "+91 98765 67890"
-    },
-    account: {
-      patientId: "AYR2025001234",
-      registrationDate: "2024-01-15",
-      lastVisit: "2025-11-25",
-      totalVisits: 24,
-      membershipType: "Premium",
-      membershipExpiry: "2026-01-15",
-      preferredLanguage: "English",
-      communicationPreference: "Email & SMS"
+  // Real patient data from backend
+  const [patientData, setPatientData] = useState(null);
+  const [editData, setEditData] = useState(null);
+
+  // Fetch profile on mount
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+    const fetchProfile = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      window.location.href = '/login';
+      return;
     }
-  });
 
-  const [editData, setEditData] = useState({ ...patientData });
+    try {
+      const response = await fetch('http://localhost:3000/patient/getProfile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message === 'Success') {
+        // Transform backend data to match UI structure
+        const transformedData = {
+          personal: {
+            firstName: data.profile.name?.split(' ')[0] || '',
+            lastName: data.profile.name?.split(' ').slice(1).join(' ') || '',
+            email: data.profile.email || '',
+            phone: data.profile.mobileNo || '',
+            dateOfBirth: data.profile.dateOfBirth || '',
+            gender: data.profile.gender || '',
+            bloodGroup: data.profile.bloodGroup || '',
+            maritalStatus: data.profile.maritalStatus || '',
+            occupation: data.profile.occupation || '',
+            address: data.profile.address || '',
+            city: data.profile.city || '',
+            state: data.profile.state || '',
+            pincode: data.profile.pincode || '',
+            country: data.profile.country || 'India'
+          },
+          medical: {
+            height: data.profile.height || '',
+            weight: data.profile.weight || '',
+            bmi: data.profile.bmi || '',
+            allergies: data.profile.allergies || [],
+            chronicConditions: data.profile.chronicConditions || [],
+            currentMedications: data.profile.currentMedications || [],
+            smokingStatus: data.profile.smokingStatus || 'Non-smoker',
+            alcoholConsumption: data.profile.alcoholConsumption || 'Never',
+            exerciseFrequency: data.profile.exerciseFrequency || '',
+            dietaryPreferences: data.profile.dietaryPreferences || 'Vegetarian'
+          },
+          ayurveda: {
+            constitution: data.profile.constitution || '',
+            primaryDosha: data.profile.primaryDosha || '',
+            secondaryDosha: data.profile.secondaryDosha || '',
+            prakriti: data.profile.prakriti || '',
+            currentImbalance: data.profile.currentImbalance || '',
+            preferredTreatments: data.profile.preferredTreatments || []
+          },
+          emergency: {
+            contactName: data.profile.emergencyContact?.contactName || '',
+            relationship: data.profile.emergencyContact?.relationship || '',
+            contactPhone: data.profile.emergencyContact?.contactPhone || '',
+            contactEmail: data.profile.emergencyContact?.contactEmail || '',
+            alternateContactName: data.profile.emergencyContact?.alternateContactName || '',
+            alternateRelationship: data.profile.emergencyContact?.alternateRelationship || '',
+            alternatePhone: data.profile.emergencyContact?.alternatePhone || ''
+          },
+          account: {
+            patientId: data.profile.email?.split('@')[0].toUpperCase() || 'N/A',
+            registrationDate: '2024-01-15',
+            lastVisit: 'N/A',
+            totalVisits: 0,
+            membershipType: 'Free',
+            membershipExpiry: 'N/A',
+            preferredLanguage: data.profile.settings?.language || 'english',
+            communicationPreference: 'Email & SMS'
+          }
+        };
+
+        setPatientData(transformedData);
+        setEditData(transformedData);
+        setProfileImage(data.profile.profileImg);
+      } else if (response.status === 401) {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle input changes
   const handleInputChange = (section, field, value) => {
@@ -99,7 +142,7 @@ function ProfilePage() {
     }));
   };
 
-  // Handle array input changes (allergies, medications)
+  // Handle array input changes (allergies, medications, treatments)
   const handleArrayInputChange = (section, field, value) => {
     const arrayValue = value.split(',').map(item => item.trim()).filter(item => item);
     setEditData(prev => ({
@@ -111,12 +154,88 @@ function ProfilePage() {
     }));
   };
 
-  // Save changes
-  const handleSave = () => {
-    setPatientData(editData);
-    setIsEditing(false);
-    // TODO: Send PUT request to backend API
-    console.log("Saving data:", editData);
+    // Save changes to backend
+  const handleSave = async () => {
+    setSaving(true);
+    const token = localStorage.getItem('authToken');
+
+    try {
+      const updatePayload = {
+        // Basic Info
+        name: `${editData.personal.firstName} ${editData.personal.lastName}`.trim(),
+        mobileNo: editData.personal.phone,
+        profileImg: profileImage,
+
+        // Personal Info
+        dateOfBirth: editData.personal.dateOfBirth,
+        gender: editData.personal.gender,
+        bloodGroup: editData.personal.bloodGroup,
+        maritalStatus: editData.personal.maritalStatus,
+        occupation: editData.personal.occupation,
+        address: editData.personal.address,
+        city: editData.personal.city,
+        state: editData.personal.state,
+        pincode: editData.personal.pincode,
+        country: editData.personal.country,
+
+        // Medical History
+        height: editData.medical.height,
+        weight: editData.medical.weight,
+        bmi: editData.medical.bmi,
+        allergies: editData.medical.allergies,
+        chronicConditions: editData.medical.chronicConditions,
+        currentMedications: editData.medical.currentMedications,
+        smokingStatus: editData.medical.smokingStatus,
+        alcoholConsumption: editData.medical.alcoholConsumption,
+        exerciseFrequency: editData.medical.exerciseFrequency,
+        dietaryPreferences: editData.medical.dietaryPreferences,
+
+        // Ayurveda Profile
+        constitution: editData.ayurveda.constitution,
+        primaryDosha: editData.ayurveda.primaryDosha,
+        secondaryDosha: editData.ayurveda.secondaryDosha,
+        prakriti: editData.ayurveda.prakriti,
+        currentImbalance: editData.ayurveda.currentImbalance,
+        preferredTreatments: editData.ayurveda.preferredTreatments,
+
+        // Emergency Contact
+        emergencyContact: {
+          contactName: editData.emergency.contactName,
+          relationship: editData.emergency.relationship,
+          contactPhone: editData.emergency.contactPhone,
+          contactEmail: editData.emergency.contactEmail,
+          alternateContactName: editData.emergency.alternateContactName,
+          alternateRelationship: editData.emergency.alternateRelationship,
+          alternatePhone: editData.emergency.alternatePhone
+        }
+      };
+
+      const response = await fetch('http://localhost:3000/patient/updateProfile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatePayload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message === 'Profile_Updated') {
+        setPatientData(editData);
+        setIsEditing(false);
+        alert('Profile updated successfully!');
+        // Refresh to update TopBar
+        window.location.reload();
+      } else {
+        alert('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Cancel editing
@@ -125,21 +244,92 @@ function ProfilePage() {
     setIsEditing(false);
   };
 
+  // Compress image before upload
+  const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Resize if needed
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with compression
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedBase64);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+
   // Handle profile image upload
-  const handleImageUpload = (e) => {
+    // Handle profile image upload
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Image size should be less than 2MB');
+        return;
+      }
+      
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-        // TODO: Upload to backend
+      reader.onloadend = async () => {
+        const newImage = reader.result;
+        setProfileImage(newImage);
+        setUploadingImage(true);
+        
+        // Auto-save profile image
+        const token = localStorage.getItem('authToken');
+        try {
+
+          const compressedImage = await compressImage(file, 800, 0.7);
+          setProfileImage(compressedImage);
+          const response = await fetch('http://localhost:3000/patient/updateProfile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ profileImg: newImage })
+          });
+
+          const data = await response.json();
+          if (response.ok && data.message === 'Profile_Updated') {
+            alert('Profile picture updated successfully!');
+            window.location.reload(); // Refresh to update TopBar
+          } else {
+            alert('Failed to update profile picture');
+          }
+        } catch (error) {
+          console.error('Error updating profile picture:', error);
+          alert('Network error. Please try again.');
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
+
   // Calculate age from DOB
   const calculateAge = (dob) => {
+    if (!dob) return 'N/A';
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -150,6 +340,29 @@ function ProfilePage() {
     return age;
   };
 
+  if (loading) {
+    return (
+      <Loader />
+    );
+  }
+
+  if (!patientData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-slate-600">Failed to load profile</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -157,7 +370,8 @@ function ProfilePage() {
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Cover Image */}
-          <div className="h-32" style={{ backgroundImage: "url('https://cdn.pixabay.com/photo/2022/05/13/15/34/rosemary-banner-7194000_1280.jpg')" }}></div>
+          <div className="h-32 bg-cover bg-center" style={{ backgroundImage: "url('https://cdn.pixabay.com/photo/2022/05/13/15/34/rosemary-banner-7194000_1280.jpg')" }}></div>
+
           
           {/* Profile Info */}
           <div className="px-6 pb-6">
@@ -174,12 +388,14 @@ function ProfilePage() {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                    className="absolute bottom-0 right-0 bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-full shadow-lg transition-colors"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </button>
+                  {isEditing && (
+                    <button
+                      onClick={() => fileInputRef.current.click()}
+                      className="absolute bottom-0 right-0 bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                    >
+                      <Camera className="w-4 h-4" />
+                    </button>
+                  )}
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -199,12 +415,16 @@ function ProfilePage() {
                     <span className="px-3 py-1 bg-emerald-100 text-emerald-900 rounded-full text-xs font-medium">
                       {patientData.account.membershipType} Member
                     </span>
-                    <span className="px-3 py-1 bg-blue-100 text-black rounded-full text-xs font-medium">
-                      {calculateAge(patientData.personal.dateOfBirth)} years
-                    </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                      {patientData.ayurveda.constitution}
-                    </span>
+                    {patientData.personal.dateOfBirth && (
+                      <span className="px-3 py-1 bg-blue-100 text-blue-900 rounded-full text-xs font-medium">
+                        {calculateAge(patientData.personal.dateOfBirth)} years
+                      </span>
+                    )}
+                    {patientData.ayurveda.constitution && (
+                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                        {patientData.ayurveda.constitution}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -223,13 +443,15 @@ function ProfilePage() {
                   <>
                     <button
                       onClick={handleSave}
-                      className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white rounded-xl font-medium transition-colors shadow-lg"
                     >
                       <Save className="w-4 h-4" />
-                      Save Changes
+                      {saving ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button
                       onClick={handleCancel}
+                      disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl font-medium transition-colors shadow-lg"
                     >
                       <X className="w-4 h-4" />
@@ -261,14 +483,14 @@ function ProfilePage() {
                   <Heart className="w-4 h-4" />
                   <span className="text-xs font-medium">Blood Group</span>
                 </div>
-                <p className="text-2xl font-bold text-slate-900">{patientData.personal.bloodGroup}</p>
+                <p className="text-2xl font-bold text-slate-900">{patientData.personal.bloodGroup || 'N/A'}</p>
               </div>
               <div className="bg-orange-50 rounded-xl p-4">
                 <div className="flex items-center gap-2 text-orange-600 mb-1">
                   <Droplets className="w-4 h-4" />
                   <span className="text-xs font-medium">Primary Dosha</span>
                 </div>
-                <p className="text-lg font-bold text-slate-900">{patientData.ayurveda.primaryDosha}</p>
+                <p className="text-lg font-bold text-slate-900">{patientData.ayurveda.primaryDosha || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -379,7 +601,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.dateOfBirth}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.dateOfBirth || 'Not set'}</p>
                   )}
                 </div>
 
@@ -391,12 +613,13 @@ function ProfilePage() {
                       onChange={(e) => handleInputChange("personal", "gender", e.target.value)}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     >
+                      <option value="">Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.gender}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.gender || 'Not set'}</p>
                   )}
                 </div>
 
@@ -408,6 +631,7 @@ function ProfilePage() {
                       onChange={(e) => handleInputChange("personal", "bloodGroup", e.target.value)}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     >
+                      <option value="">Select Blood Group</option>
                       <option value="A+">A+</option>
                       <option value="A-">A-</option>
                       <option value="B+">B+</option>
@@ -418,7 +642,7 @@ function ProfilePage() {
                       <option value="AB-">AB-</option>
                     </select>
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.bloodGroup}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.bloodGroup || 'Not set'}</p>
                   )}
                 </div>
 
@@ -430,13 +654,14 @@ function ProfilePage() {
                       onChange={(e) => handleInputChange("personal", "maritalStatus", e.target.value)}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     >
+                      <option value="">Select Status</option>
                       <option value="Single">Single</option>
                       <option value="Married">Married</option>
                       <option value="Divorced">Divorced</option>
                       <option value="Widowed">Widowed</option>
                     </select>
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.maritalStatus}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.maritalStatus || 'Not set'}</p>
                   )}
                 </div>
 
@@ -450,7 +675,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.occupation}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.occupation || 'Not set'}</p>
                   )}
                 </div>
 
@@ -467,7 +692,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.address}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.address || 'Not set'}</p>
                   )}
                 </div>
 
@@ -481,7 +706,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.city}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.city || 'Not set'}</p>
                   )}
                 </div>
 
@@ -495,7 +720,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.state}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.state || 'Not set'}</p>
                   )}
                 </div>
 
@@ -509,7 +734,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.pincode}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.personal.pincode || 'Not set'}</p>
                   )}
                 </div>
 
@@ -546,7 +771,7 @@ function ProfilePage() {
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                       />
                     ) : (
-                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.height} cm</p>
+                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.height || 'Not set'} {patientData.medical.height && 'cm'}</p>
                     )}
                   </div>
 
@@ -563,13 +788,13 @@ function ProfilePage() {
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                       />
                     ) : (
-                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.weight} kg</p>
+                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.weight || 'Not set'} {patientData.medical.weight && 'kg'}</p>
                     )}
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">BMI</label>
-                    <p className="px-4 py-3 bg-emerald-50 rounded-xl text-emerald-700 font-semibold">{patientData.medical.bmi}</p>
+                    <p className="px-4 py-3 bg-emerald-50 rounded-xl text-emerald-700 font-semibold">{patientData.medical.bmi || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -588,11 +813,15 @@ function ProfilePage() {
                     />
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {patientData.medical.allergies.map((allergy, idx) => (
-                        <span key={idx} className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium">
-                          {allergy}
-                        </span>
-                      ))}
+                      {patientData.medical.allergies.length > 0 ? (
+                        patientData.medical.allergies.map((allergy, idx) => (
+                          <span key={idx} className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium">
+                            {allergy}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">No allergies recorded</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -609,11 +838,15 @@ function ProfilePage() {
                     />
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {patientData.medical.chronicConditions.map((condition, idx) => (
-                        <span key={idx} className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium">
-                          {condition}
-                        </span>
-                      ))}
+                      {patientData.medical.chronicConditions.length > 0 ? (
+                        patientData.medical.chronicConditions.map((condition, idx) => (
+                          <span key={idx} className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium">
+                            {condition}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">No chronic conditions recorded</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -630,11 +863,15 @@ function ProfilePage() {
                     />
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {patientData.medical.currentMedications.map((med, idx) => (
-                        <span key={idx} className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
-                          {med}
-                        </span>
-                      ))}
+                      {patientData.medical.currentMedications.length > 0 ? (
+                        patientData.medical.currentMedications.map((med, idx) => (
+                          <span key={idx} className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+                            {med}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">No current medications</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -681,10 +918,11 @@ function ProfilePage() {
                         type="text"
                         value={editData.medical.exerciseFrequency}
                         onChange={(e) => handleInputChange("medical", "exerciseFrequency", e.target.value)}
+                        placeholder="e.g., 3-4 times/week"
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                       />
                     ) : (
-                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.exerciseFrequency}</p>
+                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.medical.exerciseFrequency || 'Not set'}</p>
                     )}
                   </div>
 
@@ -717,11 +955,11 @@ function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-slate-600 mb-1">Constitution Type</p>
-                      <p className="text-xl font-bold text-emerald-800">{patientData.ayurveda.constitution}</p>
+                      <p className="text-xl font-bold text-emerald-800">{patientData.ayurveda.constitution || 'Not assessed'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-600 mb-1">Primary Dosha</p>
-                      <p className="text-xl font-bold text-emerald-800">{patientData.ayurveda.primaryDosha}</p>
+                      <p className="text-xl font-bold text-emerald-800">{patientData.ayurveda.primaryDosha || 'Not assessed'}</p>
                     </div>
                   </div>
                 </div>
@@ -736,7 +974,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.ayurveda.prakriti}</p>
+                    <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.ayurveda.prakriti || 'Not set'}</p>
                   )}
                 </div>
 
@@ -753,7 +991,7 @@ function ProfilePage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
-                    <p className="px-4 py-3 bg-orange-50 rounded-xl text-orange-800 font-medium">{patientData.ayurveda.currentImbalance}</p>
+                    <p className="px-4 py-3 bg-orange-50 rounded-xl text-orange-800 font-medium">{patientData.ayurveda.currentImbalance || 'No imbalance detected'}</p>
                   )}
                 </div>
 
@@ -764,16 +1002,20 @@ function ProfilePage() {
                       type="text"
                       value={editData.ayurveda.preferredTreatments.join(', ')}
                       onChange={(e) => handleArrayInputChange("ayurveda", "preferredTreatments", e.target.value)}
-                      placeholder="e.g., Abhyanga, Shirodhara"
+                      placeholder="e.g., Abhyanga, Shirodhara, Panchakarma"
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {patientData.ayurveda.preferredTreatments.map((treatment, idx) => (
-                        <span key={idx} className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg text-sm font-medium">
-                          {treatment}
-                        </span>
-                      ))}
+                      {patientData.ayurveda.preferredTreatments.length > 0 ? (
+                        patientData.ayurveda.preferredTreatments.map((treatment, idx) => (
+                          <span key={idx} className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg text-sm font-medium">
+                            {treatment}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">No preferred treatments set</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -799,7 +1041,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.contactName}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.contactName || 'Not set'}</p>
                       )}
                     </div>
 
@@ -813,7 +1055,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.relationship}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.relationship || 'Not set'}</p>
                       )}
                     </div>
 
@@ -827,7 +1069,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.contactPhone}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.contactPhone || 'Not set'}</p>
                       )}
                     </div>
 
@@ -841,7 +1083,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.contactEmail}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.contactEmail || 'Not set'}</p>
                       )}
                     </div>
                   </div>
@@ -860,7 +1102,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.alternateContactName}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.alternateContactName || 'Not set'}</p>
                       )}
                     </div>
 
@@ -874,7 +1116,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.alternateRelationship}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900">{patientData.emergency.alternateRelationship || 'Not set'}</p>
                       )}
                     </div>
 
@@ -888,7 +1130,7 @@ function ProfilePage() {
                           className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.alternatePhone}</p>
+                        <p className="px-4 py-3 bg-white rounded-xl text-slate-900 font-medium">{patientData.emergency.alternatePhone || 'Not set'}</p>
                       )}
                     </div>
                   </div>
@@ -930,15 +1172,15 @@ function ProfilePage() {
                         onChange={(e) => handleInputChange("account", "preferredLanguage", e.target.value)}
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                       >
-                        <option value="English">English</option>
-                        <option value="Hindi">Hindi</option>
-                        <option value="Tamil">Tamil</option>
-                        <option value="Telugu">Telugu</option>
-                        <option value="Kannada">Kannada</option>
-                        <option value="Malayalam">Malayalam</option>
+                        <option value="english">English</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="tamil">Tamil</option>
+                        <option value="telugu">Telugu</option>
+                        <option value="kannada">Kannada</option>
+                        <option value="malayalam">Malayalam</option>
                       </select>
                     ) : (
-                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900">{patientData.account.preferredLanguage}</p>
+                      <p className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900 capitalize">{patientData.account.preferredLanguage}</p>
                     )}
                   </div>
 
@@ -981,10 +1223,8 @@ function ProfilePage() {
                 </div>
               </div>
             )}
-
           </div>
         </div>
-
       </div>
     </div>
   );

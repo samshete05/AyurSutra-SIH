@@ -629,12 +629,65 @@ patientRouter.get("/getProfile", async function(req, res) {
     res.json({
       message: "Success",
       profile: {
+        // Basic Info
         name: patient.name,
         email: patient.email,
         mobileNo: patient.mobileNo,
         verified: patient.verified,
         profileImg: patient.ProfileImg || null,
-        role: patient.role
+        role: patient.role,
+
+        // Personal Info
+        dateOfBirth: patient.dateOfBirth || '',
+        gender: patient.gender || '',
+        bloodGroup: patient.bloodGroup || '',
+        maritalStatus: patient.maritalStatus || '',
+        occupation: patient.occupation || '',
+        address: patient.address || '',
+        city: patient.city || '',
+        state: patient.state || '',
+        pincode: patient.pincode || '',
+        country: patient.country || 'India',
+
+        // Medical History
+        height: patient.height || '',
+        weight: patient.weight || '',
+        bmi: patient.bmi || '',
+        allergies: patient.allergies || [],
+        chronicConditions: patient.chronicConditions || [],
+        currentMedications: patient.currentMedications || [],
+        smokingStatus: patient.smokingStatus || 'Non-smoker',
+        alcoholConsumption: patient.alcoholConsumption || 'Never',
+        exerciseFrequency: patient.exerciseFrequency || '',
+        dietaryPreferences: patient.dietaryPreferences || 'Vegetarian',
+
+        // Ayurveda Profile
+        constitution: patient.constitution || '',
+        primaryDosha: patient.primaryDosha || '',
+        secondaryDosha: patient.secondaryDosha || '',
+        prakriti: patient.prakriti || '',
+        currentImbalance: patient.currentImbalance || '',
+        preferredTreatments: patient.preferredTreatments || [],
+
+        // Emergency Contact
+        emergencyContact: patient.emergencyContact || {
+          contactName: '',
+          relationship: '',
+          contactPhone: '',
+          contactEmail: '',
+          alternateContactName: '',
+          alternateRelationship: '',
+          alternatePhone: ''
+        },
+
+        // Settings
+        settings: patient.settings || {
+          darkMode: false,
+          language: "english",
+          textSize: 100,
+          timezone: "ist",
+          dateFormat: "DD/MM/YYYY"
+        }
       }
     });
   } catch (err) {
@@ -645,21 +698,6 @@ patientRouter.get("/getProfile", async function(req, res) {
 
 // *************************** UPDATE PROFILE ********************************
 patientRouter.put("/updateProfile", async function(req, res) {
-  const requiredData = z.object({
-    name: z.string().min(3).max(100).optional(),
-    mobileNo: z.string().min(10).max(13).optional(),
-    profileImg: z.string().optional()
-  });
-
-  const checkData = requiredData.safeParse(req.body);
-  if (!checkData.success) {
-    res.status(422).json({
-      message: "Invalid_Input",
-      errors: checkData.error
-    });
-    return;
-  }
-
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
@@ -669,10 +707,46 @@ patientRouter.put("/updateProfile", async function(req, res) {
   try {
     const decoded = jwt.verify(token, JWT_KEY);
     const updateData = {};
-    
-    if (checkData.data.name) updateData.name = checkData.data.name;
-    if (checkData.data.mobileNo) updateData.mobileNo = checkData.data.mobileNo;
-    if (checkData.data.profileImg) updateData.ProfileImg = checkData.data.profileImg;
+
+    // Basic Info
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.mobileNo) updateData.mobileNo = req.body.mobileNo;
+    if (req.body.profileImg) updateData.ProfileImg = req.body.profileImg;
+
+    // Personal Info
+    if (req.body.dateOfBirth !== undefined) updateData.dateOfBirth = req.body.dateOfBirth;
+    if (req.body.gender !== undefined) updateData.gender = req.body.gender;
+    if (req.body.bloodGroup !== undefined) updateData.bloodGroup = req.body.bloodGroup;
+    if (req.body.maritalStatus !== undefined) updateData.maritalStatus = req.body.maritalStatus;
+    if (req.body.occupation !== undefined) updateData.occupation = req.body.occupation;
+    if (req.body.address !== undefined) updateData.address = req.body.address;
+    if (req.body.city !== undefined) updateData.city = req.body.city;
+    if (req.body.state !== undefined) updateData.state = req.body.state;
+    if (req.body.pincode !== undefined) updateData.pincode = req.body.pincode;
+    if (req.body.country !== undefined) updateData.country = req.body.country;
+
+    // Medical History
+    if (req.body.height !== undefined) updateData.height = req.body.height;
+    if (req.body.weight !== undefined) updateData.weight = req.body.weight;
+    if (req.body.bmi !== undefined) updateData.bmi = req.body.bmi;
+    if (req.body.allergies !== undefined) updateData.allergies = req.body.allergies;
+    if (req.body.chronicConditions !== undefined) updateData.chronicConditions = req.body.chronicConditions;
+    if (req.body.currentMedications !== undefined) updateData.currentMedications = req.body.currentMedications;
+    if (req.body.smokingStatus !== undefined) updateData.smokingStatus = req.body.smokingStatus;
+    if (req.body.alcoholConsumption !== undefined) updateData.alcoholConsumption = req.body.alcoholConsumption;
+    if (req.body.exerciseFrequency !== undefined) updateData.exerciseFrequency = req.body.exerciseFrequency;
+    if (req.body.dietaryPreferences !== undefined) updateData.dietaryPreferences = req.body.dietaryPreferences;
+
+    // Ayurveda Profile
+    if (req.body.constitution !== undefined) updateData.constitution = req.body.constitution;
+    if (req.body.primaryDosha !== undefined) updateData.primaryDosha = req.body.primaryDosha;
+    if (req.body.secondaryDosha !== undefined) updateData.secondaryDosha = req.body.secondaryDosha;
+    if (req.body.prakriti !== undefined) updateData.prakriti = req.body.prakriti;
+    if (req.body.currentImbalance !== undefined) updateData.currentImbalance = req.body.currentImbalance;
+    if (req.body.preferredTreatments !== undefined) updateData.preferredTreatments = req.body.preferredTreatments;
+
+    // Emergency Contact
+    if (req.body.emergencyContact !== undefined) updateData.emergencyContact = req.body.emergencyContact;
 
     await patientModel.updateOne(
       { _id: decoded.id },
@@ -685,6 +759,7 @@ patientRouter.put("/updateProfile", async function(req, res) {
     res.status(500).json({ message: "Server_error" });
   }
 });
+
 
 // *************************** GET PATIENT SETTINGS ********************************
 patientRouter.get("/getSettings", async function(req, res) {

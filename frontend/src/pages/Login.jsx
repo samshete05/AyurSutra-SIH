@@ -51,12 +51,16 @@ const Login = () => {
     localStorage.setItem("email", formData.emailOrPhone);
     localStorage.setItem("role", selectedRole);
         navigate("/")
+    } else if(resp.data.message=='center_not_exists'){
+      alert("Center Not Exists!!");
+      return;
+    } else if(resp.data.message=='User_not_exists'){
+       alert("User Not Exists!!");
+      return;
     } else{
-      alert("Invalid Details!!");
+      alert("Invalid Details");
       return;
     }
-    console.log(resp);
-
   };
 
   const isDoctor = selectedRole === "doctor";
