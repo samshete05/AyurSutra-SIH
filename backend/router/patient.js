@@ -10,6 +10,7 @@ const JWT_KEY=process.env.JWT_KEY;
 const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
+const AppointmentModel = require("../models/Appointment.model")
 
 
 
@@ -371,10 +372,6 @@ patientRouter.post("/resetPassword", async (req, res) => {
 });
 
 
-
-
-
-
 // *************************** LOGOUT ********************************
 patientRouter.post("/logout",async(req,res)=>{
    res.clearCookie("uidcookie", {
@@ -385,6 +382,120 @@ patientRouter.post("/logout",async(req,res)=>{
       message:"logedout"
      })
 })
+
+
+// *************************** BOOK APPOINTMENT ********************************
+patientRouter.post("/bookAppointment", async function(req, res) {
+  const requiredData = z.object({
+    centerId: z.string().min(1),
+    appointmentDate: z.string(),
+    treatmentType: z.string(),
+    symptoms: z.string().optional(),
+    notes: z.string().optional()
+  });
+
+  const checkData = requiredData.safeParse(req.body);
+  if (!checkData.success) {
+    res.status(422).json({
+      message: "Invalid_Input",
+      errors: checkData.error
+    });
+    return;
+  }
+
+  const { centerId, appointmentDate, treatmentType, symptoms, notes } = checkData.data;
+  
+  // Get patient ID from JWT token
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patientId = decoded.id;
+
+    const newAppointment = await AppointmentModel.create({
+      patientId,
+      centerId,
+      appointmentDate: new Date(appointmentDate),
+      treatmentType,
+      symptoms,
+      notes,
+      status: "pending",
+    });
+
+    res.json({
+      message: "Appointment_Booked",
+      appointmentId: newAppointment._id,
+      info: "Center will confirm doctor and time within 24 hours",
+    });
+  } catch (err) {
+    console.error("Error booking appointment:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** GET APPOINTMENTS ********************************
+patientRouter.get("/getAppointments", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patientId = decoded.id;
+
+    const appointments = await AppointmentModel.find({ patientId })
+      .sort({ appointmentDate: -1 });
+
+    res.json({
+      message: "Success",
+      appointments
+    });
+  } catch (err) {
+    console.error("Error fetching appointments:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+
+// *************************** CANCEL APPOINTMENT ********************************
+patientRouter.post("/cancelAppointment", async function(req, res) {
+  const requiredData = z.object({
+    appointmentId: z.string().min(1)
+  });
+
+  const checkData = requiredData.safeParse(req.body);
+  if (!checkData.success) {
+    res.status(422).json({ message: "Invalid_Input" });
+    return;
+  }
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { appointmentId } = checkData.data;
+
+    await AppointmentModel.updateOne(
+      { _id: appointmentId, patientId: decoded.id },
+      { $set: { status: 'cancelled' } }
+    );
+
+    res.json({ message: "Appointment_Cancelled" });
+  } catch (err) {
+    console.error("Error cancelling appointment:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
 
 module.exports={
    patientRouter:patientRouter
