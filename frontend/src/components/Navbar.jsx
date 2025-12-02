@@ -71,6 +71,9 @@ const role = localStorage.getItem("role");
     console.log(role);
     if(role=='patient'){
       navigate("/patient")
+    } else if(role=='centerHead'){
+      console.log("ahahaha")
+      navigate("/PanchaKarma-Dashboard")
     }
   }
 
@@ -106,11 +109,11 @@ const role = localStorage.getItem("role");
 
           {/* LEFT LOGOS */}
           <Link to="/" className="flex items-center text-gray-400">
-            <img src="Gemini_Generated_Image_97y8ep97y8ep97y8.png" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png" className="h-7" />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="All_India_Institute_of_Ayurveda.jpg" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/All_India_Institute_of_Ayurveda_daadpq.jpg" className="h-7" />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="ministry-of-ayush-logo.png" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/ministry-of-ayush-logo_nkde9k.png" className="h-7" />
           </Link>
 
           {/* Mega menu buttons */}

@@ -53,7 +53,9 @@ const SignUp = () => {
                 role:selectedUserRole,
                  LicenseNo:formData.licenseNumber,
                 CenterName:formData.centerName,
-                BotNumber:formData.BotNumber
+                BotNumber:formData.BotNumber,
+                lattitude:formData.lattitude,
+                longitude:formData.longitude
             },{withCredentials:true})
       
             if(resp.data.message=="Email_Present"){
