@@ -439,6 +439,59 @@ patientRouter.post("/resetPassword", async (req, res) => {
    }
 });
 
+// *************************** CHANGE PASSWORD (For Logged-in Users) ********************************
+patientRouter.post("/changePassword", async (req, res) => {
+  try {
+    const schema = z.object({
+      currentPassword: z.string().min(5).max(100),
+      newPassword: z.string().min(5).max(100),
+      confirmPassword: z.string().min(5).max(100),
+    });
+
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(422).json({ message: "Invalid_Input" });
+    }
+
+    const { currentPassword, newPassword, confirmPassword } = parsed.data;
+
+    if (newPassword !== confirmPassword) {
+      return res.json({ message: "Password_Mismatch" });
+    }
+
+    // Get user from JWT token
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const user = await patientModel.findById(decoded.id);
+
+    if (!user) {
+      return res.json({ message: "User_not_exist" });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.json({ message: "Current_Password_Incorrect" });
+    }
+
+    // Update password
+    const hashed = await bcrypt.hash(newPassword, 5);
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: { password: hashed } }
+    );
+
+    res.json({ message: "Password_Changed_Successfully" });
+  } catch (err) {
+    console.error("Error in /changePassword:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
 
 // *************************** LOGOUT ********************************
 patientRouter.post("/logout",async(req,res)=>{
@@ -641,6 +694,159 @@ patientRouter.put("/updateProfile", async function(req, res) {
     res.status(500).json({ message: "Server_error" });
   }
 });
+
+// *************************** GET PATIENT SETTINGS ********************************
+patientRouter.get("/getSettings", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patient = await patientModel.findById(decoded.id).select('settings');
+
+    if (!patient) {
+      res.status(404).json({ message: "User_not_found" });
+      return;
+    }
+
+    res.json({
+      message: "Success",
+      settings: patient.settings || {
+        darkMode: false,
+        language: "english",
+        textSize: 100,
+        timezone: "ist",
+        dateFormat: "DD/MM/YYYY"
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching settings:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** UPDATE APPEARANCE SETTINGS ********************************
+patientRouter.put("/updateAppearance", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const updateData = {};
+    
+    if (req.body.darkMode !== undefined) {
+      updateData['settings.darkMode'] = req.body.darkMode;
+    }
+    if (req.body.textSize) {
+      updateData['settings.textSize'] = req.body.textSize;
+    }
+
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: updateData }
+    );
+
+    res.json({ message: "Appearance_Updated" });
+  } catch (err) {
+    console.error("Error updating appearance:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+
+// *************************** UPDATE LANGUAGE SETTINGS ********************************
+patientRouter.put("/updateLanguage", async function(req, res) {
+  const requiredData = z.object({
+    language: z.enum(["english", "hindi", "tamil", "telugu", "kannada", "malayalam", "bengali", "marathi"]),
+    timezone: z.string().optional(),
+    dateFormat: z.enum(["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"]).optional()
+  });
+
+  const checkData = requiredData.safeParse(req.body);
+  if (!checkData.success) {
+    res.status(422).json({
+      message: "Invalid_Input",
+      errors: checkData.error
+    });
+    return;
+  }
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const updateData = {};
+    
+    updateData['settings.language'] = checkData.data.language;
+    if (checkData.data.timezone) {
+      updateData['settings.timezone'] = checkData.data.timezone;
+    }
+    if (checkData.data.dateFormat) {
+      updateData['settings.dateFormat'] = checkData.data.dateFormat;
+    }
+
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: updateData }
+    );
+
+    res.json({ message: "Language_Settings_Updated" });
+  } catch (err) {
+    console.error("Error updating language settings:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** UPDATE ALL SETTINGS ********************************
+patientRouter.put("/updateSettings", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const updateData = {};
+    
+    if (req.body.darkMode !== undefined) {
+      updateData['settings.darkMode'] = req.body.darkMode;
+    }
+    if (req.body.language) {
+      updateData['settings.language'] = req.body.language;
+    }
+    if (req.body.textSize) {
+      updateData['settings.textSize'] = req.body.textSize;
+    }
+    if (req.body.timezone) {
+      updateData['settings.timezone'] = req.body.timezone;
+    }
+    if (req.body.dateFormat) {
+      updateData['settings.dateFormat'] = req.body.dateFormat;
+    }
+
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: updateData }
+    );
+
+    res.json({ message: "Settings_Updated" });
+  } catch (err) {
+    console.error("Error updating settings:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
 
 
 module.exports={
