@@ -26,6 +26,7 @@
     "react-fast-marquee": "^1.6.5",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.6",
+    "recharts": "^3.5.1",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
