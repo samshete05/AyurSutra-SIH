@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import useNavigate from "react-router-dom";
 import {
   User,
   Shield,
@@ -28,28 +30,16 @@ import {
 } from "lucide-react";
 
 function SettingsPage() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("account");
-  const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState("english");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Account settings state
-  const [accountSettings, setAccountSettings] = useState({
-    twoFactorAuth: false,
-    emailNotifications: true,
-    smsNotifications: false,
-    loginAlerts: true,
-    dataSharing: false
-  });
-
-  // Privacy settings state
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: "private",
-    showEmail: false,
-    showPhone: false,
-    allowDataAnalytics: true,
-    shareWithResearchers: false
+  // Profile data from backend
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    mobileNo: "",
+    verified: false
   });
 
   // Password change state
@@ -59,53 +49,155 @@ function SettingsPage() {
     confirmPassword: ""
   });
 
-  const toggleSetting = (section, setting) => {
-    if (section === "account") {
-      setAccountSettings(prev => ({
-        ...prev,
-        [setting]: !prev[setting]
-      }));
-    } else if (section === "privacy") {
-      setPrivacySettings(prev => ({
-        ...prev,
-        [setting]: !prev[setting]
-      }));
+  const [showPassword, setShowPassword] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Fetch profile on mount
+  useEffect( () => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if(!token){
+        navigate("/login");
+        return;
+      }
+
+      const resp = await axios.get("httpp://localhost:3000/patient/getProfile", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        withCredentials: true
+      });
+
+      if(resp.data.message === "Success") {
+        setProfileData(resp.data.profile);
+      }
+      setLoading(false);
     }
-    // TODO: Send update to backend API
+    catch(err){
+      console.error("Error fetching profile: ",err);
+      setLoading(false);
+      if(err.response?.status === 401){
+        alert("Session expired. Please login again.");
+        navigate("/login");
+      }
+    }
+  }
+
+
+  // const toggleSetting = (section, setting) => {
+  //   if (section === "account") {
+  //     setAccountSettings(prev => ({
+  //       ...prev,
+  //       [setting]: !prev[setting]
+  //     }));
+  //   } else if (section === "privacy") {
+  //     setPrivacySettings(prev => ({
+  //       ...prev,
+  //       [setting]: !prev[setting]
+  //     }));
+  //   }
+  //   // TODO: Send update to backend API
+  // };
+
+  const handlePasswordChange = async () => {
+    if(passwordData.newPassword !== passwordData.confirmPassword){
+      alert("Passwords don't match");
+      return;
+    }
   };
 
-  const handlePasswordChange = () => {
-    // TODO: Validate and send password change request to backend
-    console.log("Password change requested");
-    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  try{
+    const token = localStorage.getItem("authToken");
+    const resp = await axios.post(
+      "http://localhost:3000/patient/changePassword",
+      passwordData,
+      {
+        headers: {
+          Aut,horization: `Bearer ${token}`
+        },
+        withCredentials: true
+      }
+    )
+
+    if(resp.data.message === "Password_Changed_Successfully"){
+      alert("Password_Changed_Successfully!!!");
+      setPasswordData({currentPassword: "", newPassword: "", confirmPassword: ""});
+    }
+    else if(resp.data.message === "Current_Password_Incorrect"){
+      alert("Current password is incorrect!!!")
+    }
+    else if(resp.data.message === "Password_Mismatch") {
+      alert("New Password don't Match!!!");
+    }
+  }
+  catch(err){
+    console.errror("Error changing password:", err);
+    alert("Error changing password");
+  }
+};
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:3000/patient/logout", {}, {
+        withCredentials: true
+      });
+      localStorage.removeItem("authToken");
+      navigate("/login");
+    }
+    catch(err){
+      console.error("Logout error:", err);
+      localStorage.removeItem("authToken");
+      navigate("/login");
+    }
   };
 
-  const handleLogout = () => {
-    // TODO: Clear session and redirect to login
-    console.log("Logging out...");
-  };
-
-  const handleDeleteAccount = () => {
-    // TODO: Send account deletion request to backend
-    console.log("Account deletion requested");
-    setShowDeleteConfirm(false);
-  };
-
-  const handleExportData = () => {
-    // TODO: Request data export from backend
-    console.log("Data export requested");
-  };
-
-  const settingsMenu = [
-    { id: "account", label: "Account Settings", icon: User },
-    { id: "security", label: "Security & Privacy", icon: Shield },
-    { id: "notifications", label: "Notifications", icon: Bell },
+  const settingMenu = [
+    {id: "account", label: "Account Settings", icon: User},
+    {id: "security", label: "Security and Privacy", icon: Sheild},
+    {id: "notifications", label: "Notifications", icon: Bell},
     { id: "appearance", label: "Appearance", icon: Palette },
     { id: "language", label: "Language & Region", icon: Globe },
     { id: "billing", label: "Billing & Subscription", icon: CreditCard },
     { id: "data", label: "Data & Privacy", icon: FileText },
-    { id: "support", label: "Help & Support", icon: HelpCircle }
+    {id: "support", label: "Help and Support", icon: HelpCircle},
   ];
+
+  if(loading){
+    return(
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent"></div>
+          <p className="text-slate-500 mt-4">Loading settings...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // const handleDeleteAccount = () => {
+  //   // TODO: Send account deletion request to backend
+  //   console.log("Account deletion requested");
+  //   setShowDeleteConfirm(false);
+  // };
+
+  // const handleExportData = () => {
+  //   // TODO: Request data export from backend
+  //   console.log("Data export requested");
+  // };
+
+  // const settingsMenu = [
+  //   { id: "account", label: "Account Settings", icon: User },
+  //   { id: "security", label: "Security & Privacy", icon: Shield },
+  //   { id: "notifications", label: "Notifications", icon: Bell },
+  //   { id: "appearance", label: "Appearance", icon: Palette },
+  //   { id: "language", label: "Language & Region", icon: Globe },
+  //   { id: "billing", label: "Billing & Subscription", icon: CreditCard },
+  //   { id: "data", label: "Data & Privacy", icon: FileText },
+  //   { id: "support", label: "Help & Support", icon: HelpCircle }
+  // ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">

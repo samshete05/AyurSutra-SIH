@@ -1,23 +1,61 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Heart, Clock4, Pill, Info } from "lucide-react";
-import treatments from "../../data/treatments";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const statusOptions = ["all", "active", "completed"];
+const statusOptions = ["all", "ongoing", "completed", "paused"];
 
 function MyTreatmentsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [likedIds, setLikedIds] = useState(new Set());
+  const [treatments, setTreatments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch treatments on mount
+  useEffect(() => {
+    fetchTreatments();
+  }, []);
+
+  const fetchTreatments = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const resp = await axios.get("http://localhost:3000/patient/getMyTreatments", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        withCredentials: true
+      });
+
+      if (resp.data.message === "Success") {
+        setTreatments(resp.data.treatments);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching treatments:", err);
+      setLoading(false);
+      if (err.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        navigate("/login");
+      }
+    }
+  };
 
   const filteredTreatments = useMemo(() => {
     const needle = search.trim().toLowerCase();
 
     return treatments.filter((t) => {
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
-      if (needle && !t.name.toLowerCase().includes(needle)) return false;
+      if (needle && !t.treatmentName?.toLowerCase().includes(needle)) return false;
       return true;
     });
-  }, [search, statusFilter]);
+  }, [search, statusFilter, treatments]);
 
   const clearFilters = () => {
     setSearch("");
@@ -32,6 +70,36 @@ function MyTreatmentsPage() {
       return next;
     });
   };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case 'ongoing': return 'Active Treatment';
+      case 'completed': return 'Completed Treatment';
+      case 'paused': return 'Paused Treatment';
+      default: return 'Treatment';
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#F5F7F6] px-4 py-8">
+        <div className="max-w-5xl mx-auto text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent"></div>
+          <p className="text-slate-500 mt-4">Loading treatments...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#F5F7F6] px-4 py-8">
@@ -75,27 +143,26 @@ function MyTreatmentsPage() {
         {/* Treatments list */}
         <section className="space-y-6">
           {filteredTreatments.length === 0 ? (
-            <p className="text-center text-slate-500 text-sm">
-              No treatments found.
-            </p>
+            <div className="text-center py-12 bg-white rounded-3xl shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-emerald-50">
+              <svg className="mx-auto h-16 w-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-slate-500 text-lg font-semibold">No treatments found</p>
+              <p className="text-sm text-slate-400 mt-2">Your treatment history will appear here</p>
+            </div>
           ) : (
             filteredTreatments.map((t) => {
-              const liked = likedIds.has(t.id);
+              const liked = likedIds.has(t._id);
               return (
                 <div
-                  key={t.id}
+                  key={t._id}
                   className="rounded-3xl bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-emerald-50 px-4 py-4 md:px-5 md:py-5"
                 >
                   <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
-                    {/* Image side */}
+                    {/* Image side - placeholder since we don't have images in DB */}
                     <div className="md:w-[32%]">
-                      <div className="rounded-2xl overflow-hidden bg-slate-100 aspect-video md:aspect-square">
-                        <img
-                          src={t.image}
-                          alt={t.name}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                        />
+                      <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 to-emerald-50 aspect-video md:aspect-square flex items-center justify-center">
+                        <Pill size={48} className="text-emerald-600" />
                       </div>
                     </div>
 
@@ -104,20 +171,20 @@ function MyTreatmentsPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
                           <p className="text-[11px] font-medium tracking-wide text-emerald-700 uppercase">
-                            {t.status === "active" ? "Active Treatment" : "Completed Treatment"}
+                            {getStatusLabel(t.status)}
                           </p>
                           <p className="text-xs text-slate-500 flex items-center gap-1">
                             <Clock4 className="w-3 h-3" />
-                            {t.startDate} – {t.endDate}
+                            {formatDate(t.startDate)} – {formatDate(t.endDate)}
                           </p>
                           <h2 className="text-lg md:text-xl font-semibold text-slate-900 mt-1">
-                            {t.name}
+                            {t.treatmentName || "Untitled Treatment"}
                           </h2>
                         </div>
 
                         <button
                           type="button"
-                          onClick={() => toggleLike(t.id)}
+                          onClick={() => toggleLike(t._id)}
                           className="shrink-0 rounded-full border border-slate-200 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition"
                           aria-label="Favourite treatment"
                         >
@@ -132,7 +199,7 @@ function MyTreatmentsPage() {
                         </button>
                       </div>
 
-                      {/* Bottom row: Medicines / Instructions / Details */}
+                      {/* Bottom row: Medicines / Procedures / Progress */}
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                         {/* Medicines */}
                         <div className="space-y-1">
@@ -140,31 +207,65 @@ function MyTreatmentsPage() {
                             <Pill className="w-3 h-3 text-emerald-600" />
                             Medicines
                           </p>
-                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                            {t.medicines?.join(", ")}
-                          </p>
+                          {t.medications && t.medications.length > 0 ? (
+                            <div className="text-xs text-slate-600 space-y-1">
+                              {t.medications.slice(0, 3).map((med, idx) => (
+                                <p key={idx} className="leading-relaxed">
+                                  {med.name} - {med.dosage} ({med.frequency})
+                                </p>
+                              ))}
+                              {t.medications.length > 3 && (
+                                <p className="text-emerald-600 font-medium">
+                                  +{t.medications.length - 3} more
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-400">No medications prescribed</p>
+                          )}
                         </div>
 
-                        {/* Key instructions */}
+                        {/* Procedures */}
                         <div className="space-y-1">
                           <p className="text-[11px] font-semibold text-slate-700">
-                            Key instructions
+                            Procedures
                           </p>
-                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                            {t.instructions}
-                          </p>
+                          {t.procedures && t.procedures.length > 0 ? (
+                            <div className="text-xs text-slate-600 space-y-1">
+                              {t.procedures.slice(0, 3).map((proc, idx) => (
+                                <p key={idx} className="leading-relaxed">
+                                  {proc.name}
+                                </p>
+                              ))}
+                              {t.procedures.length > 3 && (
+                                <p className="text-emerald-600 font-medium">
+                                  +{t.procedures.length - 3} more
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-400">No procedures scheduled</p>
+                          )}
                         </div>
 
-                        {/* Treatment details */}
+                        {/* Progress Notes */}
                         <div className="space-y-1">
                           <p className="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
                             <Info className="w-3 h-3 text-emerald-600" />
-                            Treatment details
+                            Progress Notes
                           </p>
-                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-4">
-                            {t.details ||
-                              "This therapy helps restore balance in body and mind, supports detoxification, improves circulation, and promotes deep relaxation for better sleep, digestion, and overall vitality."}
-                          </p>
+                          {t.progress && t.progress.length > 0 ? (
+                            <div className="text-xs text-slate-600 space-y-1">
+                              <p className="leading-relaxed line-clamp-3">
+                                {t.progress[t.progress.length - 1].notes}
+                              </p>
+                              <p className="text-emerald-600 font-medium">
+                                {t.progress.length} note(s) recorded
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-400">No progress notes yet</p>
+                          )}
                         </div>
                       </div>
                     </div>

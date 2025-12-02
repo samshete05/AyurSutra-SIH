@@ -565,6 +565,84 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
   }
 });
 
+// *************************** GET PATIENT PROFILE ********************************
+patientRouter.get("/getProfile", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patient = await patientModel.findById(decoded.id).select('-password');
+
+    if (!patient) {
+      res.status(404).json({ message: "User_not_found" });
+      return;
+    }
+
+    res.json({
+      message: "Success",
+      profile: {
+        name: patient.name,
+        email: patient.email,
+        mobileNo: patient.mobileNo,
+        verified: patient.verified,
+        profileImg: patient.ProfileImg || null,
+        role: patient.role
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** UPDATE PROFILE ********************************
+patientRouter.put("/updateProfile", async function(req, res) {
+  const requiredData = z.object({
+    name: z.string().min(3).max(100).optional(),
+    mobileNo: z.string().min(10).max(13).optional(),
+    profileImg: z.string().optional()
+  });
+
+  const checkData = requiredData.safeParse(req.body);
+  if (!checkData.success) {
+    res.status(422).json({
+      message: "Invalid_Input",
+      errors: checkData.error
+    });
+    return;
+  }
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const updateData = {};
+    
+    if (checkData.data.name) updateData.name = checkData.data.name;
+    if (checkData.data.mobileNo) updateData.mobileNo = checkData.data.mobileNo;
+    if (checkData.data.profileImg) updateData.ProfileImg = checkData.data.profileImg;
+
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: updateData }
+    );
+
+    res.json({ message: "Profile_Updated" });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+
 module.exports={
    patientRouter:patientRouter
 }
