@@ -387,9 +387,9 @@ function ProfilePage() {
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden" style={{ backgroundImage: "url('https://cdn.pixabay.com/photo/2022/05/13/15/34/rosemary-banner-7194000_1280.jpg')" }}>
           {/* Cover Image */}
-          <div className="h-32 bg-cover bg-center" style={{ backgroundImage: "url('https://cdn.pixabay.com/photo/2022/05/13/15/34/rosemary-banner-7194000_1280.jpg')" }}></div>
+          <div className="h-35 bg-cover bg-bottom relative" ></div>
 
           
           {/* Profile Info */}

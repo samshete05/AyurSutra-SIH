@@ -1,55 +1,57 @@
 import React from "react";
-import { CalendarClock } from "lucide-react";
+import { Calendar, Clock, MapPin } from "lucide-react";
 
-function NextAppointmentCard({
-  dateLabel = "Mar 18",
-  timeLabel = "14:00",
-  therapyName = "Shirodhara",
-  progressPercent = 75,
-  minutesLeftLabel = "Soon",
-}) {
-  const clampedProgress = Math.min(100, Math.max(0, progressPercent));
+function NextAppointmentCard({ appointment }) {
+  if (!appointment) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5 text-emerald-600" />
+          <h3 className="font-semibold text-slate-900">Next Appointment</h3>
+        </div>
+        <p className="text-sm text-slate-500">No upcoming appointments</p>
+      </div>
+    );
+  }
+
+  const appointmentDate = new Date(appointment.appointmentDate);
+  const formattedDate = appointmentDate.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+  const formattedTime = appointment.appointmentTime || 'Time TBD';
 
   return (
-    <section className="rounded-2xl bg-white border border-emerald-50 px-5 py-4 flex flex-col justify-between shadow-[0_10px_30px_rgba(15,23,42,0.03)]">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-            Next Appointment
-          </p>
-          <p className="text-[11px] text-slate-400">
-            Today&apos;s upcoming session
-          </p>
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-2 mb-4">
+        <Calendar className="w-5 h-5 text-emerald-600" />
+        <h3 className="font-semibold text-slate-900">Next Appointment</h3>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <Clock className="w-4 h-4 text-slate-500 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-slate-900">{formattedDate}</p>
+            <p className="text-xs text-slate-500">{formattedTime}</p>
+          </div>
         </div>
-        <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-          <CalendarClock size={18} className="stroke-[1.8]" />
+        
+        <div className="flex items-start gap-2">
+          <MapPin className="w-4 h-4 text-slate-500 mt-0.5" />
+          <p className="text-sm text-slate-700">{appointment.treatmentType || 'General Consultation'}</p>
+        </div>
+
+        <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+          appointment.status === 'confirmed' 
+            ? 'bg-green-100 text-green-700' 
+            : 'bg-yellow-100 text-yellow-700'
+        }`}>
+          {appointment.status === 'confirmed' ? 'Confirmed' : 'Pending Confirmation'}
         </div>
       </div>
-
-      <div>
-        <p className="text-sm font-medium text-slate-900">{therapyName}</p>
-        <p className="text-xs text-slate-500 mt-0.5">
-          {dateLabel} · {timeLabel}
-        </p>
-
-        {/* progress strip */}
-        <div className="mt-3 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-300"
-            style={{ width: `${clampedProgress}%` }}
-          />
-        </div>
-
-        <div className="mt-1 flex items-center justify-between">
-          <p className="text-[11px] font-medium text-emerald-600">
-            {minutesLeftLabel}
-          </p>
-          <button className="text-[11px] font-medium text-emerald-700 hover:text-emerald-800">
-            View details
-          </button>
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }
 

@@ -1,53 +1,59 @@
 import React from "react";
-import { HeartPulse } from "lucide-react";
+import { Calendar, MapPin, Clock } from "lucide-react";
 
-function UpcomingAppointmentsCard({
-  appointments = [],
-  onViewAll = () => {},
-}) {
-  return (
-    <section className="rounded-2xl bg-white border border-emerald-50 px-5 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.03)]">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-            Upcoming Appointments
-          </p>
-          <p className="text-xs text-slate-500">Your scheduled therapy sessions</p>
-        </div>
-        <button
-          onClick={onViewAll}
-          className="text-xs font-medium text-amber-600 hover:text-amber-700 transition"
-        >
-          View All
-        </button>
+function UpcomingAppointmentsCard({ appointments = [] }) {
+  if (appointments.length === 0) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <h3 className="font-semibold text-slate-900 mb-4">Upcoming Appointments</h3>
+        <p className="text-sm text-slate-500 text-center py-8">No upcoming appointments scheduled</p>
       </div>
+    );
+  }
 
-      {appointments.length === 0 ? (
-        <p className="text-xs text-slate-400 italic">No upcoming appointments.</p>
-      ) : (
-        appointments.map(({ id, therapyName, dateTime, duration }) => (
-          <div
-            key={id}
-            className="mt-2 rounded-xl border border-slate-100 bg-slate-50/70 px-4 py-3 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
-                <HeartPulse size={18} className="stroke-[1.8]" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{therapyName}</p>
-                <p className="text-xs text-slate-500">{dateTime}</p>
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <h3 className="font-semibold text-slate-900 mb-4">Upcoming Appointments</h3>
+      
+      <div className="space-y-3">
+        {appointments.slice(0, 3).map((appointment) => {
+          const appointmentDate = new Date(appointment.appointmentDate);
+          const formattedDate = appointmentDate.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short'
+          });
+          
+          return (
+            <div 
+              key={appointment._id} 
+              className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <div className="bg-emerald-100 p-2 rounded-lg">
+                  <Calendar className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900">{appointment.treatmentType || 'Consultation'}</p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {formattedDate}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      appointment.status === 'confirmed' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {appointment.status}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="text-xs text-slate-500">
-              <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200">
-                {duration}
-              </span>
-            </div>
-          </div>
-        ))
-      )}
-    </section>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

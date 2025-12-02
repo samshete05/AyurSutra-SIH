@@ -1,15 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { Bell, UserCircle2, LogOut } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Bell, UserCircle2, LogOut, User, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function TopBar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Fetch user profile on mount
   useEffect(() => {
     fetchUserProfile();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchUserProfile = async () => {
@@ -33,7 +49,6 @@ function TopBar() {
       if (response.ok && data.message === 'Success') {
         setUser(data.profile);
       } else if (response.status === 401) {
-        // Token invalid - logout
         localStorage.removeItem('authToken');
         navigate('/login');
       }
@@ -65,6 +80,11 @@ function TopBar() {
     }
   };
 
+  const handleViewProfile = () => {
+    setShowDropdown(false);
+    navigate('/patient/my-profile');
+  };
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8">
       <div className="md:hidden">
@@ -88,38 +108,60 @@ function TopBar() {
           </span>
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-sm font-semibold text-slate-900">
-              {loading ? 'Loading...' : user?.name || 'Guest User'}
-            </p>
-            <p className="text-xs text-slate-500">
-              {user?.role === 'patient' ? 'Patient' : user?.role || 'User'}
-            </p>
-          </div>
-          <div className="relative">
-            {user?.profileImg ? (
-              <img 
-                src={user.profileImg} 
-                alt="Profile" 
-                className="h-9 w-9 rounded-full bg-slate-300 object-cover"
-              />
-            ) : (
-              <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center">
-                <UserCircle2 size={24} className="text-emerald-700" />
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Profile Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="flex items-center gap-3 hover:bg-slate-50 rounded-lg px-3 py-2 transition-colors"
+          >
+            <div className="text-right">
+              <p className="text-sm font-semibold text-slate-900">
+                {loading ? 'Loading...' : user?.name || 'Guest User'}
+              </p>
+              <p className="text-xs text-slate-500">
+                {user?.role === 'patient' ? 'Patient' : user?.role || 'User'}
+              </p>
+            </div>
+            <div className="relative">
+              {user?.profileImg ? (
+                <img 
+                  src={user.profileImg} 
+                  alt="Profile" 
+                  className="h-9 w-9 rounded-full bg-slate-300 object-cover"
+                />
+              ) : (
+                <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <UserCircle2 size={24} className="text-emerald-700" />
+                </div>
+              )}
+            </div>
+            <ChevronDown 
+              size={16} 
+              className={`text-slate-600 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+            />
+          </button>
 
-        <button
-          onClick={handleLogout}
-          className="p-2 rounded-full hover:bg-red-50 text-red-600 transition-colors"
-          aria-label="Logout"
-          title="Logout"
-        >
-          <LogOut size={20} />
-        </button>
+          {/* Dropdown Menu */}
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+              <button
+                onClick={handleViewProfile}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+              >
+                <User size={18} />
+                <span className="font-medium">View Profile</span>
+              </button>
+              <div className="h-px bg-slate-200 my-1"></div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="font-medium">Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
