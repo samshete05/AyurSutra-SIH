@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 import "leaflet/dist/leaflet.css";
 
 // Remove default Leaflet icons
@@ -103,6 +105,8 @@ const DashboardMap = () => {
   }, []);
 
   return (
+    <>
+    <Navbar/>
     <div className="w-full flex justify-center py-10">
       <div className="w-[95%] max-w-6xl rounded-3xl bg-slate-100 shadow-xl p-4 relative">
 
@@ -191,6 +195,8 @@ const DashboardMap = () => {
 
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 
