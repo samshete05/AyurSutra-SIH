@@ -208,7 +208,7 @@ const Login = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="mt-1 w-full rounded-full bg-[#1E4B3C] py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition-colors"
+            className="mt-1 cursor-pointer w-full rounded-full bg-[#1E4B3C] py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition-colors"
           >
             {isDoctor
               ? "Login as Doctor"
@@ -218,7 +218,7 @@ const Login = () => {
           </button>
 
           {/* Switch to signup */}
-          <p className="pt-2 text-center text-[11px] md:text-xs text-gray-600">
+          <p className="pt-2 cursor-pointer text-center text-[11px] md:text-xs text-gray-600">
             New to AyurSutra?{" "}
             <a
               href="/signup"
