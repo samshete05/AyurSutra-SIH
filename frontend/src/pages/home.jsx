@@ -48,7 +48,7 @@ export const Home = () => {
   </Marquee>
 </div>
 
-      <AdvancedCenterSearch />
+      {/* <AdvancedCenterSearch /> */}
       <TelemedicineProcessTabs/>
 
 
