@@ -5,6 +5,7 @@ import Marquee from "react-fast-marquee"; // npm install react-fast-marquee
 import RoutesTester from "./RoutesTester";
 import AdvancedCenterSearch from "./AdvancedCenterSearch";
 import MainNavbar from "./MainNavbar";
+import axios from "axios";
 
 const megaMenuConfig = {
   concern: {
@@ -138,6 +139,20 @@ const megaMenuConfig = {
 };
 
 const Navbar = () => {
+  const token = localStorage.getItem("authToken");
+
+  const handleLogout=async(e)=>{
+     e.preventDefault();
+
+    const resp=await axios.post("http://localhost:3000/patient/logout");
+
+     if(resp.data.message=='logedout'){
+      localStorage.removeItem("authToken");
+  window.location.reload();
+     }
+    // console.log(resp);
+  }
+
   const [activeMegaKey, setActiveMegaKey] = useState(null);
 
   const handleOpen = (key) => {
@@ -226,12 +241,21 @@ const Navbar = () => {
 
           {/* Right auth / CTA */}
           <div className="hidden md:flex items-center gap-3 text-sm">
-            <Link
-              to="/login"
-              className="text-emerald-900 hover:text-[#1E4B3C]"
-            >
-              Login
-            </Link>
+           {token ? (
+  <button
+    onClick={handleLogout}
+    className="text-emerald-900 cursor-pointer hover:text-[#1E4B3C]"
+  >
+    Logout
+  </button>
+) : (
+  <Link
+    to="/login"
+    className="text-emerald-900 cursor-pointer hover:text-[#1E4B3C]"
+  >
+    Login
+  </Link>
+)}
             <Link
               to="/signup"
               className="rounded-full bg-[#1E4B3C] px-4 py-2 text-white font-semibold hover:bg-emerald-800 transition-colors"

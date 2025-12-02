@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
+  const navigate=useNavigate();
   const [selectedRole, setSelectedRole] = useState("normal"); // normal | centerHead | doctor
   const [formData, setFormData] = useState({
     emailOrPhone: "",
@@ -29,13 +31,28 @@ const Login = () => {
     }));
   };
 
-  const handleFormSubmit = (event) => {
+  const handleFormSubmit = async(event) => {
     event.preventDefault();
     console.log("Login payload:", {
       role: selectedRole,
       ...formData,
     });
-    // TODO: integrate with backend auth
+    
+
+    const resp=await axios.post("http://localhost:3000/patient/login",{
+        email:formData.emailOrPhone,
+        password:formData.password
+    },{withCredentials:true})
+   
+    if(resp.data.message=='logedin'){
+       localStorage.setItem("authToken", resp.data.token);
+        navigate("/",{state:{email:formData.emailOrPhone}})
+    } else{
+      alert("Invalid Details!!");
+      return;
+    }
+    console.log(resp);
+
   };
 
   const isDoctor = selectedRole === "doctor";

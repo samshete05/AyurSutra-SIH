@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios'
 
 const SignUp = () => {
+  const navigate=useNavigate();
   const [selectedUserRole, setSelectedUserRole] = useState("normal"); // 'normal' | 'centerHead'
   const [formData, setFormData] = useState({
     fullName: "",
@@ -28,13 +31,35 @@ const SignUp = () => {
     }));
   };
 
-  const handleFormSubmit = (event) => {
+  const handleFormSubmit = async(event) => {
+   
     event.preventDefault();
+    console.log(formData)
     // TODO: plug into backend / API
-    console.log("Submitting signup request:", {
-      role: selectedUserRole,
-      ...formData,
-    });
+    if(formData.confirmPassword!=formData.password){
+      alert("Both password isn't match");
+      return;
+    }
+    if(selectedUserRole=='normal'){
+     const resp=await axios.post("http://localhost:3000/patient/register",{
+              name:formData.fullName,
+                email:formData.emailAddress,
+                phoneNumber:formData.phoneNumber,
+                password:formData.password,
+                confirmPassword:formData.confirmPassword
+            },{withCredentials:true})
+      
+            if(resp.data.message=="Email_Present"){
+              alert("Email Already Present");
+              return;
+            }
+           else if(resp.data.message=='OTP_Send'){
+              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password}})
+           }
+            console.log(resp);
+    } else{
+
+    }
   };
 
   const isCenterHead = selectedUserRole === "centerHead";
@@ -275,7 +300,7 @@ const SignUp = () => {
           {/* footer */}
           <p className="pt-3 text-center text-xs md:text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="#" className="font-semibold text-[#1E4B3C] hover:underline">
+            <a onClick={()=>navigate("/login")} href="#" className="font-semibold text-[#1E4B3C] hover:underline">
               Sign In
             </a>
           </p>

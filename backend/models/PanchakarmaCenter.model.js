@@ -14,4 +14,4 @@ const PanchakarmaCenterSchema=new schema({
 
 })
 
-module.exports.PanchakarmaModel = mongoose.model("PanchakarmaCenter",PanchakarmaCenterSchema);
+module.exports = mongoose.model("PanchakarmaCenter",PanchakarmaCenterSchema);

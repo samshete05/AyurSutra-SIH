@@ -5,10 +5,11 @@ const z =require('zod');
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
 const patientModel = require("../models/Patient.model");
-const otpmodel = require("../models/Otp.model");
+// const otpmodel = require("../models/Otp.model");
 const JWT_KEY=process.env.JWT_KEY;
 const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
+const OtpModel = require("../models/Otp.model");
 
 
 
@@ -16,9 +17,10 @@ const sendemail=require("../otplogic/otp");
 patientRouter.post("/register", async function(req,res){
      const requiredatas=z.object({
         name:z.string().min(3).max(100),
-        mobileNo:z.string().min(10).max(10),
+        phoneNumber:z.string().min(10).max(13),
         email:z.string().min(5).max(100),
-        password:z.string().min(5).max(100)
+        password:z.string().min(5).max(100),
+        confirmPassword:z.string().min(5).max(100),
      })
 
      const checkdata=requiredatas.safeParse(req.body);
@@ -29,13 +31,14 @@ patientRouter.post("/register", async function(req,res){
         return;
     }
 
-     const {name,mobileNo,email,password}=req.body;
+     const {name,phoneNumber,email,password,confirmPassword}=req.body;
      console.log(req);
      const hashedpassword=await bcrypt.hash(password,5);
      console.log(name);
-     console.log(mobileNo);
+     console.log(phoneNumber);
      console.log(email);
      console.log(password);
+
 
    
      const checkAlreadyEmailExistOrNot=await patientModel.findOne({
@@ -53,7 +56,7 @@ patientRouter.post("/register", async function(req,res){
 
      const registerUser=await patientModel.create({
           name:name,
-          mobileNo:mobileNo,
+          mobileNo:phoneNumber,
           password:hashedpassword,
           email:email
      })
@@ -63,17 +66,18 @@ patientRouter.post("/register", async function(req,res){
         digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
      })
 
-        const response=await otpmodel.create({
+        const response=await OtpModel.create({
             email:email,
             otp:otp
         })
 
-     await sendemail(registerUser.email,"Email verification code:",otp);
-               
-     res.json({
+          res.json({
         message:"OTP_Send",
         email:email
      })
+
+     await sendemail(registerUser.email,"Email verification code:",otp);
+               
 
 })
 
@@ -125,50 +129,40 @@ patientRouter.post("/login", async function(req,res){
       }           
 })
 
+patientRouter.post("/verifyOTP", async (req, res) => {
+  const { email, otp, password } = req.body;
 
-patientRouter.post("/verifyOTP",async(req,res)=>{
-             const {email,otp}=req.body;
+  const user = await patientModel.findOne({ email });
+  if (!user) {
+    return res.json({ message: "User_not_exist" });
+  }
 
-             
-             console.log("backend otp worksing")
-             console.log(req.body);
-             console.log(email);
-             console.log(otp);
+  const FindOtp = await OtpModel.findOne({
+    email: email,
+    otp: otp
+  });
 
-             const FindPatientFromDB=await patientModel.findOne({
-                email:email
-             })
+  if (!FindOtp) {
+    return res.json({ message: "INVALID_OTP" });
+  }
 
-             if(!FindPatientFromDB){
-                res.json({
-                 message:"User_not_exist"
-                })
-                return;
-              }
 
-             const FindPatientWithOTP=await otpmodel.findOne({
-               otp:otp
-             })
+  await patientModel.updateOne({ email }, { verified: true });
 
-             if(!FindPatientWithOTP){
-               res.json({
-                message:"INVALID_OTP"
-               })
-               return;
-             }
-             const verifyPatientTrue = await patientModel.updateOne({
-                  email:email,
-                  verified:true
-             })
+  await OtpModel.deleteOne({ _id: FindOtp._id });
 
-             await otpmodel.findByIdAndDelete({
-                _id:FindPatientWithOTP._id
-             })
+  const isMatch = await bcrypt.compare(password, user.password);
 
-             res.json({
-                message:"Verified_otp"
-             })
-})
+  if (isMatch) {
+    const token = jwt.sign({ id: user._id }, JWT_KEY)
+    return res.json({
+      token,
+      message: "logedin"
+    });
+  }
+
+  return res.json({ message: "User_not_exists" });
+});
 
 
 

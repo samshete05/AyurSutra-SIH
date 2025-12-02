@@ -6,13 +6,13 @@ const patientSchema = new schema({
         type:String,unique:true
     },
     password:String,
-    firstname:String,
-    lastname:String,
+    name:String,
     verified:{
         type:Boolean,
         default:false
     },
-    PhoneNum:String
+    mobileNo:String,
+    ProfileImg:String
 })
 
-module.exports.patientModel = mongoose.model("Patient",patientSchema);
+module.exports = mongoose.model("Patient", patientSchema);

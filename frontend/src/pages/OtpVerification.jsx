@@ -1,8 +1,18 @@
 import React, { useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from 'axios';
 
 const OtpVerification = () => {
+  const navigate=useNavigate();
+
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const inputReferences = useRef([]);
+  const location = useLocation();
+   const email = location.state?.email;
+   const password = location.state?.password;
+   
+
+   console.log("here mail",email);
 
   const handleChange = (index, value) => {
     if (!/^[0-9]?$/.test(value)) return; // allow only single digit
@@ -39,11 +49,30 @@ const OtpVerification = () => {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     const otpCode = otpDigits.join("");
     console.log("Verifying OTP:", otpCode);
     // TODO: call backend verification API
+
+    if(otpCode==""){
+      alert("Enter Valid OTP!!");
+      return;
+    } else{
+       const resp=await axios.post("http://localhost:3000/patient/verifyOTP",{
+          otp:otpCode,
+          email:email,
+          password:password
+       }, { withCredentials: true })
+       console.log(resp);
+       if(resp.data.message=='logedin'){
+        localStorage.setItem("authToken", resp.data.token);
+        navigate("/",{state:{email:email}})
+       } else{
+        alert("Invalid OTP!!");
+        return;
+       }
+    }
   };
 
   return (
