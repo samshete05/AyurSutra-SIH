@@ -15,6 +15,7 @@ const  DoctorModel = require("../models/Doctor.model");
 const SendEmailDoctor=require("../otplogic/doctorCredentialSendEmail");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const TherapyModel = require("../models/Therapy.model");
+const TherapistModel = require("../models/Therapist.model");
 
 
 
@@ -339,9 +340,10 @@ PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
     qualification,
     address,
     centerAdminEmail
-  } = parsed.data;
+  } = req.body;
 
-  // Get center from admin email
+   
+  console.log("data",req.body);
   const center = await PanchakarmaCenterModel.findOne({ email: centerAdminEmail });
 
   if (!center) {
