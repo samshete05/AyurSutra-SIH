@@ -11,7 +11,7 @@ const Logo = () => {
     >
       <span className="text-xl font-semibold tracking-tight">
         <img
-          src="/images/ayursutra-logo.png"   // put your logo file here
+          src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png"
           alt="AyurSutra"
           className="h-9 w-auto"
         />
