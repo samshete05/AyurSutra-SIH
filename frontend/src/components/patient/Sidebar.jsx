@@ -36,7 +36,7 @@ function Sidebar() {
             <div className="flex items-center gap-2">
                 <Link to="/" className="flex items-center gap-2 cursor-pointer">
                   <img
-                    src='Gemini_Generated_Image_97y8ep97y8ep97y8.png'
+                    src='https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png'
                     alt="AyurSutra logo"
                     className="h-8 w-auto object-contain"
                   />
