@@ -292,7 +292,7 @@ const SignUp = () => {
           {/* submit */}
           <button
             type="submit"
-            className="mt-1 w-full rounded-full bg-[#1E4B3C] py-3.5 text-sm md:text-base font-semibold text-white tracking-wide shadow-md hover:bg-emerald-800 transition-all"
+            className="mt-1 w-full cursor-pointer rounded-full bg-[#1E4B3C] py-3.5 text-sm md:text-base font-semibold text-white tracking-wide shadow-md hover:bg-emerald-800 transition-all"
           >
             {isCenterHead ? "Submit Center Head Request" : "Create Account"}
           </button>

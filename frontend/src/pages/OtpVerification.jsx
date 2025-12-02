@@ -136,7 +136,7 @@ const OtpVerification = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full rounded-full bg-[#1E4B3C] py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition-colors"
+            className="w-full cursor-pointer rounded-full bg-[#1E4B3C] py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition-colors"
           >
             Verify Email
           </button>

@@ -3,6 +3,10 @@ const schema = mongoose.Schema;
 
 
 const PanchakarmaCenterSchema=new schema({
+  role:{
+    type:String,
+  default:"centerHead"
+  },
     name:String,
     licenseNo:String,
     AdminEmail:{
