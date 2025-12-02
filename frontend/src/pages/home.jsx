@@ -9,8 +9,13 @@ import TelemedicineProcessTabs from "../components/PanchakarmaPatientFlow";
 import HealthBlogsFeature from "../components/HealthBlogsFeature";
 import EcommerceFeatureSection from "../components/EcommerceFeatureSection";
 import Marquee from "react-fast-marquee";
+import { useLocation } from "react-router-dom";
 
 export const Home = () => {
+
+   const location = useLocation();
+    
+   
   return (
     <>
       <Navbar />

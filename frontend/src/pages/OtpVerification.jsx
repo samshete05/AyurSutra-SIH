@@ -10,6 +10,7 @@ const OtpVerification = () => {
   const location = useLocation();
    const email = location.state?.email;
    const password = location.state?.password;
+   const selectedRole=location.state?.selectedRole;
    
 
    console.log("here mail",email);
@@ -66,6 +67,9 @@ const OtpVerification = () => {
        }, { withCredentials: true })
        console.log(resp);
        if(resp.data.message=='logedin'){
+           localStorage.setItem("authToken", resp.data.token);
+    localStorage.setItem("email", email);
+    localStorage.setItem("role", selectedRole);
         localStorage.setItem("authToken", resp.data.token);
         navigate("/",{state:{email:email}})
        } else{

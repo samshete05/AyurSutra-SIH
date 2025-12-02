@@ -54,7 +54,7 @@ const SignUp = () => {
               return;
             }
            else if(resp.data.message=='OTP_Send'){
-              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password}})
+              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,role:selectedUserRole}})
            }
             console.log(resp);
     } else{

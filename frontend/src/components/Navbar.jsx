@@ -40,8 +40,10 @@ const megaMenuConfig = {
 };
 
 const Navbar = () => {
-    const location = useLocation();
-     const email = location.state?.email;
+    const email = localStorage.getItem("email");
+const role = localStorage.getItem("role");
+
+    // const location = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
   const [activeMegaKey, setActiveMegaKey] = useState(null);
@@ -59,6 +61,15 @@ const Navbar = () => {
     localStorage.removeItem("authToken");
     window.location.reload();
   };
+
+  const HandleDashboardClick=()=>{
+    console.log("clicked ho gaya!!!");
+    console.log(email)
+    console.log(role);
+    if(role=='normal'){
+      navigate("/patient")
+    }
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -144,13 +155,12 @@ const Navbar = () => {
                 {/* Dropdown */}
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 text-sm hover:bg-emerald-50 text-emerald-900"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
+                    <button
+  className="block w-full cursor-pointer text-left px-4 py-2 text-sm hover:bg-emerald-50 text-emerald-900"
+  onClick={HandleDashboardClick}
+>
+  Dashboard
+</button>
 
                     <button
                       onClick={handleLogout}

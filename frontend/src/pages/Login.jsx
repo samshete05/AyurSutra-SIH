@@ -43,10 +43,13 @@ const Login = () => {
         email:formData.emailOrPhone,
         password:formData.password
     },{withCredentials:true})
-   
+    console.log("yahi toh han vo",resp);
+
     if(resp.data.message=='logedin'){
        localStorage.setItem("authToken", resp.data.token);
-        navigate("/",{state:{email:formData.emailOrPhone}})
+    localStorage.setItem("email", formData.emailOrPhone);
+    localStorage.setItem("role", selectedRole);
+        navigate("/")
     } else{
       alert("Invalid Details!!");
       return;

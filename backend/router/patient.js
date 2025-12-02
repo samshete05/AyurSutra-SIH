@@ -10,6 +10,7 @@ const JWT_KEY=process.env.JWT_KEY;
 const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
+const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 
 
 
@@ -22,7 +23,7 @@ patientRouter.post("/register", async function(req,res){
         password:z.string().min(5).max(100),
         confirmPassword:z.string().min(5).max(100),
      })
-
+ const registerUser=null;
      const checkdata=requiredatas.safeParse(req.body);
 
 
@@ -31,7 +32,7 @@ patientRouter.post("/register", async function(req,res){
         return;
     }
 
-     const {name,phoneNumber,email,password,confirmPassword}=req.body;
+     const {name,phoneNumber,email,password,confirmPassword,role}=req.body;
      console.log(req);
      const hashedpassword=await bcrypt.hash(password,5);
      console.log(name);
@@ -40,7 +41,8 @@ patientRouter.post("/register", async function(req,res){
      console.log(password);
 
 
-   
+     if(role=='patient'){
+      
      const checkAlreadyEmailExistOrNot=await patientModel.findOne({
         email:email
      })
@@ -54,13 +56,35 @@ patientRouter.post("/register", async function(req,res){
         return;
      }
 
-     const registerUser=await patientModel.create({
+      registerUser=await patientModel.create({
           name:name,
           mobileNo:phoneNumber,
           password:hashedpassword,
           email:email
      })
 
+     } else if(role=='centerHead'){
+       const checkAlreadyEmailExistOrNot=await PanchakarmaCenterModel.findOne({
+        email:email
+     })
+
+     console.log("check error  s ",checkAlreadyEmailExistOrNot);
+
+     if(checkAlreadyEmailExistOrNot){
+        res.json({
+            message:"Email_Present"
+        })
+        return;
+     }
+
+      registerUser=await PanchakarmaCenterModel.create({
+          name:name,
+          mobileNo:phoneNumber,
+          password:hashedpassword,
+          email:email
+     })
+
+     }
 
       const otp=otpgenerator.generate(6,{
         digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
@@ -73,7 +97,8 @@ patientRouter.post("/register", async function(req,res){
 
           res.json({
         message:"OTP_Send",
-        email:email
+        email:email,
+        role:registerUser.role
      })
 
      await sendemail(registerUser.email,"Email verification code:",otp);
@@ -97,20 +122,19 @@ patientRouter.post("/login", async function(req,res){
          return;
       }
 
-      const {email,password} =req.body;
+      const {email,password,role} =req.body;
       console.log("login in bac",email)
       console.log("login in bac",password)
       const checkedUser=await patientModel.findOne({
          email:email
       })
 
-      if(!checkedUser){
-         res.json({
-             message:"User_not_exists"
-         })
-         return;
-      }
-      const finduser= await bcrypt.compare(password,checkedUser.password);
+      const checkCenterUser=await PanchakarmaCenterModel.findOne({
+         email:email
+      })
+
+      if(checkedUser){
+          const finduser= await bcrypt.compare(password,checkedUser.password);
       
 
       if(finduser){
@@ -119,7 +143,8 @@ patientRouter.post("/login", async function(req,res){
          },JWT_KEY)
          res.json({
             token:token,
-            message:"logedin"
+            message:"logedin",
+            role:checkedUser.role
          })
       }else{
          res.json({
@@ -127,10 +152,33 @@ patientRouter.post("/login", async function(req,res){
          })
          return;
       }           
+      } else if(checkCenterUser){
+          const finduser= await bcrypt.compare(password,checkedUser.password);
+      
+
+      if(finduser){
+         const token=jwt.sign({
+            id:checkCenterUser._id
+         },JWT_KEY)
+         res.json({
+            token:token,
+            message:"logedin",
+            role:checkedUser.role
+         })
+      }else{
+         res.json({
+            message:"center_not_exists"
+         })
+         return;
+      }            
+      }
+
+     
 })
 
 patientRouter.post("/verifyOTP", async (req, res) => {
-  const { email, otp, password } = req.body;
+  const { email, otp, password,role } = req.body;
+  
 
   const user = await patientModel.findOne({ email });
   if (!user) {
@@ -164,11 +212,13 @@ patientRouter.post("/verifyOTP", async (req, res) => {
   return res.json({ message: "User_not_exists" });
 });
 
-// patientRouter.get("/getPatientInfo",async(req,res)=>{
+patientRouter.get("/getPatientInfo",async(req,res)=>{
    
-//    const 
+   const {email}=req.body;
 
-// })
+   console.log("email here",email);
+
+})
 
 
 
