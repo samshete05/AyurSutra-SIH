@@ -1,8 +1,8 @@
+// pages/Center/PanchakarmaDashboard.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { Search } from "lucide-react";
 
 import SidePanel from "../../components/CenterSidePanel";
@@ -10,7 +10,6 @@ import PKLineChart from "../../components/PkLineChart";
 import Logo from "../../components/SidePanelLogo";
 import heroBg from "../../assets/ayurveda-background_1022134-25291.avif";
 import CenterNavbarProfile from "./CenterNavbarProfile";
-import CenterNavbar from "./CenterNavbar";
 
 const monthLabels = ["Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan"];
 const revenueValues = [195,150,230,170,185,194,183,205,210,208,222,235];
@@ -20,18 +19,36 @@ const therapyValues = [60,72,95,90,98,105,120,118,115,117,121,130];
 const PanchakarmaDashboard = () => {
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
-  const role = localStorage.getItem("role");
+  const [centerData, setCenterData] = useState(null);
 
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const dropdownRef = useRef(null);
+  // Fetch center profile
+  useEffect(() => {
+    if (email) {
+      fetchCenterProfile();
+    }
+  }, [email]);
 
-  // Close the dropdown when clicked outside
-  
+  const fetchCenterProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/PanchKarmaCenter/getCenterProfile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email }),
+      });
 
+      if (response.ok) {
+        const data = await response.json();
+        setCenterData(data.center);
+      }
+    } catch (error) {
+      console.error("Error fetching center profile:", error);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
-
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
         <Logo />
@@ -42,10 +59,8 @@ const PanchakarmaDashboard = () => {
 
       {/* Main content */}
       <div className="flex min-h-screen flex-1 flex-col">
-
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-
           <div className="flex items-center gap-3">
             <button className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-xl md:hidden">
               ☰
@@ -62,16 +77,27 @@ const PanchakarmaDashboard = () => {
             </div>
           </div>
 
-          {/* RIGHT SIDE PROFILE */}
-          <CenterNavbar/>
-       
-        </header>
+          {/* RIGHT SIDE - Notification + Profile */}
+          <div className="flex items-center gap-3 relative">
+            {/* Notification Bell */}
+            <button 
+              onClick={() => navigate("/center-notifications")}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faBell} className="text-xl text-slate-700" />
+              {/* Unread badge - you can make this dynamic */}
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                3
+              </span>
+            </button>
 
-        {/* ---------- Rest of your Dashboard remains EXACTLY same ---------- */}
+            {/* Profile Component */}
+            <CenterNavbarProfile />
+          </div>
+        </header>
 
         {/* Page content */}
         <main className="flex-1 bg-slate-100 px-4 py-4 md:px-8 md:py-6">
-
           {/* Hero */}
           <section
             className="mb-6 h-52 w-full overflow-hidden rounded-3xl bg-cover bg-center bg-no-repeat"
@@ -80,13 +106,13 @@ const PanchakarmaDashboard = () => {
             <div className="flex h-full items-center px-6 md:px-10">
               <div className="max-w-lg rounded-2xl bg-black/30 px-6 py-4 text-white backdrop-blur-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
-                  Patient Portal
+                  Center Admin Portal
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold md:text-3xl">
-                  Welcome back, Rajesh!
+                  Welcome back, {centerData?.Adminname || "Admin"}!
                 </h2>
                 <p className="mt-1 text-xs md:text-sm">
-                  Your wellness journey continues with excellence and personalized Ayurvedic care.
+                  Manage your center operations with excellence and personalized Ayurvedic care delivery.
                 </p>
                 <div className="mt-3 inline-flex items-center rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold">
                   <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-200" />
@@ -123,7 +149,7 @@ const PanchakarmaDashboard = () => {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Revenue Trend</p>
-                  <p className="text-xs text-slate-400">Dummy revenue (in thousands)</p>
+                  <p className="text-xs text-slate-400">Monthly revenue (in thousands)</p>
                 </div>
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600">
                   12 months
@@ -136,7 +162,7 @@ const PanchakarmaDashboard = () => {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Patients Trend</p>
-                  <p className="text-xs text-slate-400">Dummy monthly patient visits</p>
+                  <p className="text-xs text-slate-400">Monthly patient visits</p>
                 </div>
                 <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-600">
                   12 months
@@ -149,7 +175,7 @@ const PanchakarmaDashboard = () => {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Therapy Sessions</p>
-                  <p className="text-xs text-slate-400">Dummy total sessions per month</p>
+                  <p className="text-xs text-slate-400">Total sessions per month</p>
                 </div>
                 <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-600">
                   12 months
@@ -158,7 +184,6 @@ const PanchakarmaDashboard = () => {
               <PKLineChart title="Sessions" labels={monthLabels} values={therapyValues} color="#8B5CF6" />
             </div>
           </div>
-
         </main>
       </div>
     </div>
