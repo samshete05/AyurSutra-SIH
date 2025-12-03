@@ -7,12 +7,36 @@ function TopBar() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
 
-  // Fetch user profile on mount
   useEffect(() => {
     fetchUserProfile();
+    fetchUnreadCount(); 
   }, []);
+
+  // fetch unread notifications
+  const fetchUnreadCount = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const response = await fetch('http://localhost:3000/patient/notifications/unread/count', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -25,6 +49,17 @@ function TopBar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleNotificationsUpdate = () => {
+      fetchUnreadCount();
+    };
+  
+    window.addEventListener('notificationsUpdated', handleNotificationsUpdate);
+    return () => {
+      window.removeEventListener('notificationsUpdated', handleNotificationsUpdate);
     };
   }, []);
 
@@ -103,9 +138,11 @@ function TopBar() {
           aria-label="View notifications"
         >
           <Bell size={20} className="stroke-[1.8]" />
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center">
-            3
-          </span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center font-bold animate-pulse">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Profile Dropdown */}

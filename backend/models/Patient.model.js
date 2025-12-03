@@ -109,6 +109,22 @@ const patientSchema = new schema({
       default: "DD/MM/YYYY",
       enum: ["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"],
     },
+
+    // notification fields
+    notificationPreferences: {
+      inApp: {
+        type: Boolean,
+        default: true,
+      },
+      email: {
+        type: Boolean,
+        default: true,
+      },
+      sms: {
+        type: Boolean,
+        default: false,
+      },
+    },
   },
 });
 

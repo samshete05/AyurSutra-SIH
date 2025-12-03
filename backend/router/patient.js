@@ -12,6 +12,7 @@ const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const AppointmentModel = require("../models/Appointment.model")
+const notificationModel = require("../models/Notification.model")
 
 
 
@@ -916,7 +917,193 @@ patientRouter.put("/updateSettings", async function(req, res) {
   }
 });
 
+// *************************** GET NOTIFICATIONS ********************************
+patientRouter.get("/notifications", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    
+    // Fetch notifications from database
+    const notifications = await notificationModel
+      .find({ userId: decoded.id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    // Transform to match frontend format
+    const formattedNotifications = notifications.map(notif => ({
+      id: notif._id.toString(),
+      type: notif.type,
+      title: notif.title,
+      message: notif.message,
+      timestamp: notif.createdAt.toISOString(),
+      read: notif.read,
+      priority: notif.priority,
+      actionable: notif.actionable,
+      actions: notif.actions
+    }));
+
+    res.json({ notifications: formattedNotifications });
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** MARK NOTIFICATION AS READ ********************************
+patientRouter.put("/notifications/:id/read", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const notificationId = req.params.id;
+    
+    // Update notification in database
+    await notificationModel.updateOne(
+      { _id: notificationId, userId: decoded.id },
+      { $set: { read: true } }
+    );
+    
+    res.json({ message: "Marked as read" });
+  } catch (err) {
+    console.error("Error marking notification as read:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** MARK ALL AS READ ********************************
+patientRouter.put("/notifications/markAllRead", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    
+    // Update all notifications in database
+    await notificationModel.updateMany(
+      { userId: decoded.id, read: false },
+      { $set: { read: true } }
+    );
+    
+    res.json({ message: "All marked as read" });
+  } catch (err) {
+    console.error("Error marking all as read:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** DELETE NOTIFICATION ********************************
+patientRouter.delete("/notifications/:id", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const notificationId = req.params.id;
+    
+    // Delete notification from database
+    await notificationModel.deleteOne({
+      _id: notificationId,
+      userId: decoded.id
+    });
+    
+    res.json({ message: "Notification deleted" });
+  } catch (err) {
+    console.error("Error deleting notification:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** UPDATE NOTIFICATION PREFERENCES ********************************
+patientRouter.put("/updateNotificationPreferences", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { notificationPreferences } = req.body;
+    
+    await patientModel.updateOne(
+      { _id: decoded.id },
+      { $set: { notificationPreferences } }
+    );
+
+    res.json({ message: "Preferences updated" });
+  } catch (err) {
+    console.error("Error updating preferences:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** CREATE NOTIFICATION (Helper Function) ********************************
+patientRouter.post("/createNotification", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const { userId, type, title, message, priority, actionable, actions } = req.body;
+    
+    const notification = new notificationModel({
+      userId,
+      type,
+      title,
+      message,
+      priority: priority || 'medium',
+      actionable: actionable || false,
+      actions: actions || []
+    });
+
+    await notification.save();
+    
+    res.json({ message: "Notification created", notificationId: notification._id });
+  } catch (err) {
+    console.error("Error creating notification:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** GET UNREAD COUNT ********************************
+patientRouter.get("/notifications/unread/count", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    
+    const count = await notificationModel.countDocuments({
+      userId: decoded.id,
+      read: false
+    });
+    
+    res.json({ unreadCount: count });
+  } catch (err) {
+    console.error("Error getting unread count:", err);
+    res.status(500).json({ message: "Server_error" });
+  }
+});
 
 module.exports={
    patientRouter:patientRouter
