@@ -279,7 +279,6 @@ function ProfilePage() {
 
 
   // Handle profile image upload
-    // Handle profile image upload
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {

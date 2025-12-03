@@ -7,8 +7,6 @@ import HealthScoreCard from "../../components/patient/cards/HealthScoreCard";
 import UpcomingAppointmentsCard from "../../components/patient/cards/UpcomingAppointmentsCard";
 import TreatmentGuidelinesCard from "../../components/patient/cards/TreatmentGuidelinesCard";
 import RecentActivityCard from "../../components/patient/cards/RecentActivityCard";
-import DoshaBalanceChart from "../../components/patient/cards/DoshaBalanceChart";
-import WellnessGamification from "../../components/patient/cards/WellnessGamification";
 import Loader from "../../components/Loader";
 
 function DashboardPage() {
@@ -224,15 +222,6 @@ const generateGuidelines = (profile) => {
 
     <RecentActivityCard 
       activities={dashboardData.treatments} 
-    />
-
-    <DoshaBalanceChart 
-      profile={dashboardData.profile} 
-    />
-
-    <WellnessGamification 
-      profile={dashboardData.profile} 
-      appointments={dashboardData.appointments}
     />
   </div>
 );
