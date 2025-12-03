@@ -13,6 +13,7 @@ import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import CenterNavbarProfile from "./CenterNavbarProfile";
 import axios from "axios";
+import CenterNavbar from "./CenterNavbar";
 
 // Therapy data
 const therapies = [
@@ -142,18 +143,7 @@ useEffect(() => {
               />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faMoon} className="text-base text-slate-600" />
-            </button>
-            <button className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faBell} className="text-base text-slate-600" />
-            </button>
-            <CenterNavbarProfile/>
-
-
-    
-          </div>
+          <CenterNavbar/>
         </header>
 
         {/* Content */}

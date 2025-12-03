@@ -10,6 +10,7 @@ import PKLineChart from "../../components/PkLineChart";
 import Logo from "../../components/SidePanelLogo";
 import heroBg from "../../assets/ayurveda-background_1022134-25291.avif";
 import CenterNavbarProfile from "./CenterNavbarProfile";
+import CenterNavbar from "./CenterNavbar";
 
 const monthLabels = ["Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan"];
 const revenueValues = [195,150,230,170,185,194,183,205,210,208,222,235];
@@ -25,15 +26,7 @@ const PanchakarmaDashboard = () => {
   const dropdownRef = useRef(null);
 
   // Close the dropdown when clicked outside
-  useEffect(() => {
-    const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpenDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  
 
 
   return (
@@ -70,17 +63,8 @@ const PanchakarmaDashboard = () => {
           </div>
 
           {/* RIGHT SIDE PROFILE */}
-          <div className="flex items-center gap-3 relative" ref={dropdownRef}>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faMoon} className="text-xl" />
-            </button>
-
-            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faBell} className="text-xl" />
-            </button>
-
-            <CenterNavbarProfile/>
-          </div>
+          <CenterNavbar/>
+       
         </header>
 
         {/* ---------- Rest of your Dashboard remains EXACTLY same ---------- */}
