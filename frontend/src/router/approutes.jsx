@@ -35,6 +35,9 @@ import { elements } from "chart.js";
 import PatientProtectedRoute from "../pages/patient/patientProtectedRoute";
 import ViewDoctors from "../pages/center/ViewDoctor";
 import ViewTherapists from "../pages/center/ViewTherapist";
+import TermsServices from "../pages/TermsServices";
+import Privacy from "../pages/privacy";
+import HelpCenter from "../pages/HelpCenter";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 export const AppRoutes = () => {
@@ -90,6 +93,9 @@ export const AppRoutes = () => {
         {/* <Route path="*" element={<NotFound />} /> */}
 
         <Route path="/center-map" element={<CenterMap/>}/>
+        <Route path="/terms-services" element={<TermsServices />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/help-center" element={<HelpCenter />} />
       </Routes>
     </div>
   );
