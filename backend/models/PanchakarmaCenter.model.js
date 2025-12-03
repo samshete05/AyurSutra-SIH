@@ -25,6 +25,8 @@ const PanchakarmaCenterSchema = new schema({
 
   BotNumber: { type: String },
 
+  profileImg: { type: String, default: null },
+
   verified: {
     type: Boolean,
     default: false,

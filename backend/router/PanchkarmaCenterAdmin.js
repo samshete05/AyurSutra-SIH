@@ -460,9 +460,99 @@ PanchakarmaCenterRouter.post("/get-therapists",async(req,res)=>{
   res.json({
     getAllTherapist
   })  
-
-
 })
+
+// *************************** GET CENTER PROFILE ********************************
+PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email_Required" });
+    }
+
+    const center = await PanchakarmaCenterModel.findOne({ email: email })
+      .select("-password")
+      .populate("Doctors");
+
+    if (!center) {
+      return res.status(404).json({ message: "Center_Not_Found" });
+    }
+
+    return res.status(200).json({
+      message: "Profile_Fetched_Successfully",
+      center: center,
+    });
+  } catch (err) {
+    console.error("Error in /getCenterProfile:", err);
+    return res.status(500).json({
+      message: "Internal_Server_Error",
+      error: err.message,
+    });
+  }
+});
+
+// *************************** UPDATE CENTER PROFILE ********************************
+PanchakarmaCenterRouter.post(
+  "/updateCenterProfile",
+  upload.single("profileImg"),
+  async function (req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email_Required" });
+      }
+
+      const center = await PanchakarmaCenterModel.findOne({ email: email });
+
+      if (!center) {
+        return res.status(404).json({ message: "Center_Not_Found" });
+      }
+
+      // Update allowed fields
+      if (req.body.Adminname) center.Adminname = req.body.Adminname;
+      if (req.body.CenterName) center.CenterName = req.body.CenterName;
+      if (req.body.MobileNo) center.MobileNo = req.body.MobileNo;
+      if (req.body.location) center.location = req.body.location;
+      if (req.body.latitude) center.latitude = parseFloat(req.body.latitude);
+      if (req.body.longitude) center.longitude = parseFloat(req.body.longitude);
+      if (req.body.BotNumber) center.BotNumber = req.body.BotNumber;
+
+      // Handle profile image
+      if (req.file) {
+        center.profileImg = req.file.path;
+      }
+
+      await center.save();
+
+      return res.status(200).json({
+        message: "Profile_Updated_Successfully",
+        center: {
+          id: center._id,
+          name: center.Adminname,
+          email: center.email,
+          centerName: center.CenterName,
+          role: center.role,
+          profileImg: center.profileImg,
+          mobileNo: center.MobileNo,
+          location: center.location,
+          licenseNo: center.licenseNo,
+          latitude: center.latitude,
+          longitude: center.longitude,
+          BotNumber: center.BotNumber,
+        },
+      });
+    } catch (err) {
+      console.error("Error in /updateCenterProfile:", err);
+      return res.status(500).json({
+        message: "Internal_Server_Error",
+        error: err.message,
+      });
+    }
+  }
+);
+
 
 module.exports = {
   PanchakarmaCenterRouter: PanchakarmaCenterRouter
