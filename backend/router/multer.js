@@ -25,7 +25,7 @@ try {
     cloudinary,
     params: {
       folder: "doctor_profiles",
-      allowed_formats: ["jpg", "jpeg", "png"],
+         allowed_formats: ["jpg", "jpeg", "png", "avif", "webp"],
     },
   });
 } catch (err) {

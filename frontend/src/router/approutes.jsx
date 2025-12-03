@@ -33,6 +33,7 @@ import NotFound from "../pages/404";
 import ProtectedRoute from "../pages/center/PanchakarmaProtected";
 import { elements } from "chart.js";
 import PatientProtectedRoute from "../pages/patient/patientProtectedRoute";
+import ViewDoctors from "../pages/center/ViewDoctor";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 export const AppRoutes = () => {
@@ -64,6 +65,7 @@ export const AppRoutes = () => {
         <Route path="/allcenters" element={<AllCenters />} />
         <Route  path="/patient/*" element={ <PatientProtectedRoute allowedRole="patient"> <PatientRoutes /> </PatientProtectedRoute>} />
         <Route path="/NotFound" element={<NotFound/>} />
+        <Route path="/view-doctor" element={ <ProtectedRoute allowedRole="centerHead">  <ViewDoctors/>  </ProtectedRoute> } />
          <Route 
     path="/PanchaKarma-Dashboard"
     element={

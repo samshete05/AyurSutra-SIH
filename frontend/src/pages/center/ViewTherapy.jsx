@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +12,7 @@ import {
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import CenterNavbarProfile from "./CenterNavbarProfile";
+import axios from "axios";
 
 // Therapy data
 const therapies = [
@@ -75,15 +76,42 @@ const therapies = [
   },
 ];
 
+
+
 const ViewTherapies = () => {
+  const email=localStorage.getItem("email");
+  
+ const [therapiesData, setTherapiesData] = useState([]);
+const [loading, setLoading] = useState(true);
+
   const [selectedTherapy, setSelectedTherapy] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const filteredTherapies = therapies.filter(
+useEffect(() => {
+  const fetchTherapies = async () => {
+    try {
+      const res = await axios.post("http://localhost:3000/PanchKarmaCenter/get-therapies", {
+        email:email
+      });
+      console.log("this is data ",res);
+      setTherapiesData(res.data.getAllTherapy);  
+    } catch (err) {
+      console.error("Error fetching therapies:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTherapies();
+}, []);
+
+
+
+  const filteredTherapies = therapiesData.filter(
     (therapy) =>
-      therapy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      therapy.shortDesc.toLowerCase().includes(searchTerm.toLowerCase())
+      therapy.therapyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      therapy.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -157,17 +185,17 @@ const ViewTherapies = () => {
               >
                 <div className="h-44 w-full overflow-hidden">
                   <img
-                    src={therapy.image}
-                    alt={therapy.name}
+                    src={therapy.TherapyImg}
+                    alt={therapy.therapyName}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
                 <div className="p-5 space-y-3">
                   <h3 className="text-lg font-bold text-emerald-900 line-clamp-2">
-                    {therapy.name}
+                    {therapy.therapyName}
                   </h3>
                   <p className="text-xs text-slate-600 line-clamp-3">
-                    {therapy.shortDesc}
+                    {therapy.description}
                   </p>
                   <div>
                     <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold mb-1">
@@ -192,8 +220,8 @@ const ViewTherapies = () => {
             {/* Header image */}
             <div className="h-64 w-full bg-slate-200 relative">
               <img
-                src={selectedTherapy.image}
-                alt={selectedTherapy.name}
+                src={selectedTherapy.TherapyImg}
+                alt={selectedTherapy.therapyName}
                 className="w-full h-full object-cover"
               />
               <button
@@ -208,7 +236,7 @@ const ViewTherapies = () => {
             <div className="flex-1 p-8 overflow-y-auto space-y-6">
               {/* Name */}
               <h2 className="text-2xl font-bold text-emerald-800">
-                {selectedTherapy.name}
+                {selectedTherapy.therapyName}
               </h2>
 
               {/* Price */}
@@ -225,7 +253,7 @@ const ViewTherapies = () => {
               {/* Full description */}
               <div>
                 <p className="text-sm md:text-base text-slate-700 leading-relaxed">
-                  {selectedTherapy.fullDesc}
+                  {selectedTherapy.description}
                 </p>
               </div>
 

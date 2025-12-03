@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faStethoscope, faUserDoctor, faUser, faGear } from "@fortawesome/free-solid-svg-icons";
-import { CircleDollarSign, LayoutDashboard, User, HandHeart } from "lucide-react";
+import { CircleDollarSign, LayoutDashboard, User, HandHeart, BriefcaseMedical } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const SidePanel = () => {
@@ -76,6 +76,17 @@ const SidePanel = () => {
       >
         <User className="h-5 w-5" />
         <span>View Therapies</span>
+      </button>
+
+
+       <button
+        onClick={() => navigate("/view-doctor")}
+        className={`${baseItem} ${isActive("/view-doctor") ? activeClasses : inactiveClasses}`}
+      >
+    <BriefcaseMedical className="w-6 h-6" />
+
+
+        <span>View Doctors</span>
       </button>
 
       <button

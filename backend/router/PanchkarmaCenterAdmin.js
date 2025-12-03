@@ -396,6 +396,51 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
 
 
 
+PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
+     console.log("hitting get data routes");
+
+  const {email}=req.body;
+
+  const PanchakarmaCenter=await PanchakarmaCenterModel.findOne({
+    email:email
+  });
+
+  const getAllTherapy=await TherapyModel.find({
+    centerId:PanchakarmaCenter._id
+  })
+    
+  console.log("mil gaya data!!!",getAllTherapy);
+
+  res.json({
+    getAllTherapy
+  })
+
+})
+
+
+PanchakarmaCenterRouter.post("/get-doctors",async(req,res)=>{
+  
+   console.log("hitting get doctor routes");
+
+  const {email}=req.body;
+
+  const PanchakarmaCenter=await PanchakarmaCenterModel.findOne({
+    email:email
+  });
+
+  const getAllDr=await DoctorModel.find({
+    centerId:PanchakarmaCenter._id
+  })
+    
+  console.log("mil gaya data!!!",getAllDr);
+
+  res.json({
+    getAllDr
+  })
+
+
+})
+
 module.exports = {
   PanchakarmaCenterRouter: PanchakarmaCenterRouter
 }
