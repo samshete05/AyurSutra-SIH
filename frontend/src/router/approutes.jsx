@@ -14,7 +14,7 @@ import AllCenters from "../pages/center/AllCenters"; // or AllCentersEnhanced
 import PatientRoutes from "./PatientRoutes";
 // import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
 import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
-import AppointmentList from "../pages/AppointmentList";
+import AppointmentList from "../pages/center/AppointmentList";
 // import <AddDoctorPage></AddDoctorPage> from "../pages/AddDoctor";
 import AddDoctorPage from "../pages/center/AddDoctor";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
@@ -35,11 +35,14 @@ import { elements } from "chart.js";
 import PatientProtectedRoute from "../pages/patient/patientProtectedRoute";
 import ViewDoctors from "../pages/center/ViewDoctor";
 import ViewTherapists from "../pages/center/ViewTherapist";
+import CenterNotifications from "../pages/center/CenterNotifications";
 import TermsServices from "../pages/TermsServices";
 import Privacy from "../pages/privacy";
 import HelpCenter from "../pages/HelpCenter";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
+
+
 export const AppRoutes = () => {
   return (
      <div className="h-screen w-full">
@@ -56,9 +59,10 @@ export const AppRoutes = () => {
         <Route path="/dashboard" element={ <ProtectedRoute allowedRole="centerHead"><PanchakarmaDashboard/> </ProtectedRoute> }/>
         <Route path="/center-appointments" element={ <ProtectedRoute allowedRole="centerHead"> <AppointmentList/> </ProtectedRoute>}/>
         <Route path="/add-doctor" element={ <ProtectedRoute allowedRole="centerHead"> <AddDoctorPage/> </ProtectedRoute>}/>
-       <Route path="/add-therapist"  element={ <ProtectedRoute allowedRole="centerHead"> <AddTherapist/> </ProtectedRoute>}/>
-    <Route path="/add-therapy"  element={ <ProtectedRoute allowedRole="centerHead" > <AddTherapy/> </ProtectedRoute>}/>
-    <Route path="/view-therapy" element={ <ProtectedRoute allowedRole="centerHead"> <ViewTherapies/> </ProtectedRoute>}/>
+        <Route path="/add-therapist"  element={ <ProtectedRoute allowedRole="centerHead"> <AddTherapist/> </ProtectedRoute>}/>
+        <Route path="/add-therapy"  element={ <ProtectedRoute allowedRole="centerHead" > <AddTherapy/> </ProtectedRoute>}/>
+        <Route path="/view-therapy" element={ <ProtectedRoute allowedRole="centerHead"> <ViewTherapies/> </ProtectedRoute>}/>
+        <Route path="/center-notifications" element={<ProtectedRoute allowedRole="centerHead"><CenterNotifications /></ProtectedRoute>} />
 
         <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
 
@@ -71,12 +75,7 @@ export const AppRoutes = () => {
         <Route path="/NotFound" element={<NotFound/>} />
         <Route path="/view-doctor" element={ <ProtectedRoute allowedRole="centerHead">  <ViewDoctors/>  </ProtectedRoute> } />
         <Route path="/view-therapist" element={<ProtectedRoute allowedRole="centerHead"> <ViewTherapists/> </ProtectedRoute>}/>
-        <Route 
-    path="/PanchaKarma-Dashboard"
-    element={
-      <ProtectedRoute allowedRole="centerHead">
-        <PanchakarmaDashboard />
-      </ProtectedRoute>
+        <Route path="/PanchaKarma-Dashboard" element={<ProtectedRoute allowedRole="centerHead"><PanchakarmaDashboard /></ProtectedRoute>
     }
   />
 

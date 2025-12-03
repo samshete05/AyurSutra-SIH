@@ -21,6 +21,7 @@ const notificationSchema = new schema({
       "report",
       "reminder",
       "promotion",
+      "system",
     ],
     required: true,
   },
