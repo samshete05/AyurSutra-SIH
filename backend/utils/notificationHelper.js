@@ -3,6 +3,7 @@ const notificationModel = require("../models/Notification.model");
 // Main function to create notifications
 const createNotification = async ({
   userId,
+  userType = "patient", // 'patient' or 'centerHead'
   type,
   title,
   message,
@@ -13,6 +14,7 @@ const createNotification = async ({
   try {
     const notification = new notificationModel({
       userId,
+      userType,
       type,
       title,
       message,
@@ -23,142 +25,120 @@ const createNotification = async ({
     });
 
     await notification.save();
-    console.log(`✅ Notification created for user ${userId}: ${title}`);
+    console.log(`Notification created for ${userType} ${userId}: ${title}`);
 
     return notification;
   } catch (error) {
-    console.error("❌ Error creating notification:", error);
+    console.error("Error creating notification:", error);
     throw error;
   }
 };
 
 // Pre-built notification templates
 const NotificationTemplates = {
-  // When appointment is booked
-  appointmentBooked: (userId, appointmentDate, doctorName, appointmentId) =>
+  // Scenario 1: Welcome message after registration
+  welcomeMessage: (userId, userName, userType = "patient") =>
     createNotification({
       userId,
-      type: "appointment",
-      title: "Appointment Confirmed",
-      message: `Your appointment with Dr. ${doctorName} on ${appointmentDate} has been confirmed`,
-      priority: "high",
-      actionable: true,
-      actions: [
-        {
-          label: "View Details",
-          type: "primary",
-          link: `/patient/appointments/${appointmentId}`,
-        },
-        {
-          label: "Reschedule",
-          type: "secondary",
-          link: `/patient/appointments/${appointmentId}/reschedule`,
-        },
-      ],
-    }),
-
-  // 24 hours before appointment
-  appointmentReminder: (userId, appointmentDate, time, doctorName) =>
-    createNotification({
-      userId,
-      type: "appointment",
-      title: "Appointment Reminder",
-      message: `Your appointment with Dr. ${doctorName} is tomorrow at ${time}`,
-      priority: "high",
-      actionable: true,
-      actions: [
-        { label: "Confirm", type: "primary" },
-        { label: "Cancel", type: "secondary" },
-      ],
-    }),
-
-  // When treatment plan is updated
-  treatmentUpdated: (userId, doctorName, treatmentId) =>
-    createNotification({
-      userId,
-      type: "treatment",
-      title: "Treatment Plan Updated",
-      message: `Dr. ${doctorName} has updated your Ayurvedic treatment plan`,
-      priority: "medium",
-      actionable: true,
-      actions: [
-        {
-          label: "View Changes",
-          type: "primary",
-          link: `/patient/treatments/${treatmentId}`,
-        },
-      ],
-    }),
-
-  // When lab results are ready
-  labResultsReady: (userId, testName, reportId) =>
-    createNotification({
-      userId,
-      type: "report",
-      title: "Lab Results Available",
-      message: `Your ${testName} results are now available to view`,
-      priority: "medium",
-      actionable: true,
-      actions: [
-        {
-          label: "View Report",
-          type: "primary",
-          link: `/patient/reports/${reportId}`,
-        },
-      ],
-    }),
-
-  // Medication reminder
-  medicationReminder: (userId, medicationName, time) =>
-    createNotification({
-      userId,
-      type: "medication",
-      title: "Medication Reminder",
-      message: `Time to take ${medicationName} - ${time}`,
-      priority: "high",
-      actionable: true,
-      actions: [
-        { label: "Mark as Taken", type: "primary" },
-        { label: "Snooze 15 min", type: "secondary" },
-      ],
-    }),
-
-  // Daily wellness check
-  dailyWellnessCheck: (userId) =>
-    createNotification({
-      userId,
-      type: "reminder",
-      title: "Daily Wellness Check",
-      message: "Don't forget to log your daily symptoms and wellness score",
-      priority: "low",
-      actionable: true,
-      actions: [
-        {
-          label: "Log Now",
-          type: "primary",
-          link: "/patient/wellness-tracker",
-        },
-      ],
-    }),
-
-  // Welcome notification for new users
-  welcomeMessage: (userId, userName) =>
-    createNotification({
-      userId,
+      userType,
       type: "promotion",
       title: `Welcome to AyurSutra, ${userName}! 🌿`,
       message:
-        "Start your Ayurvedic wellness journey today. Complete your profile to get personalized recommendations.",
+        userType === "patient"
+          ? "Start your Ayurvedic wellness journey today. Complete your profile to get personalized recommendations and book your first consultation."
+          : "Welcome to AyurSutra! Set up your center profile to start receiving appointment requests from patients.",
       priority: "medium",
       actionable: true,
-      actions: [
-        {
-          label: "Complete Profile",
-          type: "primary",
-          link: "/patient/my-profile",
-        },
-      ],
+      actions:
+        userType === "patient"
+          ? [
+              {
+                label: "Complete Profile",
+                type: "primary",
+                link: "/patient/my-profile",
+              },
+              {
+                label: "Explore Centers",
+                type: "secondary",
+                link: "/patient/find-centers",
+              },
+            ]
+          : [
+              {
+                label: "Complete Profile",
+                type: "primary",
+                link: "/center/profile",
+              },
+              {
+                label: "View Dashboard",
+                type: "secondary",
+                link: "/center/dashboard",
+              },
+            ],
     }),
+
+  // Scenario 2: Welcome back message on login
+  welcomeBack: (
+    userId,
+    userName,
+    userType = "patient",
+    lastLoginDate = null
+  ) => {
+    const formatDate = (date) => {
+      if (!date) return "a while";
+      const d = new Date(date);
+      return d.toLocaleDateString("en-IN", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+    console.log("welcome back called")
+
+    return createNotification({
+      userId,
+      userType,
+      type: "reminder",
+      title: `Welcome back, ${userName}! 👋`,
+      message:
+        userType === "patient"
+          ? `Your last visit was on ${formatDate(
+              lastLoginDate
+            )}. Check out your upcoming appointments and wellness progress.`
+          : `Your last visit was on ${formatDate(
+              lastLoginDate
+            )}. Review today's appointments and patient requests.`,
+      priority: "low",
+      actionable: true,
+      actions:
+        userType === "patient"
+          ? [
+              {
+                label: "View Dashboard",
+                type: "primary",
+                link: "/patient/",
+              },
+              {
+                label: "My Appointments",
+                type: "secondary",
+                link: "/patient/appointments",
+              },
+            ]
+          : [
+              {
+                label: "View Dashboard",
+                type: "primary",
+                link: "/center/dashboard",
+              },
+              {
+                label: "Today's Schedule",
+                type: "secondary",
+                link: "/center/appointments",
+              },
+            ],
+    });
+  },
+  // other messages will go here
 };
 
 module.exports = {
