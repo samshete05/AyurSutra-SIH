@@ -71,31 +71,44 @@ const SignUp = () => {
   const isCenterHead = selectedUserRole === "centerHead";
 
   return (
-    <>
+<>
   <Navbar />
 
   <div className="min-h-screen flex items-center justify-center bg-[#F4F6F0] px-4">
     <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-lg overflow-hidden">
 
-      {/* LEFT – BRANDING */}
-      <div className="hidden md:flex flex-col justify-center px-12 bg-[#1E4B3C] text-white">
-        <div className="w-14 h-14 mb-6 rounded-full border border-white/40 flex items-center justify-center text-2xl font-medium">
-          ॐ
+      {/* LEFT – BRANDING WITH IMAGE */}
+      <div
+        className="hidden md:flex relative flex-col justify-center px-12 text-white"
+        style={{
+          backgroundImage:
+            "url('https://www.shutterstock.com/image-photo/reallife-image-capturing-mission-ayurvedic-600nw-2565660415.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* overlay */}
+        <div className="absolute inset-0 bg-black/45"></div>
+
+        <div className="relative z-10">
+          <div className="w-14 h-14 mb-6 rounded-full border border-white/40 flex items-center justify-center text-2xl font-medium">
+            ॐ
+          </div>
+
+          <h1 className="text-3xl font-semibold">AyurSutra</h1>
+
+          <p className="mt-3 text-sm text-white/85 leading-relaxed">
+            Panchakarma Management Platform trusted by
+            Ayurvedic centers across India.
+          </p>
+
+          <div className="w-12 h-[2px] bg-white/40 my-6"></div>
+
+          <p className="text-sm text-white/75 leading-relaxed">
+            Create your account to manage patients,
+            clinics, and treatments securely.
+          </p>
         </div>
-
-        <h1 className="text-3xl font-semibold">AyurSutra</h1>
-
-        <p className="mt-3 text-sm text-white/80 leading-relaxed">
-          Panchakarma Management Platform trusted by
-          Ayurvedic centers across India.
-        </p>
-
-        <div className="w-12 h-[2px] bg-white/40 my-6"></div>
-
-        <p className="text-sm text-white/70 leading-relaxed">
-          Create your account to manage patients,
-          clinics, and treatments securely.
-        </p>
       </div>
 
       {/* RIGHT – SIGNUP FORM */}
@@ -138,10 +151,7 @@ const SignUp = () => {
         </div>
 
         {/* FORM */}
-        <form
-          onSubmit={handleFormSubmit}
-          className="mt-8 space-y-5"
-        >
+        <form onSubmit={handleFormSubmit} className="mt-8 space-y-5">
 
           {/* NAME + PHONE */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -157,8 +167,8 @@ const SignUp = () => {
                 required
                 placeholder="Enter your full name"
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                  focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                  focus:border-[#1E4B3C]"
+                focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+                focus:border-[#1E4B3C]"
               />
             </div>
 
@@ -174,8 +184,8 @@ const SignUp = () => {
                 required
                 placeholder="+91 XXXXXX XXXXX"
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                  focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                  focus:border-[#1E4B3C]"
+                focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+                focus:border-[#1E4B3C]"
               />
             </div>
           </div>
@@ -193,8 +203,8 @@ const SignUp = () => {
               required
               placeholder="you@example.com"
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                focus:border-[#1E4B3C]"
+              focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+              focus:border-[#1E4B3C]"
             />
           </div>
 
@@ -213,8 +223,8 @@ const SignUp = () => {
                   required={isCenterHead}
                   placeholder="Clinic / center name"
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                    focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                    focus:border-[#1E4B3C]"
+                  focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+                  focus:border-[#1E4B3C]"
                 />
               </div>
 
@@ -230,8 +240,8 @@ const SignUp = () => {
                   required={isCenterHead}
                   placeholder="AYUSH / clinic license"
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                    focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                    focus:border-[#1E4B3C]"
+                  focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+                  focus:border-[#1E4B3C]"
                 />
               </div>
             </div>
@@ -247,8 +257,8 @@ const SignUp = () => {
               required
               placeholder="Create password"
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                focus:border-[#1E4B3C]"
+              focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+              focus:border-[#1E4B3C]"
             />
 
             <input
@@ -259,8 +269,8 @@ const SignUp = () => {
               required
               placeholder="Confirm password"
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5
-                focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
-                focus:border-[#1E4B3C]"
+              focus:outline-none focus:ring-2 focus:ring-[#1E4B3C]/40
+              focus:border-[#1E4B3C]"
             />
           </div>
 
@@ -276,11 +286,11 @@ const SignUp = () => {
             />
             <span>
               I agree to the{" "}
-              <span className="text-[#1E4B3C] hover:underline cursor-pointer">
+              <span className="text-[#1E4B3C] cursor-pointer hover:underline">
                 Terms & Conditions
               </span>{" "}
               and{" "}
-              <span className="text-[#1E4B3C] hover:underline cursor-pointer">
+              <span className="text-[#1E4B3C] cursor-pointer hover:underline">
                 Privacy Policy
               </span>
             </span>
@@ -290,7 +300,7 @@ const SignUp = () => {
           <button
             type="submit"
             className="w-full bg-[#1E4B3C] text-white py-2.5 rounded-lg
-              hover:bg-[#173B30] transition font-medium"
+            hover:bg-[#173B30] transition font-medium"
           >
             {isCenterHead ? "Submit Center Head Request" : "Create Account"}
           </button>
@@ -313,6 +323,7 @@ const SignUp = () => {
 
   <Footer />
 </>
+
 
   );
 };

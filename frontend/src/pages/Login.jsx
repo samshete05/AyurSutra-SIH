@@ -66,30 +66,44 @@ const Login = () => {
   const isDoctor = selectedRole === "doctor";
 
   return (
-    <>
+<>
   <Navbar />
 
   <div className="min-h-screen flex items-center justify-center bg-[#F4F6F0] px-4">
     <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-lg overflow-hidden">
 
-      {/* LEFT SECTION – BRANDING */}
-      <div className="hidden md:flex flex-col justify-center px-12 bg-[#1E4B3C] text-white">
-        <div className="w-14 h-14 mb-6 rounded-full border border-white/40 flex items-center justify-center text-2xl font-medium">
-          ॐ
+      {/* LEFT SECTION – BRANDING WITH IMAGE */}
+      <div
+        className="hidden md:flex relative flex-col justify-center px-12 text-white"
+        style={{
+          backgroundImage:
+            "url('https://cdn.dribbble.com/userupload/22224091/file/original-c8ecf8d1de681520cfc56fadeb2a7b6f.png?resize=752x564&vertical=center')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* overlay */}
+        <div className="absolute inset-0 bg-black/45"></div>
+
+        {/* content */}
+        <div className="relative z-10">
+          <div className="w-14 h-14 mb-6 rounded-full border border-white/40 flex items-center justify-center text-2xl font-medium">
+            ॐ
+          </div>
+
+          <h1 className="text-3xl font-semibold">AyurSutra</h1>
+
+          <p className="mt-3 text-sm text-white/85 leading-relaxed">
+            Secure access for patients, centers, and doctors across India.
+          </p>
+
+          <div className="w-12 h-[2px] bg-white/40 my-6"></div>
+
+          <p className="text-sm text-white/75 leading-relaxed">
+            Login to manage treatments, institutions, and Ayurvedic care
+            with industry-grade security.
+          </p>
         </div>
-
-        <h1 className="text-3xl font-semibold">AyurSutra</h1>
-
-        <p className="mt-3 text-sm text-white/80 leading-relaxed">
-          Secure access for patients, centers, and doctors across India.
-        </p>
-
-        <div className="w-12 h-[2px] bg-white/40 my-6"></div>
-
-        <p className="text-sm text-white/70 leading-relaxed">
-          Login to manage treatments, institutions, and Ayurvedic care
-          with industry-grade security.
-        </p>
       </div>
 
       {/* RIGHT SECTION – LOGIN */}
@@ -104,7 +118,7 @@ const Login = () => {
 
         {/* ROLE TABS */}
         <div className="mt-6">
-          <div className="grid grid-cols-3 rounded-lg border border-gray-200 overflow-hidden">
+          <div className="grid grid-cols-2 rounded-lg border border-gray-200 overflow-hidden">
             <button
               type="button"
               onClick={() => handleRoleChange("patient")}
@@ -129,7 +143,7 @@ const Login = () => {
               Center Head
             </button>
 
-            <button
+            {/* <button
               type="button"
               onClick={() => handleRoleChange("doctor")}
               className={`py-2 text-sm font-medium transition ${
@@ -139,7 +153,7 @@ const Login = () => {
               }`}
             >
               Doctor
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -260,6 +274,7 @@ const Login = () => {
 
   <Footer />
 </>
+
 
   );
 };
