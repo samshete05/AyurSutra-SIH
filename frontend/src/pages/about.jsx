@@ -82,6 +82,12 @@ const About = () => {
               patients know exactly what to do before, during, and after each
               Panchakarma session.
             </p>
+            <ul className="mt-2 space-y-1 text-xs md:text-sm text-emerald-900 list-disc pl-4">
+              <li>Personalized instructions for every therapy step.</li>
+              <li>Easy access to progress reports and feedback forms.</li>
+              <li>Reminders for appointments and post-therapy care.</li>
+              <li>Confidential digital records for privacy and security.</li>
+            </ul>
           </div>
 
           <div className="rounded-2xl bg-white border border-emerald-100 p-4 shadow-sm">
@@ -93,6 +99,12 @@ const About = () => {
               no‑shows help centers use their therapy rooms, staff, and
               equipment more effectively.
             </p>
+            <ul className="mt-2 space-y-1 text-xs md:text-sm text-emerald-900 list-disc pl-4">
+              <li>Centralized dashboard for all appointments and schedules.</li>
+              <li>Staff allocation and shift management tools.</li>
+              <li>Instant alerts for cancellations and rescheduling.</li>
+              <li>Inventory tracking for therapy supplies and medicines.</li>
+            </ul>
           </div>
 
           <div className="rounded-2xl bg-white border border-emerald-100 p-4 shadow-sm">
@@ -103,7 +115,37 @@ const About = () => {
               Track therapy progress, responses, and feedback over time to
               refine protocols while keeping records organized and accessible.
             </p>
+            <ul className="mt-2 space-y-1 text-xs md:text-sm text-emerald-900 list-disc pl-4">
+              <li>Visual analytics for therapy outcomes and patient satisfaction.</li>
+              <li>Historical data to support research and improvement.</li>
+              <li>Customizable reports for center management and compliance.</li>
+              <li>Secure cloud storage for all patient and therapy data.</li>
+            </ul>
           </div>
+        </div>
+
+        <div className="mt-10 rounded-2xl bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] p-6 text-white shadow-md">
+          <h3 className="text-lg font-bold mb-2 text-emerald-100">
+            How AyurSutra Benefits Everyone
+          </h3>
+          <ul className="space-y-2 text-sm md:text-base list-disc pl-5">
+            <li>
+              <span className="font-semibold text-emerald-100">For Patients:</span> 
+              Seamless therapy experience, clear instructions, and easy access to their health records.
+            </li>
+            <li>
+              <span className="font-semibold text-emerald-100">For Staff:</span> 
+              Simplified scheduling, reduced paperwork, and better coordination for delivering therapies.
+            </li>
+            <li>
+              <span className="font-semibold text-emerald-100">For Center Owners:</span> 
+              Real-time visibility into operations, occupancy, and performance, enabling data-driven decisions.
+            </li>
+            <li>
+              <span className="font-semibold text-emerald-100">For the Community:</span> 
+              Promotes authentic Ayurvedic care with modern efficiency, helping more people benefit from Panchakarma.
+            </li>
+          </ul>
         </div>
       </section>
     </div>
