@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Bell,
   Mail,
@@ -19,11 +20,13 @@ import {
 } from "lucide-react";
 
 function NotificationsPage() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const [actionLoading, setActionLoading] = useState(null);
   const [notificationChannels, setNotificationChannels] = useState({
     inApp: true,
     email: true,
@@ -98,73 +101,6 @@ function NotificationsPage() {
     // Trigger a custom event to update TopBar
     window.dispatchEvent(new Event('notificationsUpdated'));
   };
-
-  // Mock notifications (fallback)    Dummy Daata*********************************************************
-  const getMockNotifications = () => [
-    {
-      id: 1,
-      type: "appointment",
-      title: "Upcoming Appointment Reminder",
-      message: "Your Panchakarma session is scheduled for tomorrow at 10:00 AM with Dr. Sharma",
-      timestamp: new Date(Date.now() - 30 * 60000).toISOString(),
-      read: false,
-      priority: "high",
-      actionable: true,
-      actions: [
-        { label: "Confirm", type: "primary" },
-        { label: "Reschedule", type: "secondary" }
-      ]
-    },
-    {
-      id: 2,
-      type: "medication",
-      title: "Medication Reminder",
-      message: "Time to take your Triphala supplement - 1 tablet after dinner",
-      timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
-      read: false,
-      priority: "medium",
-      actionable: true,
-      actions: [
-        { label: "Mark as Taken", type: "primary" }
-      ]
-    },
-    {
-      id: 3,
-      type: "report",
-      title: "Lab Results Available",
-      message: "Your recent blood test results are now available to view",
-      timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
-      read: true,
-      priority: "medium",
-      actionable: true,
-      actions: [
-        { label: "View Report", type: "primary" }
-      ]
-    },
-    {
-      id: 4,
-      type: "treatment",
-      title: "Treatment Plan Updated",
-      message: "Dr. Sharma has updated your Ayurvedic treatment plan. Please review the changes",
-      timestamp: new Date(Date.now() - 48 * 3600000).toISOString(),
-      read: true,
-      priority: "medium",
-      actionable: true,
-      actions: [
-        { label: "View Changes", type: "primary" }
-      ]
-    },
-    {
-      id: 5,
-      type: "reminder",
-      title: "Daily Wellness Check",
-      message: "Don't forget to log your daily symptoms and wellness score",
-      timestamp: new Date(Date.now() - 72 * 3600000).toISOString(),
-      read: true,
-      priority: "low",
-      actionable: false
-    }
-  ];
 
   // Toggle notification channel
   const toggleChannel = async (channel) => {
@@ -301,6 +237,27 @@ function NotificationsPage() {
     }
   };
 
+  // Navigation Onclick
+  const handleActionClick = async (link, notificationId) => {
+    if (!link) {
+      console.error('No link provided for this action');
+      return;
+    }
+
+    console.log(`Navigating to: ${link}`);
+
+    // Mark notification as read when action is clicked
+    try {
+      await markAsRead(notificationId);
+      // Navigate to the link
+      navigate(link);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   // Filter notifications
   const filteredNotifications = notifications.filter(notif => {
     const matchesFilter = activeFilter === "all" || 
@@ -315,12 +272,7 @@ function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="text-center">
-          <Loader className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600">Loading notifications...</p>
-        </div>
-      </div>
+      <Loader />
     );
   }
 
@@ -593,7 +545,7 @@ function NotificationsPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
                       {getNotificationIcon(notification.type)}
                     </div>
-
+              
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -608,7 +560,7 @@ function NotificationsPage() {
                             {notification.message}
                           </p>
                         </div>
-
+                          
                         {/* Delete Button */}
                         <button
                           onClick={() => deleteNotification(notification.id)}
@@ -617,33 +569,39 @@ function NotificationsPage() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-
+                          
                       {/* Footer */}
                       <div className="flex flex-wrap items-center gap-3 mt-3">
                         <span className="text-xs text-slate-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTimestamp(notification.timestamp)}
                         </span>
-
+                          
                         {notification.priority === "high" && (
                           <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-full">
                             High Priority
                           </span>
                         )}
 
-                        {/* Action Buttons */}
+                        {/* UPDATED Action Buttons with onClick */}
                         {notification.actionable && notification.actions && (
                           <div className="flex gap-2 ml-auto">
                             {notification.actions.map((action, idx) => (
                               <button
                                 key={idx}
-                                className={`text-xs font-medium px-4 py-1.5 rounded-lg transition-colors ${
+                                onClick={() => handleActionClick(action.link, notification.id)}
+                                disabled={actionLoading === notification.id}
+                                className={`text-xs font-medium px-4 py-1.5 rounded-lg transition-colors cursor-pointer ${
                                   action.type === "primary"
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                    : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-50"
                                 }`}
                               >
-                                {action.label}
+                                {actionLoading === notification.id ? (
+                                  <Loader />
+                                ) : (
+                                  action.label
+                                )}
                               </button>
                             ))}
                           </div>

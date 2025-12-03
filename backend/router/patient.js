@@ -12,74 +12,85 @@ const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const AppointmentModel = require("../models/Appointment.model")
-const notificationModel = require("../models/Notification.model")
+const notificationModel = require("../models/Notification.model");
+const { NotificationTemplates } = require("../utils/notificationHelper");
 
 
 
 // *************************** REGISTER ********************************
 patientRouter.post("/register", async function(req,res){
-     const requiredatas=z.object({
-        name:z.string().min(3).max(100),
-        phoneNumber:z.string().min(10).max(13),
-        email:z.string().min(5).max(100),
-        password:z.string().min(5).max(100),
-        confirmPassword:z.string().min(5).max(100),
-     })
- let registerUser=null;
-     const checkdata=requiredatas.safeParse(req.body);
+   const requiredatas=z.object({
+      name:z.string().min(3).max(100),
+      phoneNumber:z.string().min(10).max(13),
+      email:z.string().min(5).max(100),
+      password:z.string().min(5).max(100),
+      confirmPassword:z.string().min(5).max(100),
+   })
+   let registerUser=null;
+   const checkdata=requiredatas.safeParse(req.body);
 
+   if(!checkdata.success){
+      res.status(422).send("Invalid Input types");
+      return;
+   }
 
-     if(!checkdata.success){
-        res.status(422).send("Invalid Input types");
-        return;
-    }
-
-     const {name,phoneNumber,email,password,confirmPassword,role,lattitude,longitude,LicenseNo
-      ,CenterName,BotNumber
-     }=req.body;
+   const {
+      name,
+      phoneNumber,
+      email,
+      password,
+      confirmPassword,
+      role,
+      lattitude,
+      longitude,
+      LicenseNo,
+      CenterName,
+      BotNumber
+   } = req.body;
    //   console.log(req);
-     const hashedpassword=await bcrypt.hash(password,5);
-     console.log("start");
-     console.log(name);
-     console.log(phoneNumber);
-     console.log(email);
-     console.log(password);
-    console.log(CenterName)
-    console.log(lattitude);
-    console.log(longitude);
-     console.log(LicenseNo);
-     console.log(role);
+   const hashedpassword=await bcrypt.hash(password,5);
 
-     console.log("end!")
+   // ---------------- Patient Registration ---------------
+   if(role=='patient'){ 
+      const checkAlreadyEmailExistOrNot=await patientModel.findOne({
+         email:email
+      })
 
-     if(role=='patient'){
-      
-     const checkAlreadyEmailExistOrNot=await patientModel.findOne({
-        email:email
-     })
+      // console.log("check errors ",checkAlreadyEmailExistOrNot);
 
-     console.log("check error  s ",checkAlreadyEmailExistOrNot);
-
-     if(checkAlreadyEmailExistOrNot){
-        res.json({
+      if(checkAlreadyEmailExistOrNot){
+         res.json({
             message:"Email_Present"
-        })
-        return;
-     }
+         })
+         return;
+      }
 
       registerUser=await patientModel.create({
-          name:name,
-          mobileNo:phoneNumber,
-          password:hashedpassword,
-          email:email
-     })
+         name:name,
+         mobileNo:phoneNumber,
+         password:hashedpassword,
+         email:email,
+         lastLoginDate: null
+      });
 
-     } else if(role=='centerHead'){
-       const checkAlreadyEmailExistOrNot=await PanchakarmaCenterModel.findOne({
-        email:email
-     })
+      // Send Notification to patient
+      try {
+        await NotificationTemplates.welcomeMessage(
+          registerUser._id,
+          name,
+          "patient"
+        );
+        // console.log(`Welcome notification sent to patient: ${email}`);
+      } catch (error) {
+        console.error("Error sending welcome notification:", error);
+      }
+   } 
+   else if(role=='centerHead'){
+      const checkAlreadyEmailExistOrNot=await PanchakarmaCenterModel.findOne({
+         email:email
+   })
 
-     console.log("check error  s ",checkAlreadyEmailExistOrNot);
+     // console.log("check errors ",checkAlreadyEmailExistOrNot);
 
      if(checkAlreadyEmailExistOrNot){
         res.json({
@@ -95,11 +106,22 @@ patientRouter.post("/register", async function(req,res){
           email:email,
           licenseNo:LicenseNo,
           CenterName:CenterName,
+          lastLoginDate: null,
+     });
 
-     })
+      try {
+        await NotificationTemplates.welcomeMessage(
+          registerUser._id,
+          name,
+          "centerHead"
+        );
+        // console.log(`Welcome notification sent to centerHead: ${email}`);
+      } catch (error) {
+        console.error("Error sending welcome notification:", error);
+      }
+   }
 
-     }
-
+   // Send OTP
       const otp=otpgenerator.generate(6,{
         digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
      })
@@ -111,15 +133,13 @@ patientRouter.post("/register", async function(req,res){
 
         console.log("here!!!",role," ",otp);
 
-          res.json({
+   res.json({
         message:"OTP_Send",
         email:email,
         role:registerUser.role
-     })
+   })
 
     if(registerUser!=null) await sendemail(registerUser.email,"Email verification code:",otp);
-               
-
 })
 
 
@@ -151,13 +171,38 @@ patientRouter.post("/login", async function (req, res) {
       return res.json({ message: "User_not_exists" });
     }
 
+    // GET LAST LOGIN DATE BEFORE UPDATING
+    const lastLoginDate = checkedUser.lastLoginDate;
+    // console.log(lastLoginDate)
+
+    // UPDATE LAST LOGIN DATE
+    await patientModel.findOneAndUpdate(
+      { _id: checkedUser._id },
+      { $set: { lastLoginDate: new Date() } }
+    );
+
+    // console.log(lastLoginDate)
+
+    // SEND WELCOME BACK NOTIFICATION (only if not first login)
+      try {
+        await NotificationTemplates.welcomeBack(
+          checkedUser._id,
+          checkedUser.name,
+          "patient",
+          lastLoginDate
+        );
+        console.log(`Welcome back notification sent to patient: ${email}`);
+      } catch (error) {
+        console.error("Error sending welcome back notification:", error);
+      }
+
     const token = jwt.sign({ id: checkedUser._id }, JWT_KEY);
 
     return res.json({
       token,
       message: "logedin",
       role: checkedUser.role,
-      profileimg:checkedUser.ProfileImg
+      profileimg: checkedUser.ProfileImg,
     });
   }
 
@@ -175,13 +220,38 @@ patientRouter.post("/login", async function (req, res) {
       return res.json({ message: "center_not_exists" });
     }
 
+    // GET LAST LOGIN DATE BEFORE UPDATING
+    const lastLoginDate = centerUser.lastLoginDate;
+
+    // UPDATE LAST LOGIN DATE
+    await PanchakarmaCenterModel.findOneAndUpdate(
+      { _id: centerUser._id },
+      { $set: { lastLoginDate: new Date() } },
+      
+    );
+
+    // SEND WELCOME BACK NOTIFICATION (only if not first login)
+      try {
+        await NotificationTemplates.welcomeBack(
+          centerUser._id,
+          centerUser.Adminname,
+          "centerHead",
+          lastLoginDate
+        );
+        console.log(
+          `Welcome back notification sent to centerHead: ${email}`
+        );
+      } catch (error) {
+        console.error("Error sending welcome back notification:", error);
+      }
+
     const token = jwt.sign({ id: centerUser._id }, JWT_KEY);
 
     return res.json({
       token,
       message: "logedin",
       role: centerUser.role,
-      profileimg:centerUser.ProfileImg
+      profileimg: centerUser.ProfileImg,
     });
   }
 

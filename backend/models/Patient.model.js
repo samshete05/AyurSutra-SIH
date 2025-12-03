@@ -125,6 +125,12 @@ const patientSchema = new schema({
         default: false,
       },
     },
+
+    // Last Login of user
+    lastLoginDate: {
+      type: Date,
+      default: null,
+    },
   },
 });
 

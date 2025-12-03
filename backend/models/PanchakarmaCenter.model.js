@@ -35,8 +35,14 @@ const PanchakarmaCenterSchema = new schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Doctor",
-    }
+    },
   ],
+
+  // Last Login date
+  lastLoginDate: {
+    type: Date,
+    default: null,
+  },
 });
 
 module.exports = mongoose.model("PanchakarmaCenter", PanchakarmaCenterSchema);
