@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Home } from "../pages/home";
@@ -10,14 +9,12 @@ import SignUp from "../pages/SignUp";
 import Login from "../pages/Login";
 import OtpVerification from "../pages/OtpVerification";
 import CenterHeadApplicationSuccess from "../pages/center/CenterHeadApplicationSuccess";
-import AllCenters from "../pages/center/AllCenters"; // or AllCentersEnhanced
+import AllCenters from "../pages/center/AllCenters"; 
 import PatientRoutes from "./PatientRoutes";
-// import PanchakarmaDashboard from "../pages/PanchkarmaAdminDashBoard";
 import PanchakarmaDashboard from "../pages/center/PanchkarmaAdminDashBoard";
 import AppointmentList from "../pages/center/AppointmentList";
-// import <AddDoctorPage></AddDoctorPage> from "../pages/AddDoctor";
 import AddDoctorPage from "../pages/center/AddDoctor";
-import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+// import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DocDashMain from "../pages/doctor/DocDashMain";
 import AddTherapist from "../pages/center/Addtherapist";
 import AddTherapy from "../pages/center/Addtherapy";
@@ -31,7 +28,7 @@ import ProfilePage from "../pages/center/CenterProfile";
 import CenterMap from "../pages/center/CenterMap";
 import NotFound from "../pages/404";
 import ProtectedRoute from "../pages/center/PanchakarmaProtected";
-import { elements } from "chart.js";
+// import { elements } from "chart.js";
 import PatientProtectedRoute from "../pages/patient/patientProtectedRoute";
 import ViewDoctors from "../pages/center/ViewDoctor";
 import ViewTherapists from "../pages/center/ViewTherapist";
@@ -71,7 +68,7 @@ export const AppRoutes = () => {
         {/* <Route path="/center-setting"    /> */}
 
         <Route path="/allcenters" element={<AllCenters />} />
-        <Route  path="/patient/*" element={ <PatientProtectedRoute allowedRole="patient"> <PatientRoutes /> </PatientProtectedRoute>} />
+        <Route path="/patient/*" element={ <PatientProtectedRoute allowedRole="patient"> <PatientRoutes /> </PatientProtectedRoute>} />
         <Route path="/NotFound" element={<NotFound/>} />
         <Route path="/view-doctor" element={ <ProtectedRoute allowedRole="centerHead">  <ViewDoctors/>  </ProtectedRoute> } />
         <Route path="/view-therapist" element={<ProtectedRoute allowedRole="centerHead"> <ViewTherapists/> </ProtectedRoute>}/>

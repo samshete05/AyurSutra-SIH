@@ -23,10 +23,10 @@ const Navbar = () => {
   const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("authToken");
+  const userName = localStorage.getItem("name");
 
   const navigate = useNavigate();
   const [activeMegaKey, setActiveMegaKey] = useState(null);
-
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
@@ -35,6 +35,43 @@ const Navbar = () => {
     rawProfileImage && rawProfileImage !== "null" && rawProfileImage !== "undefined" && rawProfileImage !== ""
       ? rawProfileImage
       : null;
+
+  // Notification cont for avtar
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchNotifications = async () => {
+    if (!email) return;
+    try {
+      const res = await fetch("http://localhost:3000/PanchKarmaCenter/getCenterNotifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const count = data.unreadCount || 0;
+        setUnreadCount(count);
+        localStorage.setItem("notificationCount", count);
+      }
+    } catch (err) {
+      console.error("Navbar notification fetch error:", err);
+    }
+  };
+
+  useEffect(() => {
+    // initial from localStorage
+    const stored = localStorage.getItem("notificationCount");
+    if (stored) setUnreadCount(parseInt(stored));
+
+    // fetch fresh
+    fetchNotifications();
+
+    // listen to global updates (from center pages)
+    const handler = (e) => setUnreadCount(e.detail.count);
+    window.addEventListener("notificationUpdate", handler);
+
+    return () => window.removeEventListener("notificationUpdate", handler);
+  }, [email]);
 
   const handleOpenMega = (key) => setActiveMegaKey(key);
   const handleCloseMega = () => setActiveMegaKey(null);
@@ -66,6 +103,8 @@ const Navbar = () => {
   }, []);
 
   const activeMega = activeMegaKey ? megaMenuConfig[activeMegaKey] : null;
+
+  const isLoggedIn = Boolean(token);
 
   return (
     <header className="relative z-40">
@@ -137,55 +176,91 @@ const Navbar = () => {
 
           {/* RIGHT SIDE */}
           <div className="hidden md:flex items-center gap-4 text-sm">
-
-            {!token && (
-              <Link to="/login" className="cursor-pointer text-emerald-900 hover:text-[#1E4B3C]">
-                Login
-              </Link>
+            {/* NOT LOGGED IN: show Login + Get Started */}
+            {!isLoggedIn && (
+              <>
+                <Link to="/login" className="cursor-pointer text-emerald-900 hover:text-[#1E4B3C]">
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="cursor-pointer rounded-full bg-[#1E4B3C] px-4 py-2 text-white font-semibold hover:bg-emerald-800"
+                >
+                  Get Started
+                </Link>
+              </>
             )}
 
-            {token && (
-              <div className="relative" ref={profileRef}>
-                <button
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="cursor-pointer h-10 w-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center overflow-hidden hover:bg-emerald-200"
-                >
-                  {profileImage ? (
-                    <img src={profileImage} className="h-full w-full object-cover" />
-                  ) : (
-                    <svg className="w-6 h-6 text-[#1E4B3C]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
-                    </svg>
-                  )}
-                </button>
-
-                {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
-                    <button
-                      className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900"
-                      onClick={HandleDashboardClick}
-                    >
-                      Dashboard
-                    </button>
-
-                    <button
-                      className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-red-600"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </button>
-                  </div>
+            {/* LOGGED IN: hide Get Started, show avatar + name + notifications */}
+            {isLoggedIn && (
+              <div className="flex items-center gap-3">
+                {/* Name (optional) */}
+                {userName && (
+                  <span className="hidden lg:block text-emerald-900 font-medium max-w-[140px] truncate">
+                    {userName}
+                  </span>
                 )}
+
+                {/* Avatar + notification badge + dropdown */}
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="relative cursor-pointer h-10 w-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center overflow-hidden hover:bg-emerald-200"
+                  >
+                    {profileImage ? (
+                      <img src={profileImage} className="h-full w-full object-cover" />
+                    ) : (
+                      <svg
+                        className="w-6 h-6 text-[#1E4B3C]"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
+                      </svg>
+                    )}
+
+                    {/* Notification badge on avatar */}
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
+                      <button
+                        className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900"
+                        onClick={HandleDashboardClick}
+                      >
+                        Dashboard
+                      </button>
+
+                      {/* Open notifications page from avatar dropdown */}
+                      <button
+                        className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          navigate("/center-notifications");
+                        }}
+                      >
+                        Notifications {unreadCount > 0 && `(${unreadCount})`}
+                      </button>
+
+                      <button
+                        className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-red-600"
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-
-            <Link
-              to="/signup"
-              className="cursor-pointer rounded-full bg-[#1E4B3C] px-4 py-2 text-white font-semibold hover:bg-emerald-800"
-            >
-              Get Started
-            </Link>
           </div>
         </nav>
 

@@ -15,7 +15,7 @@ function DashboardPage() {
     profile: null,
     appointments: [],
     treatments: [],
-    guidelines: [], // ✅ Add this
+    guidelines: [],
     stats: {
       sessionsCompleted: 0,
       treatmentProgress: 0,
