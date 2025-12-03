@@ -167,6 +167,7 @@ const AddTherapist = () => {
 
                 <input
                   id="therapistUpload"
+                    name="therapistImage" 
                   type="file"
                   accept="image/*"
                   className="hidden"

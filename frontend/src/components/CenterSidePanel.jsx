@@ -79,15 +79,25 @@ const SidePanel = () => {
       </button>
 
 
+         <button
+        onClick={() => navigate("/view-therapist")}
+        className={`${baseItem} ${isActive("/view-therapist") ? activeClasses : inactiveClasses}`}
+      >
+        <User className="h-5 w-5" />
+        <span>View Therapist</span>
+      </button>
+
+
+
        <button
         onClick={() => navigate("/view-doctor")}
         className={`${baseItem} ${isActive("/view-doctor") ? activeClasses : inactiveClasses}`}
       >
-    <BriefcaseMedical className="w-6 h-6" />
-
-
+    <BriefcaseMedical className="w-6 h-6 text-gray-700" />
         <span>View Doctors</span>
       </button>
+
+
 
       <button
         onClick={() => navigate("/billing")}
