@@ -397,7 +397,7 @@ function ProfilePage() {
               {/* Profile Picture */}
               <div className="flex flex-col md:flex-row md:items-end gap-4">
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-slate-200 overflow-hidden">
+                  <div className="w-32 h-32 cursor-pointer rounded-full border-4 border-white shadow-xl bg-slate-200 overflow-hidden">
                     {profileImage ? (
                       <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
@@ -452,7 +452,7 @@ function ProfilePage() {
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors shadow-lg"
                   >
                     <Edit2 className="w-4 h-4" />
                     Edit Profile
@@ -470,7 +470,7 @@ function ProfilePage() {
                     <button
                       onClick={handleCancel}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+                      className="flex cursor-pointer items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl font-medium transition-colors shadow-lg"
                     >
                       <X className="w-4 h-4" />
                       Cancel

@@ -122,6 +122,9 @@ const ViewTherapies = () => {
               <FontAwesomeIcon icon={faBell} className="text-base text-slate-600" />
             </button>
             <CenterNavbarProfile/>
+
+
+    
           </div>
         </header>
 
