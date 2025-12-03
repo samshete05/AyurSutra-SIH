@@ -112,7 +112,7 @@ function TopBar() {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-3 hover:bg-slate-50 rounded-lg px-3 py-2 transition-colors"
+            className="flex cursor-pointer items-center gap-3 hover:bg-slate-50 rounded-lg px-3 py-2 transition-colors"
           >
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-900">
@@ -146,7 +146,7 @@ function TopBar() {
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
               <button
                 onClick={handleViewProfile}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
               >
                 <User size={18} />
                 <span className="font-medium">View Profile</span>
@@ -154,7 +154,7 @@ function TopBar() {
               <div className="h-px bg-slate-200 my-1"></div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="w-full flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut size={18} />
                 <span className="font-medium">Logout</span>
