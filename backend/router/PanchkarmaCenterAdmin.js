@@ -11,11 +11,12 @@ const { PanchkarmaModel } = require("../db/db");
 const JWT_KEY = process.env.JWT_KEY;
 const otpgenerator = require("otp-generator");
 const sendemail = require("../otplogic/otp");
-const  DoctorModel = require("../models/Doctor.model");
-const SendEmailDoctor=require("../otplogic/doctorCredentialSendEmail");
+const DoctorModel = require("../models/Doctor.model");
+const SendEmailDoctor = require("../otplogic/doctorCredentialSendEmail");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const TherapyModel = require("../models/Therapy.model");
 const TherapistModel = require("../models/Therapist.model");
+const upload = require("./multer.js");
 
 
 
@@ -101,162 +102,175 @@ const TherapistModel = require("../models/Therapist.model");
 
 // PanchakarmaCenterRouter.post("/logIn", async (req, res) => {
 
-    
+
 
 
 // })
 
+PanchakarmaCenterRouter.post(
+  "/addDoctor",
+  upload.single("profileImage"),
+  async (req, res) => {
+    try {
+      console.log("hit add dr routes");
 
-PanchakarmaCenterRouter.post("/addDoctor",async(req,res)=>{
-    console.log("here!!!");
-     
-     const requireData = z.object({
+      const requireData = z.object({
         name: z.string().min(3).max(100),
         phone: z.string().min(10).max(13),
-        email:z.string().min(5).max(100),
-        experience:z.string().min(1).max(100),
+        email: z.string().min(5).max(100),
+        experience: z.string().min(1).max(100),
         speciality: z.string().min(3).max(100),
-        consultationFee:z.string().min(1).max(100000),
-        degree:z.string().min(2).max(100),
-        licenseNo:z.string().min(10).max(1000),
-         address:z.string().min(5).max(100),
-         bio:z.string().min(10).max(1000),
-    })
+        consultationFee: z.string().min(1).max(100000),
+        degree: z.string().min(2).max(100),
+        licenseNo: z.string().min(10).max(1000),
+        address: z.string().min(5).max(100),
+        bio: z.string().min(10).max(1000)
+      });
 
+      const checkdata = requireData.safeParse(req.body);
+      if (!checkdata.success) {
+        console.error("Zod validation error:", checkdata.error);
+        return res.status(422).json({ message: "Invalid Input types", details: checkdata.error.errors });
+      }
 
-     const checkdata = requireData.safeParse(req.body);
-     console.log(req.body);
+      // destructure
+      const {
+        name,
+        Adminemail,
+        phone,
+        email,
+        experience,
+        speciality,
+        consultationFee,
+        degree,
+        licenseNo,
+        address,
+        bio,
+        gender,
+        status
+      } = req.body;
 
-    if (!checkdata.success) {
-        res.status(422).send("Invalid Input types");
-        return;
-    }
+      // Ensure Adminemail exists
+      if (!Adminemail) {
+        console.warn("Adminemail not provided in req.body");
+        return res.status(400).json({ message: "Adminemail_required" });
+      }
 
-    const {name, Adminemail,phone, email, experience ,speciality,consultationFee,degree,licenseNo,address,bio,gender,status} = req.body;
+      // find center
+      const checkCenterUser = await PanchakarmaCenterModel.findOne({ email: Adminemail });
+      if (!checkCenterUser) {
+        console.warn("Center not found for Adminemail:", Adminemail);
+        return res.status(404).json({ message: "Center_Not_Found" });
+      }
 
+      // check doctor email
+      const checkAlready = await DoctorModel.findOne({ email });
+      if (checkAlready) {
+        return res.status(409).json({ message: "Dr_Email_Present_use_different_one!!" });
+      }
 
-    // console.log(name);
-    // console.log(phone);
-    // console.log(phone);
-    // // console.log(password);
-    // // console.log(confirmPassword);
-    // console.log(experience);
-    // // console.log(Specialization);
-       
-      const checkCenterUser=await PanchakarmaCenterModel.findOne({
-             email:Adminemail
-          })
+      // get image url (cloudinary storage puts url in req.file.path when using multer-storage-cloudinary)
+      const imageUrl = req.file ? req.file.path : null;
+      console.log("url is ",imageUrl);
 
-    console.log("",checkCenterUser);
-         const checkAlreadyEmailExistOrNot=await DoctorModel.findOne({
-            email:email
-         })
-    
-         console.log("check error  s ",checkAlreadyEmailExistOrNot);
-    
-         if(checkAlreadyEmailExistOrNot){
-            res.json({
-                message:"Dr_Email_Present_use_different_one!!"
-            })
-            return;
-         }
-
-
-    const DoctorCreate = await DoctorModel.create({
-        centerId:checkCenterUser._id,
+      const doctor = await DoctorModel.create({
+        centerId: checkCenterUser._id,
         fullName: name,
-        phone:phone,
-        email:email,
-        experience:experience,
-        speciality:speciality,
-         consultationFee:consultationFee,
-         degree:degree,
-         bio:bio,
-         status:status,
-         gender:gender,
-         address:address,
-         licenseNo:licenseNo
-    })
+        phone,
+        email,
+        experience,
+        speciality,
+        consultationFee,
+        degree,
+        bio,
+        status,
+        gender,
+        address,
+        licenseNo,
+        profileImg: imageUrl
+      });
+
+      return res.json({ message: "doctor_added_success", doctorId: doctor._id });
+    } catch (err) {
+      console.error("Error in /addDoctor:", err && err.stack ? err.stack : err);
+      return res.status(500).json({ message: "internal_error", error: err.message || err });
+    }
+  }
+);
 
 
-    res.json({
-        message:"doctor_added_success"
-    })
-
-
-})
 
 
 PanchakarmaCenterRouter.post("/CenterVerifyOtp", async (req, res) => {
-  
-        const { Adminemail, otp } = req.body;
 
-        console.log("backend otp worksing")
-        console.log(req.body);
-        console.log(Adminemail);
-        console.log(otp);
+  const { Adminemail, otp } = req.body;
 
-        const FindCenterAdminFromDB = await PanchkarmaModel.findOne({
-            AdminName: Adminemail
-        })
+  console.log("backend otp worksing")
+  console.log(req.body);
+  console.log(Adminemail);
+  console.log(otp);
 
-        if (!FindCenterAdminFromDB) {
-            res.json({
-                message: "Admin_not_exist"
-            })
-            return;
-        }
+  const FindCenterAdminFromDB = await PanchkarmaModel.findOne({
+    AdminName: Adminemail
+  })
 
-        const FindCenterAdminWithOTP = await otpmodel.findOne({
-            otp: otp
-        })
+  if (!FindCenterAdminFromDB) {
+    res.json({
+      message: "Admin_not_exist"
+    })
+    return;
+  }
 
-        if (!FindCenterAdminWithOTP) {
-            res.json({
-                message: "INVALID_OTP"
-            })
-            return;
-        }
-        const verifyCenterAdminTrue = await PanchkarmaModel.updateOne({
-            email: email,
-            verified: true
-        })
+  const FindCenterAdminWithOTP = await otpmodel.findOne({
+    otp: otp
+  })
 
-        await otpmodel.findByIdAndDelete({
-            _id: FindPatientWithOTP._id
-        })
+  if (!FindCenterAdminWithOTP) {
+    res.json({
+      message: "INVALID_OTP"
+    })
+    return;
+  }
+  const verifyCenterAdminTrue = await PanchkarmaModel.updateOne({
+    email: email,
+    verified: true
+  })
 
-        res.json({
-            message: "Verified_otp"
-        })
+  await otpmodel.findByIdAndDelete({
+    _id: FindPatientWithOTP._id
+  })
+
+  res.json({
+    message: "Verified_otp"
+  })
 
 
 })
 
 PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
-    //for dropdown menu get all list all centers
-   
-      const token = req.cookies.uidcookie;
- 
-     if (!token) {
-        return res.json({ message: "not_signedIn" });
-      }
+  //for dropdown menu get all list all centers
+
+  const token = req.cookies.uidcookie;
+
+  if (!token) {
+    return res.json({ message: "not_signedIn" });
+  }
 
 
-      const AllCenters = await PanchkarmaModel.find({});
+  const AllCenters = await PanchkarmaModel.find({});
 
-     
-      res.json({
-        message:"All centers list",
-        AllCenters:AllCenters
-      })
+
+  res.json({
+    message: "All centers list",
+    AllCenters: AllCenters
+  })
 
 })
 
 
-PanchakarmaCenterRouter.post("/addTherapy", async (req, res) => {
+PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async (req, res) => {
   console.log("Therapy API called!");
-  
+
   const requireData = z.object({
     name: z.string().min(3).max(100),
     duration: z.string().min(2).max(50),
@@ -296,14 +310,18 @@ PanchakarmaCenterRouter.post("/addTherapy", async (req, res) => {
     return;
   }
 
+    const imageUrl = req.file ? req.file.path : null;
+      console.log("url is ",imageUrl);
+
   await TherapyModel.create({
     centerId: center._id,
-    therapyName:name,
+    therapyName: name,
     duration,
     price,
     category,
     maxPatientsPerDay,
-    description
+    description,
+    TherapyImg:imageUrl
   });
 
   res.json({
@@ -312,9 +330,9 @@ PanchakarmaCenterRouter.post("/addTherapy", async (req, res) => {
 });
 
 // ADD THERAPIST
-PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
+PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),async (req, res) => {
   console.log("Adding therapist...");
-  
+
   const schema = z.object({
     fullName: z.string().min(3).max(100),
     phone: z.string().min(10).max(13),
@@ -342,8 +360,8 @@ PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
     centerAdminEmail
   } = req.body;
 
-   
-  console.log("data",req.body);
+
+  console.log("data", req.body);
   const center = await PanchakarmaCenterModel.findOne({ email: centerAdminEmail });
 
   if (!center) {
@@ -358,6 +376,9 @@ PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
     }
   }
 
+  const imageUrl = req.file ? req.file.path : null;
+      console.log("url is ",imageUrl);
+
   await TherapistModel.create({
     centerId: center._id,
     fullName,
@@ -366,7 +387,8 @@ PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
     specialization,
     experience,
     qualification,
-    address
+    address,
+    therapistImg:imageUrl
   });
 
   return res.json({ message: "therapist_added_success" });
@@ -375,5 +397,5 @@ PanchakarmaCenterRouter.post("/addTherapist", async (req, res) => {
 
 
 module.exports = {
-    PanchakarmaCenterRouter: PanchakarmaCenterRouter
+  PanchakarmaCenterRouter: PanchakarmaCenterRouter
 }

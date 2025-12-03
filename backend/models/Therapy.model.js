@@ -40,7 +40,7 @@ const TherapySchema = new mongoose.Schema({
     maxlength: 2000,
     required: true
   },
-
+  TherapyImg:String,
   createdAt: {
     type: Date,
     default: Date.now,

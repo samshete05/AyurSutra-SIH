@@ -67,7 +67,7 @@ const DoctorSchema = new mongoose.Schema({
     enum: ["Active", "Inactive"],
     default: "Active",
   },
-
+  profileImg:String,
   bio: {
     type: String,
     maxlength: 1000,
