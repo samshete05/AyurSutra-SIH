@@ -45,7 +45,7 @@ const Login = () => {
         role:selectedRole
     },{withCredentials:true})
     console.log("yahi toh han vo",resp);
-
+    localStorage.setItem("profileImg",resp.data.profileimg);
     if(resp.data.message=='logedin'){
        localStorage.setItem("authToken", resp.data.token);
     localStorage.setItem("email", formData.emailOrPhone);

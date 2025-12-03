@@ -156,6 +156,7 @@ patientRouter.post("/login", async function (req, res) {
       token,
       message: "logedin",
       role: checkedUser.role,
+      profileimg:checkedUser.ProfileImg
     });
   }
 
@@ -179,6 +180,7 @@ patientRouter.post("/login", async function (req, res) {
       token,
       message: "logedin",
       role: centerUser.role,
+      profileimg:centerUser.ProfileImg
     });
   }
 
@@ -215,7 +217,8 @@ patientRouter.post("/verifyOTP", async (req, res) => {
     const token = jwt.sign({ id: user._id }, JWT_KEY)
     return res.json({
       token,
-      message: "logedin"
+      message: "logedin",
+      profileimg:user.ProfileImg
     });
   }
 

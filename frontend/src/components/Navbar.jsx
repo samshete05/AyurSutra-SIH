@@ -1,13 +1,11 @@
 // Navbar.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 import MainNavbar from "./MainNavbar";
 import axios from "axios";
 
 const megaMenuConfig = {
- 
-
   concern: {
     title: "Therapies by Concern",
     columns: [
@@ -36,14 +34,12 @@ const megaMenuConfig = {
       },
     ],
   },
-  // Other menu configs…
+  // ... other configs
 };
 
 const Navbar = () => {
-    const email = localStorage.getItem("email");
-const role = localStorage.getItem("role");
-
-    // const location = useLocation();
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
   const [activeMegaKey, setActiveMegaKey] = useState(null);
@@ -52,30 +48,39 @@ const role = localStorage.getItem("role");
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
+  // Normalize profileImage from localStorage so "null"/"undefined"/"" are treated as no-image
+  const rawProfileImage = localStorage.getItem("profileImg"); // name used earlier
+  const profileImage =
+    rawProfileImage && rawProfileImage !== "null" && rawProfileImage !== "undefined" && rawProfileImage !== ""
+      ? rawProfileImage
+      : null;
+
   const handleOpenMega = (key) => setActiveMegaKey(key);
   const handleCloseMega = () => setActiveMegaKey(null);
 
   // Logout
   const handleLogout = async () => {
-    await axios.post("http://localhost:3000/patient/logout");
+    try {
+      await axios.post("http://localhost:3000/patient/logout");
+    } catch (err) {
+      console.warn("Logout request failed:", err?.message || err);
+    }
     localStorage.removeItem("authToken");
     localStorage.removeItem("role");
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("profileImg");
     localStorage.removeItem("email");
     window.location.reload();
   };
 
-  const HandleDashboardClick=()=>{
-    console.log("clicked ho gaya!!!");
-    console.log(email)
-    console.log(role);
-    if(role=='patient'){
-      navigate("/patient")
-    } else if(role=='centerHead'){
-      console.log("ahahaha")
-      navigate("/PanchaKarma-Dashboard")
+  const HandleDashboardClick = () => {
+    if (role === "patient") {
+      navigate("/patient");
+    } else if (role === "centerHead") {
+      navigate("/PanchaKarma-Dashboard");
+    } else {
+      navigate("/"); // fallback
     }
-  }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -106,14 +111,13 @@ const role = localStorage.getItem("role");
       {/* Main navbar */}
       <div className="relative bg-white border-b border-emerald-100" onMouseLeave={handleCloseMega}>
         <nav className="flex w-full items-center justify-between px-4 py-3 md:px-6 lg:px-10">
-
           {/* LEFT LOGOS */}
           <Link to="/" className="flex items-center text-gray-400">
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png" className="h-7" alt="logo" />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/All_India_Institute_of_Ayurveda_daadpq.jpg" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/All_India_Institute_of_Ayurveda_daadpq.jpg" className="h-7" alt="aiia" />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/ministry-of-ayush-logo_nkde9k.png" className="h-7" />
+            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/ministry-of-ayush-logo_nkde9k.png" className="h-7" alt="ayush" />
           </Link>
 
           {/* Mega menu buttons */}
@@ -136,7 +140,6 @@ const role = localStorage.getItem("role");
 
           {/* RIGHT SIDE: profile / login / signup */}
           <div className="hidden md:flex items-center gap-4 text-sm">
-            
             {/* If NOT logged in → show Login */}
             {!token && (
               <Link to="/login" className="text-emerald-900 hover:text-[#1E4B3C]">
@@ -144,29 +147,49 @@ const role = localStorage.getItem("role");
               </Link>
             )}
 
-            {/* If logged in → show Profile Icon */}
+            {/* If logged in → show single Profile Icon (img OR svg) */}
             {token && (
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="h-10 w-10 cursor-pointer rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-300 hover:bg-emerald-200 transition"
+                  className="h-10 w-10 cursor-pointer rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-300 overflow-hidden hover:bg-emerald-200 transition"
+                  aria-label="Open profile menu"
                 >
-                  <svg className="w-6 h-6 text-[#1E4B3C]" fill="none" stroke="currentColor" strokeWidth="2"
-                    viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
-                  </svg>
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        // broken image -> remove profileImage from localStorage so fallback shows
+                        localStorage.removeItem("profileImg");
+                        e.currentTarget.src = ""; // clear broken src
+                      }}
+                    />
+                  ) : (
+                    <svg
+                      className="w-6 h-6 text-[#1E4B3C]"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      aria-hidden
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
+                    </svg>
+                  )}
                 </button>
 
                 {/* Dropdown */}
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
                     <button
-  className="block w-full cursor-pointer text-left px-4 py-2 text-sm hover:bg-emerald-50 text-emerald-900"
-  onClick={HandleDashboardClick}
->
-  Dashboard
-</button>
+                      className="block w-full cursor-pointer text-left px-4 py-2 text-sm hover:bg-emerald-50 text-emerald-900"
+                      onClick={HandleDashboardClick}
+                    >
+                      Dashboard
+                    </button>
 
                     <button
                       onClick={handleLogout}
