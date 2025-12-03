@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Bell,
   Mail,
@@ -14,29 +14,99 @@ import {
   Trash2,
   CheckCheck,
   Search,
-  X
+  X,
+  Loader
 } from "lucide-react";
 
 function NotificationsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-
-  // Simple notification preferences - single setting for all
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
   const [notificationChannels, setNotificationChannels] = useState({
     inApp: true,
     email: true,
     sms: false
   });
 
-  // Sample notifications - fetch from backend API
-  const [notifications, setNotifications] = useState([
+  // Fetch notifications on mount
+  useEffect(() => {
+    fetchNotifications();
+    fetchNotificationPreferences();
+  }, []);
+
+  // Fetch notifications from backend
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/patient/notifications', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.notifications) {
+        setNotifications(data.notifications);
+      } else {
+        // Fallback to mock data if endpoint doesn't exist yet
+        setNotifications(getMockNotifications());
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      // Use mock data as fallback
+      setNotifications(getMockNotifications());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch notification preferences
+  const fetchNotificationPreferences = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const response = await fetch('http://localhost:3000/patient/getProfile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.profile?.notificationPreferences) {
+        setNotificationChannels(data.profile.notificationPreferences);
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    }
+  };
+
+  const refreshUnreadCount = () => {
+    // Trigger a custom event to update TopBar
+    window.dispatchEvent(new Event('notificationsUpdated'));
+  };
+
+  // Mock notifications (fallback)    Dummy Daata*********************************************************
+  const getMockNotifications = () => [
     {
       id: 1,
       type: "appointment",
       title: "Upcoming Appointment Reminder",
       message: "Your Panchakarma session is scheduled for tomorrow at 10:00 AM with Dr. Sharma",
-      timestamp: "2025-11-30T10:30:00",
+      timestamp: new Date(Date.now() - 30 * 60000).toISOString(),
       read: false,
       priority: "high",
       actionable: true,
@@ -50,7 +120,7 @@ function NotificationsPage() {
       type: "medication",
       title: "Medication Reminder",
       message: "Time to take your Triphala supplement - 1 tablet after dinner",
-      timestamp: "2025-11-30T09:15:00",
+      timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
       read: false,
       priority: "medium",
       actionable: true,
@@ -63,7 +133,7 @@ function NotificationsPage() {
       type: "report",
       title: "Lab Results Available",
       message: "Your recent blood test results are now available to view",
-      timestamp: "2025-11-29T14:20:00",
+      timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
       read: true,
       priority: "medium",
       actionable: true,
@@ -76,7 +146,7 @@ function NotificationsPage() {
       type: "treatment",
       title: "Treatment Plan Updated",
       message: "Dr. Sharma has updated your Ayurvedic treatment plan. Please review the changes",
-      timestamp: "2025-11-28T16:45:00",
+      timestamp: new Date(Date.now() - 48 * 3600000).toISOString(),
       read: true,
       priority: "medium",
       actionable: true,
@@ -89,68 +159,102 @@ function NotificationsPage() {
       type: "reminder",
       title: "Daily Wellness Check",
       message: "Don't forget to log your daily symptoms and wellness score",
-      timestamp: "2025-11-28T08:00:00",
+      timestamp: new Date(Date.now() - 72 * 3600000).toISOString(),
       read: true,
       priority: "low",
       actionable: false
-    },
-    {
-      id: 6,
-      type: "appointment",
-      title: "Appointment Confirmed",
-      message: "Your consultation with Dr. Patel on Dec 5 at 3:00 PM has been confirmed",
-      timestamp: "2025-11-27T11:30:00",
-      read: true,
-      priority: "low",
-      actionable: false
-    },
-    {
-      id: 7,
-      type: "promotion",
-      title: "Special Offer: Wellness Package",
-      message: "Get 20% off on our comprehensive Ayurveda wellness package this month",
-      timestamp: "2025-11-26T09:00:00",
-      read: true,
-      priority: "low",
-      actionable: true,
-      actions: [
-        { label: "Learn More", type: "secondary" }
-      ]
     }
-  ]);
+  ];
 
   // Toggle notification channel
-  const toggleChannel = (channel) => {
-    setNotificationChannels(prev => ({
-      ...prev,
-      [channel]: !prev[channel]
-    }));
-    // TODO: Send preference update to backend API
-    console.log("Updated preferences:", { ...notificationChannels, [channel]: !notificationChannels[channel] });
+  const toggleChannel = async (channel) => {
+    const updatedChannels = {
+      ...notificationChannels,
+      [channel]: !notificationChannels[channel]
+    };
+    
+    setNotificationChannels(updatedChannels);
+
+    // Update backend
+    const token = localStorage.getItem('authToken');
+    try {
+      await fetch('http://localhost:3000/patient/updateNotificationPreferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ notificationPreferences: updatedChannels })
+      });
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+    }
   };
 
   // Mark notification as read
-  const markAsRead = (id) => {
+  const markAsRead = async (id) => {
     setNotifications(prev =>
       prev.map(notif =>
         notif.id === id ? { ...notif, read: true } : notif
       )
     );
-    // TODO: Send read status to backend
+
+    const token = localStorage.getItem('authToken');
+    try {
+      await fetch(`http://localhost:3000/patient/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      refreshUnreadCount();
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
   };
 
   // Mark all as read
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications(prev =>
       prev.map(notif => ({ ...notif, read: true }))
     );
-    // TODO: Send batch update to backend
+
+    const token = localStorage.getItem('authToken');
+    try {
+      await fetch('http://localhost:3000/patient/notifications/markAllRead', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      refreshUnreadCount();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
   };
 
   // Delete notification
-  const deleteNotification = (id) => {
+  const deleteNotification = async (id) => {
+    const notif = notifications.find(n => n.id === id);
     setNotifications(prev => prev.filter(notif => notif.id !== id));
-    // TODO: Send delete request to backend
+
+    const token = localStorage.getItem('authToken');
+    try {
+      await fetch(`http://localhost:3000/patient/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!notif.read) {
+        refreshUnreadCount();
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
   };
 
   // Get icon for notification type
@@ -209,6 +313,17 @@ function NotificationsPage() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center">
+          <Loader className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -220,7 +335,7 @@ function NotificationsPage() {
               <Bell className="w-8 h-8 text-emerald-600" />
               Notifications
               {unreadCount > 0 && (
-                <span className="px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded-full">
+                <span className="px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded-full animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -233,7 +348,8 @@ function NotificationsPage() {
           <div className="flex gap-3">
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 font-medium transition-colors shadow-sm"
+              disabled={unreadCount === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCheck className="w-4 h-4" />
               Mark All Read
@@ -252,7 +368,7 @@ function NotificationsPage() {
           </div>
         </div>
 
-        {/* Simplified Notification Settings Panel */}
+        {/* Notification Settings Panel */}
         {showSettings && (
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200 animate-fadeIn">
             <div className="flex items-center justify-between mb-4">
@@ -302,7 +418,7 @@ function NotificationsPage() {
                 </div>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
                   notificationChannels.inApp
-                    ? "bg-emerald-900 border-emerald-900"
+                    ? "bg-emerald-600 border-emerald-600"
                     : "bg-white border-slate-300"
                 }`}>
                   {notificationChannels.inApp && (
@@ -341,7 +457,7 @@ function NotificationsPage() {
                 </div>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
                   notificationChannels.email
-                    ? "bg-emerald-900 border-emerald-900"
+                    ? "bg-emerald-600 border-emerald-600"
                     : "bg-white border-slate-300"
                 }`}>
                   {notificationChannels.email && (
@@ -380,7 +496,7 @@ function NotificationsPage() {
                 </div>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
                   notificationChannels.sms
-                    ? "bg-emerald-900 border-emerald-900"
+                    ? "bg-emerald-600 border-emerald-600"
                     : "bg-white border-slate-300"
                 }`}>
                   {notificationChannels.sms && (
@@ -485,7 +601,7 @@ function NotificationsPage() {
                           <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                             {notification.title}
                             {!notification.read && (
-                              <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                             )}
                           </h3>
                           <p className="text-sm text-slate-600 leading-relaxed">
