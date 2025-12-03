@@ -14,13 +14,10 @@ const RoutesTester = () => {
     { to: "/doctor-dashboard", label: "Doctor DashBoard" },
     { to: "/dashboard", label: "Center Head DashBoard" },
     { to: "/patient", label: "Patient DashBoard" },
-    {
-      to: "/center-head-application-success",
-      label: "Center Head Success",
-    },
-    {to:"/center-map",
-      label:"Map Center",
-    }
+    { to: "/center-head-application-success", label: "Center Head Success" },
+    { to:"/center-map", label:"Map Center"},
+    { to:"/allcenters", label:"All Centers"},
+
   ];
 
   return (
