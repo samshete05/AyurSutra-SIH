@@ -3,10 +3,11 @@ import { Leaf, Clock, Target, Info } from "lucide-react";
 
 const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBook }) => {
   return (
-    <div className="rounded-2xl bg-white border border-[#1E4B3C]/10 shadow-sm overflow-hidden flex flex-col text-sm md:text-base">
-      {/* Bigger image, no overlay */}
+    <div className="rounded-2xl bg-white border border-[#1E4B3C]/10 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col text-sm md:text-base h-full cursor-pointer">
+
+      {/* Image */}
       {therapyImage && (
-        <div className="h-40 md:h-50 w-full overflow-hidden">
+        <div className="h-36 md:h-40 w-full overflow-hidden">
           <img
             src={therapyImage}
             alt={name}
@@ -15,9 +16,10 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
         </div>
       )}
 
-      {/* Content below image */}
-      <div className="p-4 flex flex-col gap-3 h-full">
-        {/* Header row: label + price (teal) */}
+      {/* Content */}
+      <div className="px-4 pt-4 pb-2 flex flex-col gap-3 flex-grow">
+
+        {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 text-[#1E4B3C]">
             <Leaf className="h-5 w-5" />
@@ -25,6 +27,7 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
               Therapy
             </p>
           </div>
+
           {price && (
             <span className="text-xs md:text-lg font-semibold text-[#1E4B3C]">
               ₹{price}
@@ -32,18 +35,16 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
           )}
         </div>
 
-        {/* Therapy name (teal) */}
+        {/* Name */}
         <p className="font-semibold text-[#1E4B3C] text-sm md:text-lg leading-snug">
           {name}
         </p>
 
-        {/* Focus + duration chips (black text) */}
+        {/* Chips */}
         <div className="flex flex-wrap gap-2 text-xs md:text-sm text-black">
           <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
             <Target className="h-4 w-4" />
-            <span className="truncate max-w-[180px] md:max-w-[240px]">
-              {focus}
-            </span>
+            <span>{focus}</span>
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
             <Clock className="h-4 w-4" />
@@ -51,19 +52,22 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
           </span>
         </div>
 
-        {/* Summary (black) */}
+        {/* Summary */}
         <div className="mt-1 flex items-start gap-2 text-xs md:text-sm text-black leading-snug">
           <Info className="h-4 w-4 mt-[2px] flex-shrink-0" />
           <p>{summary}</p>
         </div>
 
-        {/* Book button at bottom */}
-        <button
-          onClick={onBook}
-          className="mt-3 inline-flex items-center justify-center rounded-full bg-[#1E4B3C] px-4 py-2 text-xs md:text-sm font-semibold text-white hover:bg-[#173a2f] transition-colors"
-        >
-          Book Session
-        </button>
+        {/* Book Button — Sticks to bottom */}
+        <div className="mt-auto">
+          <button
+            onClick={onBook}
+            className="w-full inline-flex items-center justify-center rounded-full bg-[#1E4B3C] px-6 py-3 my-2 text-xs md:text-sm font-semibold text-white hover:bg-[#173a2f] transition-colors"
+          >
+            Book Session
+          </button>
+        </div>
+
       </div>
     </div>
   );

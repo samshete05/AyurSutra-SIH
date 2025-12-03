@@ -4,6 +4,8 @@ const centers = [
     name: "AyurSutra Panchakarma Center",
     city: "Bengaluru",
     address: "3rd Cross, 5th Block, Koramangala",
+    rating: 4.8,
+    reviewCount: 342,
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu.jpg",
     images: [
@@ -17,6 +19,31 @@ const centers = [
     customerNumber: "+91-80-4000-5678",
     openingTime: "07:00",
     closingTime: "21:00",
+    
+    // Slot Configuration
+    slots: {
+      morning: {
+        startTime: "09:00",
+        endTime: "13:00",
+        maxCapacity: 15,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "15:00",
+        endTime: "19:00",
+        maxCapacity: 15,
+        tokenAmount: 100,
+      },
+    },
+    
+    // Booking Settings
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "abhyanga",
@@ -121,11 +148,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "swasthya-kolkata",
     name: "Swasthya Ayurveda Clinic",
     city: "Kolkata",
     address: "12, Lake Road, Rabindra Sarobar",
+    rating: 4.6,
+    reviewCount: 218,
     image:
       "https://ayusanjivani.com/wp-content/uploads/2023/08/Ayusanjivani-Ayurveda-is-a-Pune-based-clinic-that-specializes-in-Ayurvedic-therapy-and-treatment.-The-firm-is-the-brain-child-of-Dr.Shailesh-Shamkant-Phalle.jpg",
     images: [
@@ -139,6 +169,29 @@ const centers = [
     customerNumber: "+91-33-3000-3344",
     openingTime: "08:00",
     closingTime: "20:30",
+    
+    slots: {
+      morning: {
+        startTime: "09:00",
+        endTime: "13:00",
+        maxCapacity: 12,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "16:00",
+        endTime: "20:00",
+        maxCapacity: 12,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "udvartana",
@@ -168,7 +221,7 @@ const centers = [
         id: "dr-sen",
         name: "Dr. Ananya Sen",
         degree: "BAMS",
-        speciality: "Women’s Health & Skin",
+        speciality: "Women's Health & Skin",
         experience: "10+ years",
         focus: "PCOS, skin issues, menstrual health",
         fee: "800",
@@ -176,11 +229,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "prana-delhi",
     name: "Prana Ayurveda & Panchakarma",
     city: "New Delhi",
     address: "D-21, South Extension",
+    rating: 4.9,
+    reviewCount: 456,
     image:
       "https://ind.5bestincity.com/profileimages/india/dr-raghavendra-nadargis-ayurveda-and-panchakarma-center-ayurvedic-clinics-akkalkot-solapur-maharashtra/34736-453d0-1.jpg",
     images: [
@@ -194,6 +250,29 @@ const centers = [
     customerNumber: "+91-11-4555-9900",
     openingTime: "06:30",
     closingTime: "22:00",
+    
+    slots: {
+      morning: {
+        startTime: "08:00",
+        endTime: "12:30",
+        maxCapacity: 20,
+        tokenAmount: 150,
+      },
+      evening: {
+        startTime: "16:00",
+        endTime: "21:00",
+        maxCapacity: 20,
+        tokenAmount: 150,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "nasya",
@@ -241,11 +320,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "sattva-andheri",
     name: "Sattva Ayurveda & Wellness",
     city: "Mumbai",
     address: "2nd Floor, Palm Avenue, Andheri West",
+    rating: 4.7,
+    reviewCount: 389,
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/g7/022pxx22.xx22.180212134536.a2g7/catalogue/ojas-ayurved-chikitsalay-juinagar-navi-mumbai-ayurvedic-doctors-for-abdominal-problem-rwoo8d1l1s.jpg",
     images: [
@@ -259,6 +341,29 @@ const centers = [
     customerNumber: "+91-22-6000-3434",
     openingTime: "07:30",
     closingTime: "21:30",
+    
+    slots: {
+      morning: {
+        startTime: "09:00",
+        endTime: "13:00",
+        maxCapacity: 18,
+        tokenAmount: 120,
+      },
+      evening: {
+        startTime: "15:30",
+        endTime: "20:30",
+        maxCapacity: 18,
+        tokenAmount: 120,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "shiro-abhyanga",
@@ -296,11 +401,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "ojas-pune",
     name: "Ojas Panchakarma Retreat",
     city: "Pune",
     address: "Near Mulshi Road, Bavdhan",
+    rating: 4.5,
+    reviewCount: 167,
     image:
       "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
     images: [
@@ -313,6 +421,29 @@ const centers = [
     customerNumber: "+91-20-5500-8080",
     openingTime: "06:00",
     closingTime: "20:00",
+    
+    slots: {
+      morning: {
+        startTime: "08:00",
+        endTime: "12:00",
+        maxCapacity: 10,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "15:00",
+        endTime: "19:00",
+        maxCapacity: 10,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "panchakarma-detox",
@@ -339,11 +470,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "amruta-ahmedabad",
     name: "Amruta Ayurveda Clinic",
     city: "Ahmedabad",
     address: "Nr. Law Garden, Ellis Bridge",
+    rating: 4.4,
+    reviewCount: 203,
     image:
       "https://content.jdmagicbox.com/v2/comp/delhi/r1/011pxx11.xx11.201024140500.m8r1/catalogue/kerala-ayurarogya-green-park-delhi-ayurvedic-clinics-ugtpul99cf.jpg",
     images: [
@@ -356,6 +490,29 @@ const centers = [
     customerNumber: "+91-79-4500-6677",
     openingTime: "09:00",
     closingTime: "19:00",
+    
+    slots: {
+      morning: {
+        startTime: "09:30",
+        endTime: "13:00",
+        maxCapacity: 10,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "15:00",
+        endTime: "18:30",
+        maxCapacity: 10,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "kizhi",
@@ -382,11 +539,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "shanti-cochin",
     name: "Shanti Ayurveda Panchakarma Center",
     city: "Kochi",
     address: "Beach Road, Fort Kochi",
+    rating: 4.7,
+    reviewCount: 291,
     image: "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
     images: [
       "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
@@ -398,6 +558,29 @@ const centers = [
     customerNumber: "+91-48-4400-8899",
     openingTime: "07:00",
     closingTime: "20:30",
+    
+    slots: {
+      morning: {
+        startTime: "08:30",
+        endTime: "12:30",
+        maxCapacity: 14,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "15:00",
+        endTime: "20:00",
+        maxCapacity: 14,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "marma",
@@ -424,11 +607,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "vedya-hyderabad",
     name: "Vedya Ayurveda & Panchakarma",
     city: "Hyderabad",
     address: "Jubilee Hills Road No. 36",
+    rating: 4.6,
+    reviewCount: 312,
     image:
       "https://content.jdmagicbox.com/v2/comp/malappuram/x6/9999px483.x483.230821210649.r8x6/catalogue/dr-lazima-s-avicenna-ayurveda-malappuram-ayurvedic-clinics-7n1us31ogf.jpg",
     images: [
@@ -441,6 +627,29 @@ const centers = [
     customerNumber: "+91-40-6600-7799",
     openingTime: "08:00",
     closingTime: "22:00",
+    
+    slots: {
+      morning: {
+        startTime: "09:00",
+        endTime: "13:00",
+        maxCapacity: 16,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "16:00",
+        endTime: "21:00",
+        maxCapacity: 16,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "stress-reset",
@@ -467,11 +676,14 @@ const centers = [
       },
     ],
   },
+  
   {
     slug: "saumya-chennai",
     name: "Saumya Ayurveda Center",
     city: "Chennai",
     address: "Besant Nagar Beach Road",
+    rating: 4.5,
+    reviewCount: 245,
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
     images: [
@@ -484,6 +696,29 @@ const centers = [
     customerNumber: "+91-44-4300-5566",
     openingTime: "07:30",
     closingTime: "21:00",
+    
+    slots: {
+      morning: {
+        startTime: "08:30",
+        endTime: "12:30",
+        maxCapacity: 13,
+        tokenAmount: 100,
+      },
+      evening: {
+        startTime: "15:30",
+        endTime: "20:00",
+        maxCapacity: 13,
+        tokenAmount: 100,
+      },
+    },
+    
+    bookingSettings: {
+      advanceBookingDays: 2,
+      requireOTP: true,
+      cancellationHours: 24,
+      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+    },
+
     therapies: [
       {
         id: "postnatal",
@@ -502,7 +737,7 @@ const centers = [
         id: "dr-sowmya",
         name: "Dr. Sowmya R.",
         degree: "BAMS",
-        speciality: "Women’s Health",
+        speciality: "Women's Health",
         experience: "8+ years",
         focus: "Postnatal care, hormonal balance",
         fee: "850",
