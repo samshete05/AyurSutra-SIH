@@ -43,7 +43,7 @@ const TherapistSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+   therapistImg:String,
   createdAt: {
     type: Date,
     default: Date.now,
