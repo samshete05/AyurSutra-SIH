@@ -17,6 +17,8 @@ const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const TherapyModel = require("../models/Therapy.model");
 const TherapistModel = require("../models/Therapist.model");
 const upload = require("./multer.js");
+const { NotificationTemplates } = require("../utils/notificationHelper.js");
+const notificationModel = require("../models/Notification.model")
 
 
 
@@ -107,12 +109,11 @@ const upload = require("./multer.js");
 
 // })
 
-PanchakarmaCenterRouter.post(
-  "/addDoctor",
-  upload.single("profileImage"),
+// ********************* ADD DOCTOR *************************
+PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
   async (req, res) => {
     try {
-      console.log("hit add dr routes");
+      // console.log("hit add dr routes");
 
       const requireData = z.object({
         name: z.string().min(3).max(100),
@@ -124,13 +125,18 @@ PanchakarmaCenterRouter.post(
         degree: z.string().min(2).max(100),
         licenseNo: z.string().min(10).max(1000),
         address: z.string().min(5).max(100),
-        bio: z.string().min(10).max(1000)
+        bio: z.string().min(10).max(1000),
       });
 
       const checkdata = requireData.safeParse(req.body);
       if (!checkdata.success) {
         console.error("Zod validation error:", checkdata.error);
-        return res.status(422).json({ message: "Invalid Input types", details: checkdata.error.errors });
+        return res
+          .status(422)
+          .json({
+            message: "Invalid Input types",
+            details: checkdata.error.errors,
+          });
       }
 
       // destructure
@@ -147,7 +153,7 @@ PanchakarmaCenterRouter.post(
         address,
         bio,
         gender,
-        status
+        status,
       } = req.body;
 
       // Ensure Adminemail exists
@@ -157,7 +163,9 @@ PanchakarmaCenterRouter.post(
       }
 
       // find center
-      const checkCenterUser = await PanchakarmaCenterModel.findOne({ email: Adminemail });
+      const checkCenterUser = await PanchakarmaCenterModel.findOne({
+        email: Adminemail,
+      });
       if (!checkCenterUser) {
         console.warn("Center not found for Adminemail:", Adminemail);
         return res.status(404).json({ message: "Center_Not_Found" });
@@ -166,12 +174,14 @@ PanchakarmaCenterRouter.post(
       // check doctor email
       const checkAlready = await DoctorModel.findOne({ email });
       if (checkAlready) {
-        return res.status(409).json({ message: "Dr_Email_Present_use_different_one!!" });
+        return res
+          .status(409)
+          .json({ message: "Dr_Email_Present_use_different_one!!" });
       }
 
       // get image url (cloudinary storage puts url in req.file.path when using multer-storage-cloudinary)
       const imageUrl = req.file ? req.file.path : null;
-      console.log("url is ",imageUrl);
+      // console.log("url is ",imageUrl);
 
       const doctor = await DoctorModel.create({
         centerId: checkCenterUser._id,
@@ -187,10 +197,28 @@ PanchakarmaCenterRouter.post(
         gender,
         address,
         licenseNo,
-        profileImg: imageUrl
+        profileImg: imageUrl,
       });
 
-      return res.json({ message: "doctor_added_success", doctorId: doctor._id });
+      await PanchakarmaCenterModel.findByIdAndUpdate(checkCenterUser._id, {
+        $push: { Doctors: doctor._id }},
+        {new : true}
+      );
+
+      // CREATE NOTIFICATION FOR CENTER ADMIN
+      try {
+        await NotificationTemplates.doctorAdded(
+          checkCenterUser._id,
+          name,
+          speciality
+        );
+      } catch (error) {
+        console.error("Error creating notification:", error);
+      }
+      return res.status(201).json({
+        message: "doctor_added_success",
+        doctorId: doctor._id,
+      });
     } catch (err) {
       console.error("Error in /addDoctor:", err && err.stack ? err.stack : err);
       return res.status(500).json({ message: "internal_error", error: err.message || err });
@@ -199,16 +227,14 @@ PanchakarmaCenterRouter.post(
 );
 
 
-
-
 PanchakarmaCenterRouter.post("/CenterVerifyOtp", async (req, res) => {
 
   const { Adminemail, otp } = req.body;
 
-  console.log("backend otp worksing")
-  console.log(req.body);
-  console.log(Adminemail);
-  console.log(otp);
+  // console.log("backend otp worksing")
+  // console.log(req.body);
+  // console.log(Adminemail);
+  // console.log(otp);
 
   const FindCenterAdminFromDB = await PanchkarmaModel.findOne({
     AdminName: Adminemail
@@ -243,8 +269,6 @@ PanchakarmaCenterRouter.post("/CenterVerifyOtp", async (req, res) => {
   res.json({
     message: "Verified_otp"
   })
-
-
 })
 
 PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
@@ -267,9 +291,9 @@ PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
 
 })
 
-
+// ******************** ADD THERAPY ********************
 PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async (req, res) => {
-  console.log("Therapy API called!");
+  //console.log("Therapy API called!");
 
   const requireData = z.object({
     name: z.string().min(3).max(100),
@@ -278,11 +302,11 @@ PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async 
     category: z.string().min(2).max(100),
     maxPatientsPerDay: z.string().min(1).max(100),
     description: z.string().min(5).max(2000),
-    Adminemail: z.string().min(5).max(100)
+    Adminemail: z.string().min(5).max(100),
   });
 
   const checkdata = requireData.safeParse(req.body);
-  console.log(req.body);
+  // console.log(req.body);
 
   if (!checkdata.success) {
     res.status(422).json({ message: "Invalid Input types" });
@@ -296,22 +320,22 @@ PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async 
     category,
     maxPatientsPerDay,
     description,
-    Adminemail
+    Adminemail,
   } = req.body;
 
   const center = await PanchakarmaCenterModel.findOne({
-    email: Adminemail
+    email: Adminemail,
   });
 
   if (!center) {
     res.json({
-      message: "Center_Not_Found"
+      message: "Center_Not_Found",
     });
     return;
   }
 
-    const imageUrl = req.file ? req.file.path : null;
-      console.log("url is ",imageUrl);
+  const imageUrl = req.file ? req.file.path : null;
+  // console.log("url is ", imageUrl);
 
   await TherapyModel.create({
     centerId: center._id,
@@ -321,17 +345,28 @@ PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async 
     category,
     maxPatientsPerDay,
     description,
-    TherapyImg:imageUrl
+    TherapyImg: imageUrl,
   });
 
+  // CREATE NOTIFICATION FOR CENTER ADMIN
+  try {
+    await NotificationTemplates.therapyAdded(
+      center._id,
+      name,
+      category
+    );
+  } catch (error) {
+    console.error("Error creating notification:", error);
+  }
+
   res.json({
-    message: "therapy_added_success"
+    message: "therapy_added_success",
   });
 });
 
-// ADD THERAPIST
+// ******************** ADD THERAPIST ********************
 PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),async (req, res) => {
-  console.log("Adding therapist...");
+  // console.log("Adding therapist...");
 
   const schema = z.object({
     fullName: z.string().min(3).max(100),
@@ -341,7 +376,7 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
     experience: z.string().min(1).max(50),
     qualification: z.string().min(2).max(200),
     address: z.string().min(5).max(200),
-    centerAdminEmail: z.string().email()
+    centerAdminEmail: z.string().email(),
   });
 
   const parsed = schema.safeParse(req.body);
@@ -357,12 +392,13 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
     experience,
     qualification,
     address,
-    centerAdminEmail
+    centerAdminEmail,
   } = req.body;
 
-
-  console.log("data", req.body);
-  const center = await PanchakarmaCenterModel.findOne({ email: centerAdminEmail });
+  // console.log("data", req.body);
+  const center = await PanchakarmaCenterModel.findOne({
+    email: centerAdminEmail,
+  });
 
   if (!center) {
     return res.json({ message: "Center_Not_Found" });
@@ -376,9 +412,8 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
     }
   }
 
-
   const imageUrl = req.file ? req.file.path : null;
-      console.log("url is ",imageUrl);
+  // console.log("url is ", imageUrl);
 
   await TherapistModel.create({
     centerId: center._id,
@@ -389,16 +424,26 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
     experience,
     qualification,
     address,
-    therapistImg:imageUrl
+    therapistImg: imageUrl,
   });
+
+  // CREATE NOTIFICATION FOR CENTER ADMIN
+  try {
+    await NotificationTemplates.therapistAdded(
+      center._id,
+      fullName,
+      specialization
+    );
+  } catch (error) {
+    console.error("Error creating notification:", error);
+  }
 
   return res.json({ message: "therapist_added_success" });
 });
 
 
-
 PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
-     console.log("hitting get data routes");
+  // console.log("hitting get data routes");
 
   const {email}=req.body;
 
@@ -410,7 +455,7 @@ PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
     centerId:PanchakarmaCenter._id
   })
     
-  console.log("mil gaya data!!!",getAllTherapy);
+  // console.log("mil gaya data!!!",getAllTherapy);
 
   res.json({
     getAllTherapy
@@ -421,7 +466,7 @@ PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
 
 PanchakarmaCenterRouter.post("/get-doctors",async(req,res)=>{
   
-   console.log("hitting get doctor routes");
+  // console.log("hitting get doctor routes");
 
   const {email}=req.body;
 
@@ -433,7 +478,7 @@ PanchakarmaCenterRouter.post("/get-doctors",async(req,res)=>{
     centerId:PanchakarmaCenter._id
   })
     
-  console.log("mil gaya data!!!",getAllDr);
+  // console.log("mil gaya data!!!",getAllDr);
 
   res.json({
     getAllDr
@@ -455,7 +500,7 @@ PanchakarmaCenterRouter.post("/get-therapists",async(req,res)=>{
     centerId:PanchakarmaCenter._id
   })
     
-  console.log("mil gaya data!!!",getAllTherapist);
+  // console.log("mil gaya data!!!",getAllTherapist);
 
   res.json({
     getAllTherapist
@@ -493,9 +538,7 @@ PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
 });
 
 // *************************** UPDATE CENTER PROFILE ********************************
-PanchakarmaCenterRouter.post(
-  "/updateCenterProfile",
-  upload.single("profileImg"),
+PanchakarmaCenterRouter.post("/updateCenterProfile",upload.single("profileImg"),
   async function (req, res) {
     try {
       const { email } = req.body;
@@ -526,6 +569,16 @@ PanchakarmaCenterRouter.post(
 
       await center.save();
 
+      // CREATE NOTIFICATION FOR CENTER ADMIN
+      try {
+        await NotificationTemplates.profileUpdated(
+          center._id,
+          center.Adminname
+        );
+      } catch (error) {
+        console.error("Error creating notification:", error);
+      }
+
       return res.status(200).json({
         message: "Profile_Updated_Successfully",
         center: {
@@ -545,6 +598,158 @@ PanchakarmaCenterRouter.post(
       });
     } catch (err) {
       console.error("Error in /updateCenterProfile:", err);
+      return res.status(500).json({
+        message: "Internal_Server_Error",
+        error: err.message,
+      });
+    }
+  }
+);
+
+PanchakarmaCenterRouter.post(
+  "/getCenterNotifications",
+  async function (req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email_Required" });
+      }
+
+      const center = await PanchakarmaCenterModel.findOne({ email: email });
+
+      if (!center) {
+        return res.status(404).json({ message: "Center_Not_Found" });
+      }
+
+      const notifications = await notificationModel
+        .find({
+          userId: center._id,
+          userType: "centerHead",
+        })
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      const unreadCount = await notificationModel.countDocuments({
+        userId: center._id,
+        userType: "centerHead",
+        read: false,
+      });
+
+      return res.status(200).json({
+        message: "Notifications_Fetched_Successfully",
+        notifications: notifications,
+        unreadCount: unreadCount,
+      });
+    } catch (err) {
+      console.error("Error in /getCenterNotifications:", err);
+      return res.status(500).json({
+        message: "Internal_Server_Error",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// *************************** MARK CENTER NOTIFICATION AS READ ********************************
+PanchakarmaCenterRouter.post(
+  "/markCenterNotificationRead",
+  async function (req, res) {
+    try {
+      const { notificationId } = req.body;
+
+      if (!notificationId) {
+        return res.status(400).json({ message: "NotificationId_Required" });
+      }
+
+      const notification = await notificationModel.findByIdAndUpdate(
+        notificationId,
+        { read: true },
+        { new: true }
+      );
+
+      if (!notification) {
+        return res.status(404).json({ message: "Notification_Not_Found" });
+      }
+
+      return res.status(200).json({
+        message: "Notification_Marked_As_Read",
+        notification: notification,
+      });
+    } catch (err) {
+      console.error("Error in /markCenterNotificationRead:", err);
+      return res.status(500).json({
+        message: "Internal_Server_Error",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// *************************** MARK ALL CENTER NOTIFICATIONS AS READ ********************************
+PanchakarmaCenterRouter.post(
+  "/markAllCenterNotificationsRead",
+  async function (req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email_Required" });
+      }
+
+      const center = await PanchakarmaCenterModel.findOne({ email: email });
+
+      if (!center) {
+        return res.status(404).json({ message: "Center_Not_Found" });
+      }
+
+      const result = await notificationModel.updateMany(
+        {
+          userId: center._id,
+          userType: "centerHead",
+          read: false,
+        },
+        { read: true }
+      );
+
+      return res.status(200).json({
+        message: "All_Notifications_Marked_As_Read",
+        modifiedCount: result.modifiedCount,
+      });
+    } catch (err) {
+      console.error("Error in /markAllCenterNotificationsRead:", err);
+      return res.status(500).json({
+        message: "Internal_Server_Error",
+        error: err.message,
+      });
+    }
+  }
+);
+
+// *************************** DELETE CENTER NOTIFICATION ********************************
+PanchakarmaCenterRouter.post(
+  "/deleteCenterNotification",
+  async function (req, res) {
+    try {
+      const { notificationId } = req.body;
+
+      if (!notificationId) {
+        return res.status(400).json({ message: "NotificationId_Required" });
+      }
+
+      const notification = await notificationModel.findByIdAndDelete(
+        notificationId
+      );
+
+      if (!notification) {
+        return res.status(404).json({ message: "Notification_Not_Found" });
+      }
+
+      return res.status(200).json({
+        message: "Notification_Deleted_Successfully",
+      });
+    } catch (err) {
+      console.error("Error in /deleteCenterNotification:", err);
       return res.status(500).json({
         message: "Internal_Server_Error",
         error: err.message,

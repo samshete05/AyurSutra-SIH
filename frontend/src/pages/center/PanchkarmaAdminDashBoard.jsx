@@ -10,6 +10,7 @@ import PKLineChart from "../../components/PkLineChart";
 import Logo from "../../components/SidePanelLogo";
 import heroBg from "../../assets/ayurveda-background_1022134-25291.avif";
 import CenterNavbarProfile from "./CenterNavbarProfile";
+import CenterNavbar from "./CenterNavbar";
 
 const monthLabels = ["Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan"];
 const revenueValues = [195,150,230,170,185,194,183,205,210,208,222,235];
@@ -61,39 +62,8 @@ const PanchakarmaDashboard = () => {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-          <div className="flex items-center gap-3">
-            <button className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-xl md:hidden">
-              ☰
-            </button>
-
-            <div className="relative hidden items-center md:flex">
-              <span className="pointer-events-none absolute left-3 text-slate-400">
-                <Search className="h-6 w-6 cursor-pointer text-gray-600" />
-              </span>
-              <input
-                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
-                placeholder="Search patients, therapies..."
-              />
-            </div>
-          </div>
-
-          {/* RIGHT SIDE - Notification + Profile */}
-          <div className="flex items-center gap-3 relative">
-            {/* Notification Bell */}
-            <button 
-              onClick={() => navigate("/center-notifications")}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-            >
-              <FontAwesomeIcon icon={faBell} className="text-xl text-slate-700" />
-              {/* Unread badge - you can make this dynamic */}
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
-                3
-              </span>
-            </button>
-
-            {/* Profile Component */}
-            <CenterNavbarProfile />
-          </div>
+          <div className="flex items-center gap-3"></div>
+          <CenterNavbar/>
         </header>
 
         {/* Page content */}

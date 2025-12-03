@@ -9,9 +9,10 @@ import {
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 import { CircleDollarSign, LayoutDashboard, Search, User } from "lucide-react";
-import SidePanel from "../components/CenterSidePanel";
-import Logo from "../components/SidePanelLogo";
-import CenterNavbarProfile from "./center/CenterNavbarProfile";
+import SidePanel from "../../components/CenterSidePanel";
+import Logo from "../../components/SidePanelLogo";
+import CenterNavbarProfile from "./CenterNavbarProfile";
+import CenterNavbar from "./CenterNavbar";
 
 const patients = [
   {
@@ -112,30 +113,20 @@ const AppointmentList = () => {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-          <div className="flex items-center gap-3">
-            <button className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-xl md:hidden">
-              ☰
-            </button>
+            <div className="flex items-center gap-3">
             <div className="relative hidden items-center md:flex">
               <span className="pointer-events-none absolute left-3 text-slate-400">
-                <Search className="h-6 w-6 cursor-pointer text-gray-600" />
+                <Search className="h-5 w-5 text-gray-500" />
               </span>
+
               <input
-                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
-                placeholder="Search patients, appointments..."
+                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm placeholder:text-slate-400"
+                placeholder="Search appointments..."
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faMoon} className="cursor-pointer text-xl" />
-            </button>
-            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faBell} className="cursor-pointer text-xl" />
-            </button>
-            <CenterNavbarProfile/>
-          </div>
+        <CenterNavbar/>
         </header>
 
         {/* Main content area */}

@@ -7,6 +7,7 @@ import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import CenterNavbarProfile from "./CenterNavbarProfile";
 import axios from "axios";
+import CenterNavbar from "./CenterNavbar";
 
 const ViewTherapists = () => {
   const email = localStorage.getItem("email");
@@ -68,15 +69,7 @@ const ViewTherapists = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faMoon} />
-            </button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100">
-              <FontAwesomeIcon icon={faBell} />
-            </button>
-            <CenterNavbarProfile />
-          </div>
+          <CenterNavbar />
         </header>
 
         {/* Content */}

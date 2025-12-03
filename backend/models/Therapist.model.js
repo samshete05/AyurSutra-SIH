@@ -30,7 +30,7 @@ const TherapistSchema = new mongoose.Schema({
   },
 
   experience: {
-    type: Number,
+    type: String,
     min: 0,
   },
 
