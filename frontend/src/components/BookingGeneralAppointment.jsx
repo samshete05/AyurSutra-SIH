@@ -34,7 +34,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     patientAge: "",
     patientGender: "",
     notes: "",
-    isEmailVerified: false,
+    isPhoneVerified: false,
     tokenNumber: null,
     bookingId: null,
   });
@@ -48,7 +48,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
 
   const steps = [
     { number: 1, title: "Date & Slot" },
-    { number: 2, title: "Verify Email" },
+    { number: 2, title: "Verify Phone" },
     { number: 3, title: "Details" },
     { number: 4, title: "Review" },
     { number: 5, title: "Confirm" },
@@ -70,7 +70,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
       patientAge: "",
       patientGender: "",
       notes: "",
-      isEmailVerified: false,
+      isPhoneVerified: false,
       tokenNumber: null,
       bookingId: null,
     });
@@ -93,23 +93,29 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
 
   const checkSlotAvailability = (date, slot) => Math.random() > 0.2;
 
-  const sendOTP = async (email) => {
-    if (!email || !email.includes("@")) {
-      return { ok: false, message: "Invalid email" };
+  // SEND OTP to phone (demo) — saves phone into bookingData immediately
+  const sendOTPToPhone = async (phone) => {
+    if (!phone || phone.replace(/\D/g, "").length !== 10) {
+      return { ok: false, message: "Enter a valid 10-digit phone number" };
     }
+
+    // Save phone immediately so the component won't clear local input
+    handleDataUpdate({ patientPhone: phone });
+
     setIsLoading(true);
     return new Promise((resolve) => {
       setTimeout(() => {
         setOtpSent(true);
         setIsLoading(false);
         setTimeout(() => otpInputRefs.current[0]?.focus(), 80);
-        alert(`OTP sent to ${email} (Demo: use 123456)`);
+        alert(`OTP sent to +91 ${phone} (Demo: use 123456)`);
         resolve({ ok: true });
       }, 700);
     });
   };
 
-  const verifyOTP = async (email) => {
+  // VERIFY OTP for phone
+  const verifyOTPForPhone = async (phone) => {
     const otpValue = otpBoxes.join("");
     if (otpValue.length !== 6) return { ok: false, message: "Please enter complete OTP" };
     setIsLoading(true);
@@ -117,7 +123,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
       setTimeout(() => {
         setIsLoading(false);
         if (otpValue === "123456") {
-          handleDataUpdate({ patientEmail: email, isEmailVerified: true });
+          handleDataUpdate({ patientPhone: phone, isPhoneVerified: true });
           resolve({ ok: true });
         } else {
           resolve({ ok: false, message: "Invalid OTP. Please try again." });
@@ -168,9 +174,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     }
   };
 
-  const handleEditEmail = () => {
+  const handleEditPhone = () => {
     setOtpSent(false);
     setOtpBoxes(["", "", "", "", "", ""]);
+    handleDataUpdate({ isPhoneVerified: false });
   };
 
   // STEP 1: Date & Slot
@@ -335,66 +342,58 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     );
   };
 
-  // STEP 2: Email Verification
-  const Step2_EmailVerification = () => {
-    const [emailInput, setEmailInput] = useState(bookingData.patientEmail || "");
+  // STEP 2: Phone Verification
+  const Step2_PhoneVerification = () => {
+    const [phoneInput, setPhoneInput] = useState(bookingData.patientPhone || "");
 
     useEffect(() => { 
-      setEmailInput(bookingData.patientEmail || ""); 
-    }, [currentStep, bookingData.patientEmail]);
+      if (!otpSent) setPhoneInput(bookingData.patientPhone || ""); 
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep, bookingData.patientPhone]);
 
     return (
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Verify Your Email</h3>
-          <p className="text-sm text-gray-600">OTP will be sent to your email address for verification</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Verify Your Phone</h3>
+          <p className="text-sm text-gray-600">OTP will be sent to your phone number for verification (SMS)</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address <span className="text-red-500">*</span>
+            Phone Number <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input 
-                type="email" 
-                value={emailInput} 
-                onChange={(e) => setEmailInput(e.target.value)} 
-                placeholder="your.email@example.com" 
-                disabled={otpSent} 
-                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed" 
-              />
+            <div className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+              <Phone className="w-4 h-4 text-gray-500" />
+              <span className="font-medium text-gray-700">+91</span>
             </div>
-
-            {otpSent && (
-              <button 
-                onClick={handleEditEmail} 
-                className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <Edit2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Edit</span>
-              </button>
-            )}
+            <input 
+              type="tel" 
+              value={phoneInput} 
+              onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))} 
+              placeholder="9876543210" 
+              disabled={otpSent} 
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed" 
+            />
           </div>
           <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
             <Shield className="w-3 h-3" /> 
-            We'll send a 6-digit OTP to verify your email
+            We'll send a 6-digit OTP to verify your phone number
           </p>
         </div>
 
         {!otpSent && (
           <button 
             onClick={async () => {
-              if (!emailInput || !emailInput.includes("@")) { 
-                alert("Please enter a valid email address");
+              if (!phoneInput || phoneInput.length !== 10) { 
+                alert("Please enter a valid 10-digit phone number");
                 return; 
               }
-              await sendOTP(emailInput);
+              await sendOTPToPhone(phoneInput);
             }} 
-            disabled={isLoading || !emailInput} 
+            disabled={isLoading || phoneInput.length !== 10} 
             className={`w-full py-3 rounded-lg transition-all font-semibold flex items-center justify-center gap-2 ${
-              emailInput 
+              phoneInput.length === 10
                 ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white" 
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
@@ -406,8 +405,8 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
               </>
             ) : (
               <>
-                <Mail className="w-5 h-5" /> 
-                Send OTP to Email
+                <Phone className="w-5 h-5" /> 
+                Send OTP to Phone
               </>
             )}
           </button>
@@ -417,7 +416,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
-                Enter 6-Digit OTP sent to {emailInput}
+                Enter 6-Digit OTP sent to +91 {bookingData.patientPhone || phoneInput}
               </label>
 
               <div className="flex gap-3 justify-center">
@@ -461,7 +460,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
             <button 
               onClick={async () => {
                 setIsLoading(true);
-                const res = await verifyOTP(emailInput);
+                const res = await verifyOTPForPhone(bookingData.patientPhone || phoneInput);
                 setIsLoading(false);
                 if (res.ok) {
                   handleNext();
@@ -494,7 +493,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     );
   };
 
-  // STEP 3: Patient Details
+  // STEP 3: Patient Details (phone locked when verified + verified badge)
   const Step3_PatientDetails = () => {
     const [formData, setFormData] = useState({
       patientName: bookingData.patientName,
@@ -514,7 +513,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
           notes: bookingData.notes || "",
         });
       }
-    }, [currentStep]);
+    }, [currentStep, bookingData.patientPhone, bookingData.patientName, bookingData.patientAge, bookingData.patientGender, bookingData.notes]);
 
     const handleChange = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -559,9 +558,20 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+
+              {/* Verified badge shown when phone is verified */}
+              {bookingData.isPhoneVerified ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-800 text-sm font-medium">
+                  <Shield className="w-4 h-4" />
+                  Verified
+                </div>
+              ) : null}
+            </div>
+
             <div className="flex gap-2">
               <div className="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
                 <Phone className="w-4 h-4 text-gray-500" />
@@ -572,8 +582,12 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
                 value={formData.patientPhone} 
                 onChange={(e) => handleChange("patientPhone", e.target.value.replace(/\D/g, "").slice(0, 10))} 
                 placeholder="9876543210" 
-                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors" 
                 required 
+                // lock the field when phone is verified
+                disabled={bookingData.isPhoneVerified}
+                className={`flex-1 px-4 py-3 border-2 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors ${
+                  bookingData.isPhoneVerified ? "bg-gray-50 border-green-200 text-gray-700 cursor-not-allowed" : "border-gray-200"
+                }`}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">We'll use this for SMS updates</p>
@@ -1074,7 +1088,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
   const renderStep = () => {
     switch (currentStep) {
       case 1: return <Step1_DateAndSlot />;
-      case 2: return <Step2_EmailVerification />;
+      case 2: return <Step2_PhoneVerification />;
       case 3: return <Step3_PatientDetails />;
       case 4: return <Step4_Review />;
       case 5: return <Step5_Confirmation />;
