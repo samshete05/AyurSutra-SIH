@@ -36,22 +36,30 @@ const Navbar = () => {
       ? rawProfileImage
       : null;
 
-  // Notification cont for avtar
+  // Notification count for avtar
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchNotifications = async () => {
-    if (!email) return;
+    if (!token || !role) return;
+    const endpoint = 
+      role === "patient"
+      ? 'http://localhost:3000/patient/notifications/unread/count'
+      : 'http://localhost:3000/PanchKarmaCenter/getCenterNotifications'
     try {
-      const res = await fetch("http://localhost:3000/PanchKarmaCenter/getCenterNotifications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+      const res = await fetch(endpoint, {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        
       });
       if (res.ok) {
         const data = await res.json();
         const count = data.unreadCount || 0;
         setUnreadCount(count);
         localStorage.setItem("notificationCount", count);
+        console.log(`📊 Navbar: Fetched ${count} unread notifications for ${role}`);
       }
     } catch (err) {
       console.error("Navbar notification fetch error:", err);
@@ -71,7 +79,7 @@ const Navbar = () => {
     window.addEventListener("notificationUpdate", handler);
 
     return () => window.removeEventListener("notificationUpdate", handler);
-  }, [email]);
+  }, [email, role]);
 
   const handleOpenMega = (key) => setActiveMegaKey(key);
   const handleCloseMega = () => setActiveMegaKey(null);
@@ -205,22 +213,24 @@ const Navbar = () => {
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="relative cursor-pointer h-10 w-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center overflow-hidden hover:bg-emerald-200"
+                    className="relative cursor-pointer h-10 w-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center hover:bg-emerald-200"
                   >
-                    {profileImage ? (
-                      <img src={profileImage} className="h-full w-full object-cover" />
-                    ) : (
-                      <svg
-                        className="w-6 h-6 text-[#1E4B3C]"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
-                      </svg>
-                    )}
+                    <div className="h-full w-full rounded-full overflow-hidden">
+                      {profileImage ? (
+                        <img src={profileImage} className="h-full w-full object-cover" />
+                      ) : (
+                        <svg
+                          className="w-6 h-6 text-[#1E4B3C]"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 20a8 8 0 0116 0" />
+                        </svg>
+                      )}
+                    </div>
 
                     {/* Notification badge on avatar */}
                     {unreadCount > 0 && (
@@ -237,17 +247,6 @@ const Navbar = () => {
                         onClick={HandleDashboardClick}
                       >
                         Dashboard
-                      </button>
-
-                      {/* Open notifications page from avatar dropdown */}
-                      <button
-                        className="cursor-pointer w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900"
-                        onClick={() => {
-                          setProfileOpen(false);
-                          navigate("/center-notifications");
-                        }}
-                      >
-                        Notifications {unreadCount > 0 && `(${unreadCount})`}
                       </button>
 
                       <button

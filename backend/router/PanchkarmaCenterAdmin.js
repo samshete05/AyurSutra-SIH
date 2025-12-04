@@ -606,21 +606,30 @@ PanchakarmaCenterRouter.post("/updateCenterProfile",upload.single("profileImg"),
   }
 );
 
-PanchakarmaCenterRouter.post(
+
+// *************************** GET NOTIFICATION UNREAD ********************************
+PanchakarmaCenterRouter.get(
   "/getCenterNotifications",
   async function (req, res) {
     try {
-      const { email } = req.body;
+      const token = req.headers.authorization?.split(" ")[1];
 
-      if (!email) {
-        return res.status(400).json({ message: "Email_Required" });
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const center = await PanchakarmaCenterModel.findOne({ email: email });
+      const decoded = jwt.verify(token, process.env.JWT_KEY || JWT_KEY);
+      // console.log("🔍 Token decoded:", decoded);
+
+      // Find center by _id from token.id
+      const center = await PanchakarmaCenterModel.findOne({ _id: decoded.id });
 
       if (!center) {
+        // console.log("❌ Center not found for id:", decoded.id);
         return res.status(404).json({ message: "Center_Not_Found" });
       }
+
+      // console.log("✅ Center found:", center._id);
 
       const notifications = await notificationModel
         .find({
@@ -636,20 +645,16 @@ PanchakarmaCenterRouter.post(
         read: false,
       });
 
-      return res.status(200).json({
-        message: "Notifications_Fetched_Successfully",
-        notifications: notifications,
-        unreadCount: unreadCount,
-      });
+      return res.json({ notifications, unreadCount });
     } catch (err) {
       console.error("Error in /getCenterNotifications:", err);
-      return res.status(500).json({
-        message: "Internal_Server_Error",
-        error: err.message,
-      });
+      return res
+        .status(500)
+        .json({ message: "Server_Error", error: err.message });
     }
   }
 );
+
 
 // *************************** MARK CENTER NOTIFICATION AS READ ********************************
 PanchakarmaCenterRouter.post(

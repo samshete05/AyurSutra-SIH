@@ -17,17 +17,18 @@ const CenterLayout = ({ children, showSearch = true, searchPlaceholder = "Search
 
   // Fetch notifications
   const fetchNotifications = async () => {
-    if (!email) return;
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
 
     try {
       const response = await fetch(
         "http://localhost:3000/PanchKarmaCenter/getCenterNotifications",
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ email: email }),
         }
       );
 

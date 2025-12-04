@@ -26,8 +26,9 @@ const CenterNotifications = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    if (!email) {
-      console.error("No email found in localStorage");
+    const token = localStorage.getItem("authToken"); 
+    if (!token) {
+      console.error("No token found in localStorage");
       setLoading(false);
       return;
     }
@@ -36,11 +37,11 @@ const CenterNotifications = () => {
       const response = await fetch(
         "http://localhost:3000/PanchKarmaCenter/getCenterNotifications",
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
           },
-          body: JSON.stringify({ email: email }),
         }
       );
 
@@ -98,6 +99,9 @@ const CenterNotifications = () => {
   };
 
   const markAllAsRead = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token || !email) return;
+
     try {
       const response = await fetch(
         "http://localhost:3000/PanchKarmaCenter/markAllCenterNotificationsRead",
@@ -105,6 +109,7 @@ const CenterNotifications = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({ email: email }),
         }

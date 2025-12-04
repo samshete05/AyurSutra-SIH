@@ -1123,55 +1123,28 @@ patientRouter.put("/updateNotificationPreferences", async function(req, res) {
 });
 
 // *************************** CREATE NOTIFICATION (Helper Function) ********************************
-patientRouter.post("/createNotification", async function(req, res) {
-  const token = req.headers.authorization?.split(' ')[1];
+patientRouter.get("/notifications/unread/count", async function (req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+
   if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const { userId, type, title, message, priority, actionable, actions } = req.body;
-    
-    const notification = new notificationModel({
-      userId,
-      type,
-      title,
-      message,
-      priority: priority || 'medium',
-      actionable: actionable || false,
-      actions: actions || []
-    });
-
-    await notification.save();
-    
-    res.json({ message: "Notification created", notificationId: notification._id });
-  } catch (err) {
-    console.error("Error creating notification:", err);
-    res.status(500).json({ message: "Server_error" });
-  }
-});
-
-// *************************** GET UNREAD COUNT ********************************
-patientRouter.get("/notifications/unread/count", async function(req, res) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    
+
     const count = await notificationModel.countDocuments({
       userId: decoded.id,
-      read: false
+      userType: "patient",
+      read: false,
     });
-    
-    res.json({ unreadCount: count });
+
+    console.log(`📊 Patient ${decoded.id} has ${count} unread notifications`);
+
+    return res.json({ unreadCount: count });
   } catch (err) {
-    console.error("Error getting unread count:", err);
-    res.status(500).json({ message: "Server_error" });
+    console.error("Error getting patient unread count:", err);
+    return res.status(500).json({ message: "Server_error" });
   }
 });
 
