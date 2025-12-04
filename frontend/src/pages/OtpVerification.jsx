@@ -2,6 +2,9 @@ import React, { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
 
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+
 const OtpVerification = () => {
   const navigate=useNavigate();
 
@@ -82,6 +85,8 @@ const OtpVerification = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-emerald-50 to-[#1E4B3C]/40 px-4">
       <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl border border-emerald-100 overflow-hidden">
         {/* Header */}
@@ -160,6 +165,8 @@ const OtpVerification = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 
