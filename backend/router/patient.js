@@ -14,6 +14,7 @@ const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
 const AppointmentModel = require("../models/PatientAppointment.model")
 const notificationModel = require("../models/Notification.model");
 const { NotificationTemplates } = require("../utils/notificationHelper");
+const PatientAppointment = require("../models/PatientAppointment.model")
 
 
 
@@ -1412,6 +1413,284 @@ patientRouter.get("/notifications/unread/count", async function (req, res) {
   } catch (err) {
     console.error("Error getting patient unread count:", err);
     return res.status(500).json({ message: "Server_error" });
+  }
+});
+
+// *************************** GET COMPLETED THERAPIES PENDING FEEDBACK ***************************
+patientRouter.get("/therapies/pending-feedback", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+
+    // Find all completed therapies without feedback
+    const pendingFeedbacks = await TherapySessionModel.aggregate([
+      {
+        $match: {
+          patientId: decoded.id,
+          status: "completed",
+          feedbackGiven: { $ne: true },
+        },
+      },
+      {
+        $lookup: {
+          from: "panchkarmacenters", // Center collection
+          localField: "centerId",
+          foreignField: "_id",
+          as: "centerDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "therapies", // Therapy type collection
+          localField: "therapyId",
+          foreignField: "_id",
+          as: "therapyDetails",
+        },
+      },
+      {
+        $unwind: "$centerDetails",
+      },
+      {
+        $unwind: "$therapyDetails",
+      },
+      {
+        $project: {
+          _id: 1,
+          therapyName: "$therapyDetails.name",
+          therapyType: "$therapyDetails.type",
+          centerName: "$centerDetails.centerName",
+          centerAddress: "$centerDetails.address",
+          doctorName: "$doctorName",
+          completedDate: "$endDate",
+          startDate: "$startDate",
+          duration: {
+            $dateDiff: {
+              startDate: "$startDate",
+              endDate: "$endDate",
+              unit: "day",
+            },
+          },
+          sessionsCompleted: "$sessionsCompleted",
+          totalSessions: "$totalSessions",
+        },
+      },
+      {
+        $sort: { completedDate: -1 },
+      },
+    ]);
+
+    // When marking therapy as completed
+    await TherapySessionModel.findByIdAndUpdate(therapyId, {
+      status: "completed",
+      endDate: new Date(),
+      feedbackGiven: false,
+    });
+
+    // Create feedback notification for patient
+    await notificationService.therapyCompletedFeedback(
+      patientId,
+      therapy.therapyName,
+      center.centerName,
+      session.doctorName,
+      therapyId
+    );
+
+    return res.json({
+      message: "Success",
+      pendingFeedbacks: pendingFeedbacks,
+      count: pendingFeedbacks.length,
+    });
+  } catch (err) {
+    console.error("Error fetching pending feedbacks:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** GET SPECIFIC THERAPY FOR FEEDBACK ***************************
+patientRouter.get("/therapy/:therapyId/feedback-details", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { therapyId } = req.params;
+
+    const therapySession = await TherapySessionModel.findOne({
+      _id: therapyId,
+      patientId: decoded.id,
+      status: "completed"
+    })
+      .populate("centerId", "centerName address city state")
+      .populate("therapyId", "name type description");
+
+    if (!therapySession) {
+      return res.status(404).json({ message: "Therapy_Not_Found" });
+    }
+
+    // Check if feedback already given
+    const existingFeedback = await FeedbackModel.findOne({
+      therapySessionId: therapyId
+    });
+
+    return res.json({
+      message: "Success",
+      therapy: {
+        id: therapySession._id,
+        therapyName: therapySession.therapyId.name,
+        therapyType: therapySession.therapyId.type,
+        centerName: therapySession.centerId.centerName,
+        centerAddress: `${therapySession.centerId.address}, ${therapySession.centerId.city}`,
+        doctorName: therapySession.doctorName,
+        completedDate: therapySession.endDate,
+        startDate: therapySession.startDate,
+        sessionsCompleted: therapySession.sessionsCompleted,
+        totalSessions: therapySession.totalSessions
+      },
+      feedbackExists: !!existingFeedback,
+      existingFeedback: existingFeedback || null
+    });
+
+  } catch (err) {
+    console.error("Error fetching therapy details:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** SUBMIT FEEDBACK ***************************
+patientRouter.post("/therapy/:therapyId/feedback", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { therapyId } = req.params;
+    const {
+      therapyRating,
+      therapyComment,
+      centerRating,
+      centerComment,
+      doctorRating,
+      doctorComment,
+    } = req.body;
+
+    // Validation
+    if (!therapyRating || !centerRating || !doctorRating) {
+      return res.status(400).json({ message: "All_Ratings_Required" });
+    }
+
+    // Get therapy details
+    const therapySession = await TherapySessionModel.findOne({
+      _id: therapyId,
+      patientId: decoded.id,
+      status: "completed",
+    });
+
+    if (!therapySession) {
+      return res.status(404).json({ message: "Therapy_Not_Found" });
+    }
+
+    // Check for duplicate feedback
+    const existingFeedback = await FeedbackModel.findOne({
+      therapySessionId: therapyId,
+    });
+
+    if (existingFeedback) {
+      return res.status(400).json({ message: "Feedback_Already_Submitted" });
+    }
+
+    // Create feedback
+    const newFeedback = new FeedbackModel({
+      therapySessionId: therapyId,
+      patientId: decoded.id,
+      centerId: therapySession.centerId,
+      doctorName: therapySession.doctorName,
+
+      therapyRating: therapyRating,
+      therapyComment: therapyComment || "",
+
+      centerRating: centerRating,
+      centerComment: centerComment || "",
+
+      doctorRating: doctorRating,
+      doctorComment: doctorComment || "",
+
+      overallRating: Math.round(
+        (therapyRating + centerRating + doctorRating) / 3
+      ),
+      submittedAt: new Date(),
+    });
+
+    await newFeedback.save();
+
+    // Mark therapy as feedback given
+    await TherapySessionModel.findByIdAndUpdate(therapyId, {
+      feedbackGiven: true,
+      feedbackId: newFeedback._id,
+    });
+
+    // Create notification for center admin
+    await notificationModel.create({
+      userId: therapySession.centerId,
+      userType: "centerHead",
+      type: "feedback",
+      title: "New Patient Feedback Received",
+      message: `Patient has submitted feedback for ${therapySession.therapyId.name}. Overall rating: ${newFeedback.overallRating}/5`,
+      priority: "medium",
+      actionable: true,
+      actions: [
+        {
+          label: "View Feedback",
+          link: `/center/feedback/${newFeedback._id}`,
+          type: "primary",
+        },
+      ],
+      read: false,
+    });
+
+    // Create center notification for new patient feedback
+    await notificationModel.create({
+      userId: therapySession.centerId,
+      userType: "centerHead",
+      type: "feedback",
+      title: "New Patient Feedback Received",
+      message: `Patient has submitted feedback for ${therapySession.therapyId.name}. Overall rating: ${newFeedback.overallRating}/5`,
+      priority: "medium",
+      actionable: true,
+      actions: [
+        {
+          label: "View Feedback",
+          link: `/center/feedback/${newFeedback._id}`,
+          type: "primary",
+        },
+      ],
+      read: false,
+    });
+
+    // Optionally notify patient feedback submitted (use your notificationService here)
+    await notificationService.feedbackSubmitted(
+      decoded.id,
+      therapySession.therapyId.name,
+      newFeedback.overallRating
+    );
+
+    // Optionally notify center admin about new feedback
+    await notificationService.newPatientFeedback(
+      therapySession.centerId,
+      decoded.name || "Patient",
+      therapySession.therapyId.name,
+      newFeedback.overallRating,
+      therapyId
+    );
+
+    return res.json({
+      message: "Feedback_Submitted_Successfully",
+      feedback: newFeedback,
+    });
+  } catch (err) {
+    console.error("Error submitting feedback:", err);
+    return res.status(500).json({ message: "Server_Error" });
   }
 });
 

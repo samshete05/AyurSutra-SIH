@@ -59,7 +59,7 @@ const Navbar = () => {
         const count = data.unreadCount || 0;
         setUnreadCount(count);
         localStorage.setItem("notificationCount", count);
-        console.log(`📊 Navbar: Fetched ${count} unread notifications for ${role}`);
+        // console.log(`📊 Navbar: Fetched ${count} unread notifications for ${role}`);
       }
     } catch (err) {
       console.error("Navbar notification fetch error:", err);
