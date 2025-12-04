@@ -25,6 +25,8 @@ import BookingModal from "../../components/BookingGeneralAppointment";
 const CenterDetails = () => {
   const { centerSlug } = useParams();
   const center = centers.find((c) => c.slug === centerSlug);
+  const { centerId } = useParams();
+console.log("Received centerId:", centerId);
 
   // Booking Modal State
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -255,14 +257,14 @@ const CenterDetails = () => {
                         onClick={handlePrev}
                         className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 p-3 rounded-full shadow-lg transition-all hover:scale-110"
                       >
-                        <ChevronLeft className="h-6 w-6" />
+                        <ChevronLeft className="h-3 w-3" />
                       </button>
                       <button
                         type="button"
                         onClick={handleNext}
                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 p-3 rounded-full shadow-lg transition-all hover:scale-110"
                       >
-                        <ChevronRight className="h-6 w-6" />
+                        <ChevronRight className="h-3 w-3" />
                       </button>
 
                       {/* Image Indicators */}
@@ -704,6 +706,8 @@ const CenterDetails = () => {
 
       {/* Booking Modal */}
       <BookingModal
+        centerId={centerId}
+
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
         centerData={center}

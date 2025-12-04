@@ -40,6 +40,12 @@ const PanchakarmaCenterSchema = new schema({
     },
   ],
 
+  GeneralAppointment:[
+    {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"CenterGeneralAppointment"
+    }
+  ],
   // Last Login date
   lastLoginDate: {
     type: Date,

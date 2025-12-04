@@ -11,10 +11,11 @@ const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
-const AppointmentModel = require("../models/PatientAppointment.model")
 const notificationModel = require("../models/Notification.model");
 const { NotificationTemplates } = require("../utils/notificationHelper");
 const PatientAppointment = require("../models/PatientAppointment.model")
+const CenterAppointmentModel = require("../models/CenterAppointment.model");
+const PatientModel = require("../models/Patient.model");
 
 
 
@@ -572,139 +573,72 @@ patientRouter.post("/logout",async(req,res)=>{
 
 
 // *************************** BOOK GENERAL APPOINTMENT ********************************
-patientRouter.post("/bookGeneralAppointment", async function(req, res) {
-  const requiredData = z.object({
-    centerId: z.string().min(1),
-    centerName: z.string().min(1),
-    selectedDate: z.string(), // ISO date string from frontend
-    selectedSlot: z.enum(['morning', 'evening']),
-    slotDetails: z.object({
-      startTime: z.string(),
-      endTime: z.string(),
-    }),
-    patientName: z.string().min(1),
-    patientEmail: z.string().email(),
+patientRouter.post("/bookGeneralAppointment", async function (req, res) {
+  const schema = z.object({
+    selectedDate: z.string().min(1),
+    selectedSlot: z.enum(["morning", "evening"]),
+    patientName: z.string(),
+    patientEmail:z.string(),
     patientPhone: z.string().length(10),
-    patientAge: z.number().min(1).max(120).or(z.string().transform(Number)),
-    patientGender: z.enum(['male', 'female', 'other']),
-    notes: z.string().optional().default(""),
-    tokenAmount: z.number().positive(),
-    serviceType: z.string().default('general'),
-    emailVerified: z.boolean().default(true),
+    patientAge: z.number().or(z.string().transform(Number)),
+    patientGender: z.enum(["male", "female", "other"]),
+    notes: z.string().optional(),
+    serviceType: z.string().default("general"),
+    isPhoneVerified: z.boolean(),
+    centerId: z.string(), 
   });
 
-  const checkData = requiredData.safeParse(req.body);
-  if (!checkData.success) {
-    res.status(422).json({
+  const parsed = schema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({
       message: "Invalid_Input",
-      errors: checkData.error.errors
+      errors: parsed.error.errors,
     });
-    return;
   }
 
-  // Get patient ID from JWT token
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  const data = parsed.data;
+
+  const patient=await PatientModel.findOne({
+    email:data.patientEmail
+  })
 
   try {
-    const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
-
-    const {
-      centerId,
-      centerName,
-      selectedDate,
-      selectedSlot,
-      slotDetails,
-      patientName,
-      patientEmail,
-      patientPhone,
-      patientAge,
-      patientGender,
-      notes,
-      tokenAmount,
-      serviceType,
-      emailVerified
-    } = checkData.data;
-
-    // Check slot availability - count existing appointments for this slot
-    const appointmentDate = new Date(selectedDate);
-    const existingCount = await PatientAppointment.countDocuments({
-      centerId,
-      appointmentDate: {
-        $gte: new Date(appointmentDate.setHours(0, 0, 0, 0)),
-        $lt: new Date(appointmentDate.setHours(23, 59, 59, 999))
-      },
-      appointmentSlot: selectedSlot,
-      status: { $in: ['scheduled', 'confirmed', 'checked-in'] }
+   
+    const appointment = await CenterAppointmentModel.create({
+      ServiceType: data.serviceType,
+      patientId: patient._id,              
+      Amount: "0",                  
+      PaymentStatus: "pending",
+      TherapyId: null, 
+      PatientName: data.patientName,
+      PatientPhone: data.patientPhone,
+      PatientAge: data.patientAge,
+      PatientGender: data.patientGender,
+      notes: data.notes || "",
+      CenterId: data.centerId,
     });
 
-    // Assuming max 30 tokens per slot (adjust based on center capacity)
-    if (existingCount >= 30) {
-      res.status(400).json({
-        message: "Slot_Full",
-        info: "Selected slot is full. Please choose another slot or date."
-      });
-      return;
-    }
-
-    // Generate token number for this slot
-    const tokenNumber = `T-${String(existingCount + 1).padStart(3, '0')}`;
-
-    // Create appointment
-    const newAppointment = await PatientAppointment.create({
-      patientId,
-      centerId,
-      centerName,
-      appointmentDate: new Date(selectedDate),
-      appointmentSlot: selectedSlot,
-      slotDetails,
-      patientDetails: {
-        name: patientName,
-        email: patientEmail,
-        phone: patientPhone,
-        age: patientAge,
-        gender: patientGender,
-      },
-      notes,
-      tokenAmount,
-      tokenNumber,
-      serviceType,
-      emailVerified,
-      paymentStatus: 'paid', // Set after payment integration
-      status: 'scheduled',
-      bookingSource: 'web',
-    });
-
-    // TODO: Send confirmation SMS and Email
-    // await sendConfirmationSMS(patientPhone, newAppointment);
-    // await sendConfirmationEmail(patientEmail, newAppointment);
-
-    res.status(201).json({
-      message: "Appointment_Booked_Successfully",
-      data: {
-        bookingId: newAppointment.bookingId,
-        tokenNumber: newAppointment.tokenNumber,
-        appointmentDate: newAppointment.appointmentDate,
-        appointmentSlot: newAppointment.appointmentSlot,
-        slotDetails: newAppointment.slotDetails,
-        patientName: newAppointment.patientDetails.name,
-        tokenAmount: newAppointment.tokenAmount,
-        centerName: newAppointment.centerName,
+    await PanchakarmaCenterModel.findByIdAndUpdate(
+      data.centerId,
+      {
+        $push: { GeneralAppointment: appointment._id },
       }
-    });
+    );
 
+    return res.status(201).json({
+      message: "Appointment_Booked",
+      appointmentId: appointment._id,
+    });
   } catch (err) {
-    console.error("Error booking appointment:", err);
-    res.status(500).json({ 
-      message: "Server_Error",
-      error: err.message 
+    console.log("DB Error:", err);
+    return res.status(500).json({
+      message: "Server Error",
+      error: err.message,
     });
   }
 });
+
 
 // *************************** GET PATIENT APPOINTMENTS ********************************
 patientRouter.get("/appointments", async function(req, res) {
