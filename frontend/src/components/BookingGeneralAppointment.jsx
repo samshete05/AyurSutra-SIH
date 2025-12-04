@@ -1127,10 +1127,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col my-4">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {currentStep === 5 ? "Booking Confirmed!" : "Book Appointment"}
+            <h2 className="text-xl text-black-800">
+              {currentStep === 5 ? "Booking Confirmed!" : "Booking General Appointment At"}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">{centerData.name}</p>
+            <p className="text-3xl font-bold text-[#1E4B3C] mt-1">{centerData.name}</p>
           </div>
           <button 
             onClick={handleClose} 
