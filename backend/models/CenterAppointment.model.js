@@ -1,6 +1,7 @@
 const mongoose=require("mongoose");
 
 const CenterAppointMentSchema=new mongoose.Schema({
+       ServiceType:String,
         patientId:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Patient",
@@ -11,10 +12,20 @@ const CenterAppointMentSchema=new mongoose.Schema({
         TherapyId:{
              type:mongoose.Schema.Types.ObjectId,
             ref:"Therapy",
-            required:true,  
+            required:false,  
+        },
+        PatientName:String,
+        PatientPhone:String,
+        PatientAge:String,
+        PatientGender:String,
+        notes:String,
+        CenterId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"PanchakarmaCenter",
+            required:true,   
         }
 })
 
-module.exports = mongoose.model("CenterAppointment", CenterAppointMentSchema);
+module.exports = mongoose.model("CenterGeneralAppointment", CenterAppointMentSchema);
 
 

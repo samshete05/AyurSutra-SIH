@@ -1,5 +1,6 @@
 const centers = [
   {
+    centerId: "67c5f001a1b2c30011aa1001",
     slug: "ayursutra-koramangala",
     name: "AyurSutra Panchakarma Center",
     city: "Bengaluru",
@@ -19,8 +20,7 @@ const centers = [
     customerNumber: "+91-80-4000-5678",
     openingTime: "07:00",
     closingTime: "21:00",
-    
-    // Slot Configuration
+
     slots: {
       morning: {
         startTime: "09:00",
@@ -35,13 +35,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
-    // Booking Settings
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -79,6 +79,7 @@ const centers = [
           "https://www.ayurwakeup.com/wp-content/uploads/2024/07/Panchakarma-Treatment.jpg.webp",
       },
     ],
+
     doctors: [
       {
         id: "dr-meera-1",
@@ -148,8 +149,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // SWASTHYA KOLKATA
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1002",
     slug: "swasthya-kolkata",
     name: "Swasthya Ayurveda Clinic",
     city: "Kolkata",
@@ -163,13 +169,12 @@ const centers = [
       "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
       "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SWASTHYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SWASTHYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-33-3000-3344",
     openingTime: "08:00",
     closingTime: "20:30",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
@@ -184,12 +189,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -216,6 +222,7 @@ const centers = [
           "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sen",
@@ -229,8 +236,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // PRANA DELHI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1003",
     slug: "prana-delhi",
     name: "Prana Ayurveda & Panchakarma",
     city: "New Delhi",
@@ -244,13 +256,12 @@ const centers = [
       "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
       "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_PRANA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_PRANA_EMBED_URL_HERE",
     bookingAiNumber: "+91-11-4555-7788",
     customerNumber: "+91-11-4555-9900",
     openingTime: "06:30",
     closingTime: "22:00",
-    
+
     slots: {
       morning: {
         startTime: "08:00",
@@ -265,12 +276,13 @@ const centers = [
         tokenAmount: 150,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -297,6 +309,7 @@ const centers = [
           "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-kapoor",
@@ -320,8 +333,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // SATTVA ANDHERI (MUMBAI)
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1004",
     slug: "sattva-andheri",
     name: "Sattva Ayurveda & Wellness",
     city: "Mumbai",
@@ -335,13 +353,12 @@ const centers = [
       "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
       "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SATTVA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SATTVA_EMBED_URL_HERE",
     bookingAiNumber: "+91-22-6000-1212",
     customerNumber: "+91-22-6000-3434",
     openingTime: "07:30",
     closingTime: "21:30",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
@@ -356,12 +373,13 @@ const centers = [
         tokenAmount: 120,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -388,6 +406,7 @@ const centers = [
           "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-isha",
@@ -401,8 +420,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // OJAS PUNE
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1005",
     slug: "ojas-pune",
     name: "Ojas Panchakarma Retreat",
     city: "Pune",
@@ -415,13 +439,12 @@ const centers = [
       "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
       "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
     bookingAiNumber: "+91-20-5500-9090",
     customerNumber: "+91-20-5500-8080",
     openingTime: "06:00",
     closingTime: "20:00",
-    
+
     slots: {
       morning: {
         startTime: "08:00",
@@ -436,12 +459,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -457,6 +481,7 @@ const centers = [
           "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sameer",
@@ -470,8 +495,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // AMRUTA AHMEDABAD
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1006",
     slug: "amruta-ahmedabad",
     name: "Amruta Ayurveda Clinic",
     city: "Ahmedabad",
@@ -484,13 +514,12 @@ const centers = [
       "https://content.jdmagicbox.com/v2/comp/delhi/r1/011pxx11.xx11.201024140500.m8r1/catalogue/kerala-ayurarogya-green-park-delhi-ayurvedic-clinics-ugtpul99cf.jpg",
       "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_AMRUTA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_AMRUTA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-79-4500-6677",
     openingTime: "09:00",
     closingTime: "19:00",
-    
+
     slots: {
       morning: {
         startTime: "09:30",
@@ -505,12 +534,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -526,6 +556,7 @@ const centers = [
           "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-raj",
@@ -539,8 +570,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // SHANTI KOCHI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1007",
     slug: "shanti-cochin",
     name: "Shanti Ayurveda Panchakarma Center",
     city: "Kochi",
@@ -552,13 +588,12 @@ const centers = [
       "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
       "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SHANTI_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SHANTI_EMBED_URL_HERE",
     bookingAiNumber: "+91-48-4400-2233",
     customerNumber: "+91-48-4400-8899",
     openingTime: "07:00",
     closingTime: "20:30",
-    
+
     slots: {
       morning: {
         startTime: "08:30",
@@ -573,12 +608,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -594,6 +630,7 @@ const centers = [
           "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-leena",
@@ -607,8 +644,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // VEDYA HYDERABAD
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1008",
     slug: "vedya-hyderabad",
     name: "Vedya Ayurveda & Panchakarma",
     city: "Hyderabad",
@@ -621,13 +663,12 @@ const centers = [
       "https://content.jdmagicbox.com/v2/comp/malappuram/x6/9999px483.x483.230821210649.r8x6/catalogue/dr-lazima-s-avicenna-ayurveda-malappuram-ayurvedic-clinics-7n1us31ogf.jpg",
       "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_VEDYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_VEDYA_EMBED_URL_HERE",
     bookingAiNumber: "+91-40-6600-7788",
     customerNumber: "+91-40-6600-7799",
     openingTime: "08:00",
     closingTime: "22:00",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
@@ -642,12 +683,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -663,6 +705,7 @@ const centers = [
           "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-rahul",
@@ -676,8 +719,13 @@ const centers = [
       },
     ],
   },
-  
+
+  // --------------------------
+  // SAUMYA CHENNAI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1009",
     slug: "saumya-chennai",
     name: "Saumya Ayurveda Center",
     city: "Chennai",
@@ -690,13 +738,12 @@ const centers = [
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
       "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-44-4300-5566",
     openingTime: "07:30",
     closingTime: "21:00",
-    
+
     slots: {
       morning: {
         startTime: "08:30",
@@ -711,12 +758,13 @@ const centers = [
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -732,6 +780,7 @@ const centers = [
           "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sowmya",
