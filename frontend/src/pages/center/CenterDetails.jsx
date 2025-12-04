@@ -691,10 +691,10 @@ const CenterDetails = () => {
                   )}
                   
                   {/* Map Overlay Badge */}
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-4 py-2 border border-gray-200">
+                  {/* <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-4 py-2 border border-gray-200">
                     <p className="text-xs font-medium text-gray-600">Location</p>
                     <p className="text-sm font-bold text-gray-900">{city}</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
