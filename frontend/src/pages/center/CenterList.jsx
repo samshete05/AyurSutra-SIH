@@ -130,6 +130,8 @@ export default function CenterList() {
     setSortBy("relevance");
   };
 
+
+  console.log("here is center data",filteredCenters);
   return (
     <main className="min-h-screen bg-[#F5F7F6] pb-16">
       <section className="bg-white shadow-sm">
@@ -304,7 +306,7 @@ export default function CenterList() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filteredCenters.map((center, idx) => (
-              <CenterCard key={`${center.slug}-${idx}`} {...center} />
+              <CenterCard  centerId={center.centerId} key={`${center.slug}-${idx}`} {...center} />
             ))}
           </div>
         )}

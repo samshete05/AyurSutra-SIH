@@ -93,7 +93,7 @@ const NotificationTemplates = {
         year: "numeric",
       });
     };
-    console.log("welcome back called")
+    console.log("welcome back called");
 
     return createNotification({
       userId,
@@ -371,6 +371,73 @@ const NotificationTemplates = {
           label: "View Details",
           type: "primary",
           link: "/center-appointments",
+        },
+      ],
+    }),
+
+  // Scenario 15: Therapy completed - request feedback (NEW)
+  therapyCompletedFeedback: (
+    patientId,
+    therapyName,
+    centerName,
+    doctorName,
+    therapySessionId
+  ) =>
+    createNotification({
+      userId: patientId,
+      userType: "patient",
+      type: "promotion", // 🎉 Positive achievement
+      title: "Therapy Completed! 🎉",
+      message: `Congratulations on completing ${therapyName} at ${centerName}! Please share your experience to help others.`,
+      priority: "high",
+      actionable: true,
+      actions: [
+        {
+          label: "Give Feedback",
+          type: "primary",
+          link: `/patient/feedback?therapyId=${therapySessionId}`,
+        },
+      ],
+    }),
+
+  // Scenario 16: Feedback submitted confirmation (for patient)
+  feedbackSubmitted: (patientId, therapyName, overallRating) =>
+    createNotification({
+      userId: patientId,
+      userType: "patient",
+      type: "system",
+      title: "Thank You! 🙏",
+      message: `Your feedback for ${therapyName} (${overallRating}/5) has been submitted successfully!`,
+      priority: "low",
+      actionable: false,
+    }),
+
+  // Scenario 17: Center admin - new patient feedback received
+  newPatientFeedback: (
+    centerId,
+    patientName,
+    therapyName,
+    overallRating,
+    therapySessionId
+  ) =>
+    createNotification({
+      userId: centerId,
+      userType: "centerHead",
+      type: "feedback",
+      title: "New Patient Feedback! ⭐",
+      message: `${patientName} rated ${therapyName} ${overallRating}/5 stars. Check their detailed review!`,
+      priority: "medium",
+      actionable: true,
+      actions: [
+        {
+          label: "View Feedback",
+          type: "primary",
+          link: `/center/feedback/${therapySessionId}`,
+        },
+        {
+          label: "View All Reviews",
+          type: "secondary",
+          link: "/center-reviews",
         },
       ],
     }),

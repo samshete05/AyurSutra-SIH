@@ -6,7 +6,7 @@ const patientAppointmentSchema = new mongoose.Schema(
     // Booking Identification
     bookingId: {
       type: String,
-      required: true,
+      // required: true,
       unique: true,
       index: true,
     },
@@ -204,12 +204,12 @@ patientAppointmentSchema.index({ patientId: 1, appointmentDate: -1 });
 patientAppointmentSchema.index({ appointmentDate: 1, status: 1 });
 
 // Generate booking ID before saving
-patientAppointmentSchema.pre("save", function (next) {
-  if (!this.bookingId) {
-    this.bookingId = `BKG${Date.now().toString().slice(-6)}`;
-  }
-  next();
-});
+// patientAppointmentSchema.pre("save", function (next) {
+//   if (!this.bookingId) {
+//     this.bookingId = `BKG${Date.now().toString().slice(-6)}`;
+//   }
+//   next();
+// });
 
 // Check if cancellation is allowed (24 hours before)
 patientAppointmentSchema.methods.canCancel = function () {

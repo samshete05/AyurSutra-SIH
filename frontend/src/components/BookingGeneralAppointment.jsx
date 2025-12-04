@@ -21,8 +21,11 @@ import {
   IndianRupee,
   Users,
 } from "lucide-react";
+import axios from "axios";
 
-const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
+const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => {
+  const patientEmail=localStorage.getItem("email");
+  console.log("center id is",centerId);
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
     serviceType: "general",
@@ -30,7 +33,6 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     selectedSlot: null,
     patientName: "",
     patientPhone: "",
-    patientEmail: "",
     patientAge: "",
     patientGender: "",
     notes: "",
@@ -66,7 +68,6 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
       selectedSlot: null,
       patientName: "",
       patientPhone: "",
-      patientEmail: "",
       patientAge: "",
       patientGender: "",
       notes: "",
@@ -79,6 +80,31 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
     setIsLoading(false);
     onClose();
   };
+
+  const handleSubmit = async () => {
+  try {
+    const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
+      selectedDate: bookingData.selectedDate,
+      selectedSlot: bookingData.selectedSlot,
+      patientName: bookingData.patientName,
+      patientPhone: bookingData.patientPhone,
+      patientEmail: patientEmail,
+      patientAge: bookingData.patientAge,
+      patientGender: bookingData.patientGender,
+      notes: bookingData.notes,
+      serviceType: bookingData.serviceType,
+      isPhoneVerified: bookingData.isPhoneVerified,
+      centerId:centerId
+    });
+
+    console.log("SUCCESS:", resp.data);
+
+  } catch (err) {
+    console.log("🔥 BACKEND SAYS:", err.response?.data);
+    alert(JSON.stringify(err.response?.data, null, 2));
+  }
+};
+
 
   const generateAvailableDates = () => {
     const dates = [];
@@ -1047,7 +1073,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData }) => {
         </div>
 
         <button
-          onClick={handleClose}
+          onClick={handleSubmit}
           className="w-full py-4 bg-gradient-to-r from-[#1E4B3C] to-[#2A6850] hover:from-[#163A2E] hover:to-[#1E4B3C] text-white rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl"
         >
           Done

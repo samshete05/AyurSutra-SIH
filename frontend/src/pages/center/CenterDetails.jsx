@@ -28,6 +28,8 @@ import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTh
 const CenterDetails = () => {
   const { centerSlug } = useParams();
   const center = centers.find((c) => c.slug === centerSlug);
+  const { centerId } = useParams();
+console.log("Received centerId:", centerId);
 
   // Booking Modal State for general appointment
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -692,6 +694,8 @@ const CenterDetails = () => {
 
       {/* Booking Modal for general appointment */}
       <BookingModal
+        centerId={centerId}
+
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
         centerData={center}

@@ -13,9 +13,11 @@ const CenterCard = ({
   customerNumber,
   openingTime,
   closingTime,
+  centerId
 }) => {
+  console.log("yaha par",centerId)
   return (
-    <Link  to={`/center/${encodeURIComponent(slug)}`}>
+<Link to={`/center/${encodeURIComponent(slug)}/${centerId}`}>
      
     <div className="group cursor-pointer relative overflow-hidden rounded-2xl bg-white border border-[#1E4B3C]/15 shadow-sm hover:shadow-lg hover:border-[#1E4B3C]/60 transition-all duration-200 flex flex-col">
       {/* Top accent bar */}

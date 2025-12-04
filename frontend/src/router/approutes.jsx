@@ -81,7 +81,8 @@ export const AppRoutes = () => {
         {/* Dynamic center route (prefixed to avoid collisions) */}
         {/* <Route path="/center/:slug" element={<CenterDetails />} /> */}
 
-        <Route path="/center/:centerSlug" element={<CenterDetails />} />
+       <Route path="/center/:centerSlug/:centerId" element={<CenterDetails />} />
+
         {/* <Route path="/center/:centerSlug/therapy-book" element={<TherapyBooking />} />
         <Route path="/center/:centerSlug/doctor-book" element={<DoctorBooking />} /> */}
 

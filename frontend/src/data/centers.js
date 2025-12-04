@@ -1,5 +1,6 @@
 const centers = [
   {
+    centerId: "67c5f001a1b2c30011aa1001",
     slug: "ayursutra-koramangala",
     name: "AyurSutra Panchakarma Center",
     city: "Bengaluru",
@@ -82,6 +83,7 @@ const centers = [
           "https://www.ayurwakeup.com/wp-content/uploads/2024/07/Panchakarma-Treatment.jpg.webp",
       },
     ],
+
     doctors: [
       {
         id: "dr-meera-1",
@@ -152,7 +154,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // SWASTHYA KOLKATA
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1002",
     slug: "swasthya-kolkata",
     name: "Swasthya Ayurveda Clinic",
     city: "Kolkata",
@@ -219,6 +226,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sen",
@@ -233,7 +241,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // PRANA DELHI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1003",
     slug: "prana-delhi",
     name: "Prana Ayurveda & Panchakarma",
     city: "New Delhi",
@@ -300,6 +313,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-kapoor",
@@ -324,7 +338,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // SATTVA ANDHERI (MUMBAI)
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1004",
     slug: "sattva-andheri",
     name: "Sattva Ayurveda & Wellness",
     city: "Mumbai",
@@ -391,6 +410,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-isha",
@@ -405,7 +425,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // OJAS PUNE
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1005",
     slug: "ojas-pune",
     name: "Ojas Panchakarma Retreat",
     city: "Pune",
@@ -461,6 +486,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sameer",
@@ -475,7 +501,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // AMRUTA AHMEDABAD
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1006",
     slug: "amruta-ahmedabad",
     name: "Amruta Ayurveda Clinic",
     city: "Ahmedabad",
@@ -531,6 +562,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-raj",
@@ -545,7 +577,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // SHANTI KOCHI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1007",
     slug: "shanti-cochin",
     name: "Shanti Ayurveda Panchakarma Center",
     city: "Kochi",
@@ -600,6 +637,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-leena",
@@ -614,7 +652,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // VEDYA HYDERABAD
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1008",
     slug: "vedya-hyderabad",
     name: "Vedya Ayurveda & Panchakarma",
     city: "Hyderabad",
@@ -670,6 +713,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-rahul",
@@ -684,7 +728,12 @@ const centers = [
     ],
   },
 
+  // --------------------------
+  // SAUMYA CHENNAI
+  // --------------------------
+
   {
+    centerId: "67c5f001a1b2c30011aa1009",
     slug: "saumya-chennai",
     name: "Saumya Ayurveda Center",
     city: "Chennai",
@@ -740,6 +789,7 @@ const centers = [
         therapyImage: "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
       },
     ],
+
     doctors: [
       {
         id: "dr-sowmya",
