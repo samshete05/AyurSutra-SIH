@@ -1,3 +1,4 @@
+// src/pages/center/CenterDetails.jsx
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -9,25 +10,31 @@ import {
   ChevronDown,
   Calendar,
   Star,
-  Navigation,
   Shield,
   ExternalLink,
   Compass,
   Building2,
 } from "lucide-react";
+
+// NOTE: paths adjusted for file location: src/pages/center/CenterDetails.jsx
 import centers from "../../data/centers";
 import TherapyCard from "../../components/TherapyCard";
 import DoctorCard from "../../components/DoctorCard";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import BookingModal from "../../components/BookingGeneralAppointment";
+import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTherapyAppointment";
 
 const CenterDetails = () => {
   const { centerSlug } = useParams();
   const center = centers.find((c) => c.slug === centerSlug);
 
-  // Booking Modal State
+  // Booking Modal State for general appointment
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  // Therapy booking modal state
+  const [isTherapyModalOpen, setIsTherapyModalOpen] = useState(false);
+  const [selectedTherapy, setSelectedTherapy] = useState(null);
 
   if (!center) {
     return (
@@ -90,7 +97,7 @@ const CenterDetails = () => {
   return (
     <>
       <Navbar />
-      
+
       {/* Blinking Animation Styles */}
       <style>{`
         @keyframes blink {
@@ -121,15 +128,13 @@ const CenterDetails = () => {
                   {/* Animated Status Badge */}
                   <span
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-                      isOpen
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
+                      isOpen ? "bg-green-500 text-white" : "bg-red-500 text-white"
                     }`}
                   >
                     <span className={`inline-block w-2 h-2 rounded-full bg-white blink-animation`}></span>
                     {isOpen ? "Open Now" : "Closed"}
                   </span>
-                  
+
                   {/* Government Certified Badge */}
                   <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border-2 border-emerald-600 shadow-sm hover:shadow-md transition-shadow">
                     <div className="relative">
@@ -149,7 +154,7 @@ const CenterDetails = () => {
                   <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-3 text-gray-900">
                     {name}
                   </h1>
-                  
+
                   {/* Rating */}
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5 bg-white shadow-sm px-3 py-1.5 rounded-lg border border-gray-200">
@@ -216,7 +221,7 @@ const CenterDetails = () => {
 
                 {/* Primary Booking Button - Opens Modal */}
                 <div className="pt-2">
-                  <button 
+                  <button
                     onClick={() => setIsBookingModalOpen(true)}
                     className="w-full bg-[#1E4B3C] hover:bg-[#163A2E] text-white font-semibold px-8 py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all group"
                   >
@@ -311,12 +316,12 @@ const CenterDetails = () => {
                 {therapies.map((t) => (
                   <TherapyCard
                     key={t.id}
-                    name={t.name}
-                    focus={t.focus}
-                    duration={t.duration}
-                    summary={t.summary}
-                    price={t.price}
-                    therapyImage={t.therapyImage}
+                    {...t}
+                    onBook={() => {
+                      // pass therapy object to modal
+                      setSelectedTherapy(t);
+                      setIsTherapyModalOpen(true);
+                    }}
                   />
                 ))}
               </div>
@@ -358,191 +363,6 @@ const CenterDetails = () => {
                 ))}
               </div>
             )}
-          </div>
-        </section>
-
-        {/* FAQ SECTION */}
-        <section className="bg-white py-10 md:py-12">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="mb-6">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-2">
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                    Frequently Asked Questions
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    Quick answers about bookings, visits and therapies
-                  </p>
-                </div>
-                <span className="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-800">
-                  Updated for all partner centers
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {/* FAQ 1 */}
-              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 0 ? -1 : 0)}
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900 mb-1">
-                      Do I need a prior appointment?
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Know if walk-ins are allowed and when to pre-book
-                    </p>
-                  </div>
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
-                      openFaq === 0 ? "rotate-180" : ""
-                    }`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </div>
-                </button>
-                <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    openFaq === 0
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
-                      Prior appointment is recommended to reduce waiting time,
-                      especially for Panchakarma therapies and doctor
-                      consultations. Same-day slots may be limited based on doctor
-                      and therapist availability.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* FAQ 2 */}
-              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 1 ? -1 : 1)}
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900 mb-1">
-                      What should I bring for my first visit?
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Documents and basics that help your doctor
-                    </p>
-                  </div>
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
-                      openFaq === 1 ? "rotate-180" : ""
-                    }`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </div>
-                </button>
-                <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    openFaq === 1
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
-                      Please carry recent medical reports, ongoing prescriptions
-                      and an ID proof. Wearing loose, comfortable clothing makes
-                      physical examination and assessment easier.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* FAQ 3 */}
-              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 2 ? -1 : 2)}
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900 mb-1">
-                      Are therapies covered by insurance?
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Understand how reimbursements typically work
-                    </p>
-                  </div>
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
-                      openFaq === 2 ? "rotate-180" : ""
-                    }`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </div>
-                </button>
-                <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    openFaq === 2
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
-                      Coverage depends on your policy and insurer. Some plans
-                      support alternative therapies under wellness or OPD
-                      benefits. The center team can help with bills and basic
-                      documentation.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* FAQ 4 */}
-              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 3 ? -1 : 3)}
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900 mb-1">
-                      Do you offer online follow-up consultations?
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      For reviews after the first in-person visit
-                    </p>
-                  </div>
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
-                      openFaq === 3 ? "rotate-180" : ""
-                    }`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </div>
-                </button>
-                <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    openFaq === 3
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
-                      Many doctors support video or phone follow-ups once the
-                      initial assessment is done. Exact options and slots depend
-                      on each center&apos;s schedule.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -593,13 +413,9 @@ const CenterDetails = () => {
                           {openingTime} - {closingTime}
                         </p>
                         <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-                          isOpen 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
+                          isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                         }`}>
-                          <span className={`inline-block w-1.5 h-1.5 rounded-full ${
-                            isOpen ? 'bg-green-500' : 'bg-red-500'
-                          } blink-animation`}></span>
+                          <span className={`inline-block w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-green-500' : 'bg-red-500'} blink-animation`}></span>
                           {isOpen ? 'Open Now' : 'Currently Closed'}
                         </span>
                       </div>
@@ -689,12 +505,184 @@ const CenterDetails = () => {
                       </div>
                     </div>
                   )}
-                  
-                  {/* Map Overlay Badge */}
-                  {/* <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-4 py-2 border border-gray-200">
-                    <p className="text-xs font-medium text-gray-600">Location</p>
-                    <p className="text-sm font-bold text-gray-900">{city}</p>
-                  </div> */}
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ SECTION */}
+        <section className="bg-white py-10 md:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="mb-6">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-2">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Quick answers about bookings, visits and therapies
+                  </p>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-800">
+                  Updated for all partner centers
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* FAQ 1 */}
+              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === 0 ? -1 : 0)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900 mb-1">
+                      Do I need a prior appointment?
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Know if walk-ins are allowed and when to pre-book
+                    </p>
+                  </div>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
+                      openFaq === 0 ? "rotate-180" : ""
+                    }`}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    openFaq === 0 ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
+                      Prior appointment is recommended to reduce waiting time,
+                      especially for Panchakarma therapies and doctor
+                      consultations. Same-day slots may be limited based on doctor
+                      and therapist availability.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQ 2 */}
+              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === 1 ? -1 : 1)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900 mb-1">
+                      What should I bring for my first visit?
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Documents and basics that help your doctor
+                    </p>
+                  </div>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
+                      openFaq === 1 ? "rotate-180" : ""
+                    }`}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    openFaq === 1 ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
+                      Please carry recent medical reports, ongoing prescriptions
+                      and an ID proof. Wearing loose, comfortable clothing makes
+                      physical examination and assessment easier.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQ 3 */}
+              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === 2 ? -1 : 2)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900 mb-1">
+                      Are therapies covered by insurance?
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Understand how reimbursements typically work
+                    </p>
+                  </div>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
+                      openFaq === 2 ? "rotate-180" : ""
+                    }`}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    openFaq === 2 ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
+                      Coverage depends on your policy and insurer. Some plans
+                      support alternative therapies under wellness or OPD
+                      benefits. The center team can help with bills and basic
+                      documentation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQ 4 */}
+              <div className="border-2 border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden hover:border-gray-300 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === 3 ? -1 : 3)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900 mb-1">
+                      Do you offer online follow-up consultations?
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      For reviews after the first in-person visit
+                    </p>
+                  </div>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-transform duration-300 ${
+                      openFaq === 3 ? "rotate-180" : ""
+                    }`}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    openFaq === 3 ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">
+                      Many doctors support video or phone follow-ups once the
+                      initial assessment is done. Exact options and slots depend
+                      on each center's schedule.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -702,13 +690,23 @@ const CenterDetails = () => {
         </section>
       </main>
 
-      {/* Booking Modal */}
+      {/* Booking Modal for general appointment */}
       <BookingModal
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
         centerData={center}
         preSelectedService="general"
       />
+
+      {/* Therapy booking modal */}
+      {isTherapyModalOpen && selectedTherapy && (
+        <BookingTherapyAppointment
+          isOpen={isTherapyModalOpen}
+          onClose={() => setIsTherapyModalOpen(false)}
+          centerData={center}
+          therapyData={selectedTherapy}
+        />
+      )}
 
       <Footer />
     </>

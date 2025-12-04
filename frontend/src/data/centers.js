@@ -19,29 +19,32 @@ const centers = [
     customerNumber: "+91-80-4000-5678",
     openingTime: "07:00",
     closingTime: "21:00",
-    
-    // Slot Configuration
+
+    // Slot Configuration (added maxTherapySlots = same as maxCapacity)
     slots: {
       morning: {
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 15,
+        maxTherapySlots: 15,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "19:00",
         maxCapacity: 15,
+        maxTherapySlots: 15,
         tokenAmount: 100,
       },
     },
-    
+
     // Booking Settings
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -148,7 +151,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "swasthya-kolkata",
     name: "Swasthya Ayurveda Clinic",
@@ -163,33 +166,35 @@ const centers = [
       "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
       "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SWASTHYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SWASTHYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-33-3000-3344",
     openingTime: "08:00",
     closingTime: "20:30",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 12,
+        maxTherapySlots: 12,
         tokenAmount: 100,
       },
       evening: {
         startTime: "16:00",
         endTime: "20:00",
         maxCapacity: 12,
+        maxTherapySlots: 12,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -201,8 +206,7 @@ const centers = [
         summary:
           "Dry herbal powder massage to stimulate circulation and support inch loss.",
         price: "1500",
-        therapyImage:
-          "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
       },
       {
         id: "pizhichil",
@@ -212,8 +216,7 @@ const centers = [
         summary:
           "Warm medicated oil is poured in streams over the body for deep rejuvenation.",
         price: "2600",
-        therapyImage:
-          "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
       },
     ],
     doctors: [
@@ -229,7 +232,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "prana-delhi",
     name: "Prana Ayurveda & Panchakarma",
@@ -244,33 +247,35 @@ const centers = [
       "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
       "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_PRANA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_PRANA_EMBED_URL_HERE",
     bookingAiNumber: "+91-11-4555-7788",
     customerNumber: "+91-11-4555-9900",
     openingTime: "06:30",
     closingTime: "22:00",
-    
+
     slots: {
       morning: {
         startTime: "08:00",
         endTime: "12:30",
         maxCapacity: 20,
+        maxTherapySlots: 20,
         tokenAmount: 150,
       },
       evening: {
         startTime: "16:00",
         endTime: "21:00",
         maxCapacity: 20,
+        maxTherapySlots: 20,
         tokenAmount: 150,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -282,8 +287,7 @@ const centers = [
         summary:
           "Medicated oils are administered through the nose to clear channels in the head and neck.",
         price: "1200",
-        therapyImage:
-          "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
       },
       {
         id: "virechana",
@@ -293,8 +297,7 @@ const centers = [
         summary:
           "Planned purgation therapy to eliminate excess pitta and deep-seated toxins.",
         price: "3500",
-        therapyImage:
-          "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
       },
     ],
     doctors: [
@@ -320,7 +323,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "sattva-andheri",
     name: "Sattva Ayurveda & Wellness",
@@ -335,33 +338,35 @@ const centers = [
       "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
       "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SATTVA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SATTVA_EMBED_URL_HERE",
     bookingAiNumber: "+91-22-6000-1212",
     customerNumber: "+91-22-6000-3434",
     openingTime: "07:30",
     closingTime: "21:30",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 18,
+        maxTherapySlots: 18,
         tokenAmount: 120,
       },
       evening: {
         startTime: "15:30",
         endTime: "20:30",
         maxCapacity: 18,
+        maxTherapySlots: 18,
         tokenAmount: 120,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -373,8 +378,7 @@ const centers = [
         summary:
           "Head, neck and shoulder oil massage to ease tension and nourish hair roots.",
         price: "1000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
       },
       {
         id: "netra-tarpana",
@@ -384,8 +388,7 @@ const centers = [
         summary:
           "Ghee-based therapy to soothe and nourish tired, dry eyes from screen exposure.",
         price: "1400",
-        therapyImage:
-          "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
       },
     ],
     doctors: [
@@ -401,7 +404,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "ojas-pune",
     name: "Ojas Panchakarma Retreat",
@@ -410,38 +413,40 @@ const centers = [
     rating: 4.5,
     reviewCount: 167,
     image:
-      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-clinics-zya6rv81qb.jpg",
     images: [
-      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-clinics-zya6rv81qb.jpg",
       "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
     bookingAiNumber: "+91-20-5500-9090",
     customerNumber: "+91-20-5500-8080",
     openingTime: "06:00",
     closingTime: "20:00",
-    
+
     slots: {
       morning: {
         startTime: "08:00",
         endTime: "12:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "19:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -453,8 +458,7 @@ const centers = [
         summary:
           "Structured detox plan including snehana, swedana and cleansing therapies.",
         price: "12000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
       },
     ],
     doctors: [
@@ -470,7 +474,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "amruta-ahmedabad",
     name: "Amruta Ayurveda Clinic",
@@ -484,33 +488,35 @@ const centers = [
       "https://content.jdmagicbox.com/v2/comp/delhi/r1/011pxx11.xx11.201024140500.m8r1/catalogue/kerala-ayurarogya-green-park-delhi-ayurvedic-clinics-ugtpul99cf.jpg",
       "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_AMRUTA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_AMRUTA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-79-4500-6677",
     openingTime: "09:00",
     closingTime: "19:00",
-    
+
     slots: {
       morning: {
         startTime: "09:30",
         endTime: "13:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "18:30",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -522,8 +528,7 @@ const centers = [
         summary:
           "Heated herbal bolus massage to reduce pain and stiffness in joints.",
         price: "1700",
-        therapyImage:
-          "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
       },
     ],
     doctors: [
@@ -539,7 +544,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "shanti-cochin",
     name: "Shanti Ayurveda Panchakarma Center",
@@ -552,33 +557,35 @@ const centers = [
       "https://images.pexels.com/photos/3738341/pexels-photo-3738341.jpeg",
       "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SHANTI_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SHANTI_EMBED_URL_HERE",
     bookingAiNumber: "+91-48-4400-2233",
     customerNumber: "+91-48-4400-8899",
     openingTime: "07:00",
     closingTime: "20:30",
-    
+
     slots: {
       morning: {
         startTime: "08:30",
         endTime: "12:30",
         maxCapacity: 14,
+        maxTherapySlots: 14,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "20:00",
         maxCapacity: 14,
+        maxTherapySlots: 14,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -590,8 +597,7 @@ const centers = [
         summary:
           "Stimulation of vital marma points to balance energy and relieve pain.",
         price: "1900",
-        therapyImage:
-          "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
       },
     ],
     doctors: [
@@ -607,7 +613,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "vedya-hyderabad",
     name: "Vedya Ayurveda & Panchakarma",
@@ -621,33 +627,35 @@ const centers = [
       "https://content.jdmagicbox.com/v2/comp/malappuram/x6/9999px483.x483.230821210649.r8x6/catalogue/dr-lazima-s-avicenna-ayurveda-malappuram-ayurvedic-clinics-7n1us31ogf.jpg",
       "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_VEDYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_VEDYA_EMBED_URL_HERE",
     bookingAiNumber: "+91-40-6600-7788",
     customerNumber: "+91-40-6600-7799",
     openingTime: "08:00",
     closingTime: "22:00",
-    
+
     slots: {
       morning: {
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 16,
+        maxTherapySlots: 16,
         tokenAmount: 100,
       },
       evening: {
         startTime: "16:00",
         endTime: "21:00",
         maxCapacity: 16,
+        maxTherapySlots: 16,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -659,8 +667,7 @@ const centers = [
         summary:
           "Combination of abhyanga, shirodhara and counselling to reset stress patterns.",
         price: "9800",
-        therapyImage:
-          "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
       },
     ],
     doctors: [
@@ -676,7 +683,7 @@ const centers = [
       },
     ],
   },
-  
+
   {
     slug: "saumya-chennai",
     name: "Saumya Ayurveda Center",
@@ -687,36 +694,38 @@ const centers = [
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
     images: [
-      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
+      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
       "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
     ],
-    locationUrl:
-      "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
+    locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
     bookingAiNumber: "",
     customerNumber: "+91-44-4300-5566",
     openingTime: "07:30",
     closingTime: "21:00",
-    
+
     slots: {
       morning: {
         startTime: "08:30",
         endTime: "12:30",
         maxCapacity: 13,
+        maxTherapySlots: 13,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:30",
         endTime: "20:00",
         maxCapacity: 13,
+        maxTherapySlots: 13,
         tokenAmount: 100,
       },
     },
-    
+
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
       cancellationHours: 24,
-      tokenRefundPolicy: "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
+      tokenRefundPolicy:
+        "Token amount will be refunded after your visit or if cancelled 24 hours before the appointment.",
     },
 
     therapies: [
@@ -728,8 +737,7 @@ const centers = [
         summary:
           "Traditional postnatal care with abhyanga, belly binding and diet guidance.",
         price: "15000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
       },
     ],
     doctors: [
