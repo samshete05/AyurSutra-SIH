@@ -11,7 +11,7 @@ const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
-const AppointmentModel = require("../models/Appointment.model")
+const AppointmentModel = require("../models/PatientAppointment.model")
 const notificationModel = require("../models/Notification.model");
 const { NotificationTemplates } = require("../utils/notificationHelper");
 
