@@ -570,27 +570,37 @@ patientRouter.post("/logout",async(req,res)=>{
 })
 
 
-// *************************** BOOK APPOINTMENT ********************************
-patientRouter.post("/bookAppointment", async function(req, res) {
+// *************************** BOOK GENERAL APPOINTMENT ********************************
+patientRouter.post("/bookGeneralAppointment", async function(req, res) {
   const requiredData = z.object({
     centerId: z.string().min(1),
-    appointmentDate: z.string(),
-    treatmentType: z.string(),
-    symptoms: z.string().optional(),
-    notes: z.string().optional()
+    centerName: z.string().min(1),
+    selectedDate: z.string(), // ISO date string from frontend
+    selectedSlot: z.enum(['morning', 'evening']),
+    slotDetails: z.object({
+      startTime: z.string(),
+      endTime: z.string(),
+    }),
+    patientName: z.string().min(1),
+    patientEmail: z.string().email(),
+    patientPhone: z.string().length(10),
+    patientAge: z.number().min(1).max(120).or(z.string().transform(Number)),
+    patientGender: z.enum(['male', 'female', 'other']),
+    notes: z.string().optional().default(""),
+    tokenAmount: z.number().positive(),
+    serviceType: z.string().default('general'),
+    emailVerified: z.boolean().default(true),
   });
 
   const checkData = requiredData.safeParse(req.body);
   if (!checkData.success) {
     res.status(422).json({
       message: "Invalid_Input",
-      errors: checkData.error
+      errors: checkData.error.errors
     });
     return;
   }
 
-  const { centerId, appointmentDate, treatmentType, symptoms, notes } = checkData.data;
-  
   // Get patient ID from JWT token
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
@@ -602,29 +612,101 @@ patientRouter.post("/bookAppointment", async function(req, res) {
     const decoded = jwt.verify(token, JWT_KEY);
     const patientId = decoded.id;
 
-    const newAppointment = await AppointmentModel.create({
-      patientId,
+    const {
       centerId,
-      appointmentDate: new Date(appointmentDate),
-      treatmentType,
-      symptoms,
+      centerName,
+      selectedDate,
+      selectedSlot,
+      slotDetails,
+      patientName,
+      patientEmail,
+      patientPhone,
+      patientAge,
+      patientGender,
       notes,
-      status: "pending",
+      tokenAmount,
+      serviceType,
+      emailVerified
+    } = checkData.data;
+
+    // Check slot availability - count existing appointments for this slot
+    const appointmentDate = new Date(selectedDate);
+    const existingCount = await PatientAppointment.countDocuments({
+      centerId,
+      appointmentDate: {
+        $gte: new Date(appointmentDate.setHours(0, 0, 0, 0)),
+        $lt: new Date(appointmentDate.setHours(23, 59, 59, 999))
+      },
+      appointmentSlot: selectedSlot,
+      status: { $in: ['scheduled', 'confirmed', 'checked-in'] }
     });
 
-    res.json({
-      message: "Appointment_Booked",
-      appointmentId: newAppointment._id,
-      info: "Center will confirm doctor and time within 24 hours",
+    // Assuming max 30 tokens per slot (adjust based on center capacity)
+    if (existingCount >= 30) {
+      res.status(400).json({
+        message: "Slot_Full",
+        info: "Selected slot is full. Please choose another slot or date."
+      });
+      return;
+    }
+
+    // Generate token number for this slot
+    const tokenNumber = `T-${String(existingCount + 1).padStart(3, '0')}`;
+
+    // Create appointment
+    const newAppointment = await PatientAppointment.create({
+      patientId,
+      centerId,
+      centerName,
+      appointmentDate: new Date(selectedDate),
+      appointmentSlot: selectedSlot,
+      slotDetails,
+      patientDetails: {
+        name: patientName,
+        email: patientEmail,
+        phone: patientPhone,
+        age: patientAge,
+        gender: patientGender,
+      },
+      notes,
+      tokenAmount,
+      tokenNumber,
+      serviceType,
+      emailVerified,
+      paymentStatus: 'paid', // Set after payment integration
+      status: 'scheduled',
+      bookingSource: 'web',
     });
+
+    // TODO: Send confirmation SMS and Email
+    // await sendConfirmationSMS(patientPhone, newAppointment);
+    // await sendConfirmationEmail(patientEmail, newAppointment);
+
+    res.status(201).json({
+      message: "Appointment_Booked_Successfully",
+      data: {
+        bookingId: newAppointment.bookingId,
+        tokenNumber: newAppointment.tokenNumber,
+        appointmentDate: newAppointment.appointmentDate,
+        appointmentSlot: newAppointment.appointmentSlot,
+        slotDetails: newAppointment.slotDetails,
+        patientName: newAppointment.patientDetails.name,
+        tokenAmount: newAppointment.tokenAmount,
+        centerName: newAppointment.centerName,
+      }
+    });
+
   } catch (err) {
     console.error("Error booking appointment:", err);
-    res.status(500).json({ message: "Server_error" });
+    res.status(500).json({ 
+      message: "Server_Error",
+      error: err.message 
+    });
   }
 });
 
-// *************************** GET APPOINTMENTS ********************************
-patientRouter.get("/getAppointments", async function(req, res) {
+// *************************** GET PATIENT APPOINTMENTS ********************************
+patientRouter.get("/appointments", async function(req, res) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
@@ -635,29 +717,94 @@ patientRouter.get("/getAppointments", async function(req, res) {
     const decoded = jwt.verify(token, JWT_KEY);
     const patientId = decoded.id;
 
-    const appointments = await AppointmentModel.find({ patientId })
-      .sort({ appointmentDate: -1 });
+    // Query parameters for filtering
+    const { status, upcoming } = req.query;
+
+    let query = { patientId };
+
+    // Filter by status if provided
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter for upcoming appointments
+    if (upcoming === 'true') {
+      query.appointmentDate = { $gte: new Date() };
+      query.status = { $in: ['scheduled', 'confirmed'] };
+    }
+
+    const appointments = await PatientAppointment.find(query)
+      .populate('centerId', 'name address phone locationUrl')
+      .sort({ appointmentDate: -1 })
+      .lean();
+
+    // Add computed fields
+    const appointmentsWithExtras = appointments.map(apt => ({
+      ...apt,
+      isUpcoming: apt.appointmentDate > new Date() && apt.status === 'scheduled',
+      canCancel: new Date(apt.appointmentDate.getTime() - 24 * 60 * 60 * 1000) > new Date() &&
+                 ['scheduled', 'confirmed'].includes(apt.status)
+    }));
 
     res.json({
       message: "Success",
-      appointments
+      count: appointmentsWithExtras.length,
+      appointments: appointmentsWithExtras
     });
+
   } catch (err) {
     console.error("Error fetching appointments:", err);
-    res.status(500).json({ message: "Server_error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
+// *************************** GET SINGLE APPOINTMENT BY BOOKING ID ********************************
+patientRouter.get("/appointments/:bookingId", async function(req, res) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patientId = decoded.id;
+    const { bookingId } = req.params;
+
+    const appointment = await PatientAppointment.findOne({ 
+      bookingId,
+      patientId 
+    }).populate('centerId', 'name address phone locationUrl slots');
+
+    if (!appointment) {
+      res.status(404).json({ message: "Appointment_Not_Found" });
+      return;
+    }
+
+    res.json({
+      message: "Success",
+      appointment
+    });
+
+  } catch (err) {
+    console.error("Error fetching appointment:", err);
+    res.status(500).json({ message: "Server_Error" });
+  }
+});
 
 // *************************** CANCEL APPOINTMENT ********************************
 patientRouter.post("/cancelAppointment", async function(req, res) {
   const requiredData = z.object({
-    appointmentId: z.string().min(1)
+    bookingId: z.string().min(1),
+    reason: z.string().optional().default("Patient requested cancellation")
   });
 
   const checkData = requiredData.safeParse(req.body);
   if (!checkData.success) {
-    res.status(422).json({ message: "Invalid_Input" });
+    res.status(422).json({ 
+      message: "Invalid_Input",
+      errors: checkData.error.errors 
+    });
     return;
   }
 
@@ -669,17 +816,137 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const { appointmentId } = checkData.data;
+    const patientId = decoded.id;
+    const { bookingId, reason } = checkData.data;
 
-    await AppointmentModel.updateOne(
-      { _id: appointmentId, patientId: decoded.id },
-      { $set: { status: 'cancelled' } }
-    );
+    const appointment = await PatientAppointment.findOne({ 
+      bookingId,
+      patientId 
+    });
 
-    res.json({ message: "Appointment_Cancelled" });
+    if (!appointment) {
+      res.status(404).json({ message: "Appointment_Not_Found" });
+      return;
+    }
+
+    // Check if already cancelled
+    if (appointment.status === 'cancelled') {
+      res.status(400).json({ message: "Appointment_Already_Cancelled" });
+      return;
+    }
+
+    // Check if cancellation is allowed (24 hours before)
+    if (!appointment.canCancel()) {
+      res.status(400).json({
+        message: "Cancellation_Not_Allowed",
+        info: "Appointments must be cancelled at least 24 hours in advance for a full refund."
+      });
+      return;
+    }
+
+    // Cancel the appointment
+    await appointment.cancelAppointment(reason, 'patient');
+
+    // TODO: Send cancellation SMS and Email
+    // await sendCancellationSMS(appointment.patientDetails.phone, appointment);
+    // await sendCancellationEmail(appointment.patientDetails.email, appointment);
+
+    res.json({
+      message: "Appointment_Cancelled_Successfully",
+      data: {
+        bookingId: appointment.bookingId,
+        status: appointment.status,
+        refundStatus: appointment.refundStatus,
+        refundAmount: appointment.refundAmount,
+        info: appointment.refundStatus === 'pending' 
+          ? 'Refund will be processed within 5-7 business days'
+          : 'No refund applicable'
+      }
+    });
+
   } catch (err) {
     console.error("Error cancelling appointment:", err);
-    res.status(500).json({ message: "Server_error" });
+    res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** RESCHEDULE APPOINTMENT (Optional) ********************************
+patientRouter.post("/rescheduleAppointment", async function(req, res) {
+  const requiredData = z.object({
+    bookingId: z.string().min(1),
+    newDate: z.string(),
+    newSlot: z.enum(['morning', 'evening']),
+    reason: z.string().optional()
+  });
+
+  const checkData = requiredData.safeParse(req.body);
+  if (!checkData.success) {
+    res.status(422).json({ 
+      message: "Invalid_Input",
+      errors: checkData.error.errors 
+    });
+    return;
+  }
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const patientId = decoded.id;
+    const { bookingId, newDate, newSlot, reason } = checkData.data;
+
+    const appointment = await PatientAppointment.findOne({ 
+      bookingId,
+      patientId 
+    });
+
+    if (!appointment) {
+      res.status(404).json({ message: "Appointment_Not_Found" });
+      return;
+    }
+
+    // Check if rescheduling is allowed
+    if (!['scheduled', 'confirmed'].includes(appointment.status)) {
+      res.status(400).json({ message: "Rescheduling_Not_Allowed" });
+      return;
+    }
+
+    // Check new slot availability
+    const newAppointmentDate = new Date(newDate);
+    const existingCount = await PatientAppointment.countDocuments({
+      centerId: appointment.centerId,
+      appointmentDate: {
+        $gte: new Date(newAppointmentDate.setHours(0, 0, 0, 0)),
+        $lt: new Date(newAppointmentDate.setHours(23, 59, 59, 999))
+      },
+      appointmentSlot: newSlot,
+      status: { $in: ['scheduled', 'confirmed', 'checked-in'] }
+    });
+
+    if (existingCount >= 30) {
+      res.status(400).json({ message: "New_Slot_Full" });
+      return;
+    }
+
+    // Update appointment
+    appointment.appointmentDate = new Date(newDate);
+    appointment.appointmentSlot = newSlot;
+    appointment.notes = (appointment.notes || '') + `\nRescheduled: ${reason || 'No reason provided'}`;
+    
+    await appointment.save();
+
+    res.json({
+      message: "Appointment_Rescheduled_Successfully",
+      appointment
+    });
+
+  } catch (err) {
+    console.error("Error rescheduling appointment:", err);
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
