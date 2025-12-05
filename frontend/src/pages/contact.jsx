@@ -1,46 +1,249 @@
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+const ayurCenters = [
+  {
+    name: "Shanti Ayurveda Panchakarma Center",
+    city: "Kochi",
+    address: "Beach Road, Fort Kochi",
+    aiAgent: "+91-48-4400-2233",
+    customer: "+91-48-4400-8899",
+    timings: "07:00 – 20:30",
+    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Beach+Road,+Fort+Kochi",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Vedya Ayurveda & Panchakarma",
+    city: "Hyderabad",
+    address: "Jubilee Hills Road No. 36",
+    aiAgent: "+91-40-6600-7788",
+    customer: "+91-40-6600-7799",
+    timings: "08:00 – 22:00",
+    image: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Jubilee+Hills+Road+No+36,+Hyderabad",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Saumya Ayurveda Center",
+    city: "Chennai",
+    address: "Besant Nagar Beach Road",
+    aiAgent: "Not available",
+    customer: "+91-44-4300-5566",
+    timings: "07:30 – 21:00",
+    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Besant+Nagar+Beach+Road,+Chennai",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "AyurSutra Panchakarma Center",
+    city: "Bengaluru",
+    address: "3rd Cross, 5th Block, Koramangala",
+    aiAgent: "+91-80-4000-1234",
+    customer: "+91-80-4000-5678",
+    timings: "07:00 – 21:00",
+    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Koramangala,+Bengaluru",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Swasthya Ayurveda Clinic",
+    city: "Kolkata",
+    address: "12, Lake Road, Rabindra Sarobar",
+    aiAgent: "Not available",
+    customer: "+91-33-3000-3344",
+    timings: "08:00 – 20:30",
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Lake+Road,+Rabindra+Sarobar,+Kolkata",
+    type: "Ayurveda Clinic"
+  },
+  {
+    name: "Prana Ayurveda & Panchakarma",
+    city: "New Delhi",
+    address: "D-21, South Extension",
+    aiAgent: "+91-11-4555-7788",
+    customer: "+91-11-4555-9900",
+    timings: "06:30 – 22:00",
+    image: "https://images.unsplash.com/photo-1454023492550-5696f8ff10e1?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=South+Extension,+New+Delhi",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Sattva Ayurveda & Wellness",
+    city: "Mumbai",
+    address: "2nd Floor, Palm Avenue, Andheri West",
+    aiAgent: "+91-22-6000-1212",
+    customer: "+91-22-6000-3434",
+    timings: "07:30 – 21:30",
+    image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=2nd+Floor,+Palm+Avenue,+Andheri+West,+Mumbai",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Ojas Panchakarma Retreat",
+    city: "Pune",
+    address: "Near Mulshi Road, Bavdhan",
+    aiAgent: "+91-20-5500-9909",
+    customer: "+91-20-5500-8080",
+    timings: "06:00 – 20:00",
+    image: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Near+Mulshi+Road,+Bavdhan,+Pune",
+    type: "Panchakarma Center"
+  },
+  {
+    name: "Amruta Ayurveda Clinic",
+    city: "Ahmedabad",
+    address: "Nr. Law Garden, Ellis Bridge",
+    aiAgent: "Not available",
+    customer: "+91-79-4500-6677",
+    timings: "09:00 – 19:00",
+    image: "https://images.unsplash.com/photo-1520880867055-1e30d1cb001c?auto=format&fit=crop&w=400&q=80",
+    mapsUrl: "https://www.google.com/maps?q=Nr.+Law+Garden,+Ellis+Bridge,+Ahmedabad",
+    type: "Panchakarma Center"
+  }
+];
+
 export const Contact = () => {
+  const [centers, setCenters] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/allcenters')
+      .then(res => res.json())
+      .then(data => {
+        setCenters(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
   return (
     <>
       <Navbar />
-      <div className="bg-gradient-to-br from-emerald-50/60 via-emerald-100 to-white min-h-screen flex flex-col">
-        <div className="max-w-4xl mx-auto px-4 py-12 flex-1">
-          {/* Decorative header with icon and wave */}
-          <div className="relative mb-10">
-            <div className="flex items-center gap-3 mb-4 animate-fadeIn">
-              <span className="bg-[#1E4B3C] text-white rounded-full p-3 text-3xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="inline" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-5.857 3.514a1 1 0 0 1-1.286 0L2 5.383V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5.383z"/></svg>
-              </span>
-              <h1 className="text-4xl font-bold text-[#1E4B3C]">Contact AyurSutra</h1>
-            </div>
-            <svg className="absolute left-0 bottom-[-20px] w-full h-8" viewBox="0 0 1440 320"><path fill="#1E4B3C" fillOpacity="0.08" d="M0,160L1440,32L1440,320L0,320Z"></path></svg>
+      {/* Green Info Box - styled like About file */}
+      <section
+        className="w-full flex items-center"
+        style={{
+          background: "linear-gradient(90deg, #276b5c 0%, #256d4f 100%)",
+          minHeight: "380px",
+          borderBottomLeftRadius: "0px",
+          borderBottomRightRadius: "0px",
+          marginBottom: "0",
+          boxShadow: "0 4px 24px 0 rgba(30,75,60,0.12)",
+          transition: "all 0.6s cubic-bezier(.4,0,.2,1)"
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-8 py-12 w-full">
+          <div className="mb-6">
+            <span className="tracking-widest text-white/80 text-sm font-semibold uppercase" style={{ letterSpacing: "2px" }}>
+              CONTACT AYURSUTRA
+            </span>
           </div>
-          {/* Info cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12 animate-fadeIn">
-            <div className="bg-white rounded-xl shadow-md p-6 border border-emerald-100 flex flex-col items-center">
-              <span className="text-emerald-600 text-3xl mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 1 1.015-.063l2.29 2.29c.329.329.445.81.293 1.243l-.547 1.64a.678.678 0 0 1-.646.46c-.26 0-.52-.1-.707-.293L4.21 5.21a.678.678 0 0 1-.063-1.015l1.507-1.507zm8.485 8.485a.678.678 0 0 1-.063 1.015l-1.507 1.507a.678.678 0 0 1-1.015-.063l-2.29-2.29a.678.678 0 0 1-.293-.707l.547-1.64a.678.678 0 0 1 .646-.46c.26 0 .52.1.707.293l1.507 1.507a.678.678 0 0 1 .063 1.015z"/></svg>
-              </span>
-              <h2 className="font-semibold text-[#1E4B3C] mb-1">Call Us</h2>
-              <p className="text-gray-700 text-sm">+91 98765 43210</p>
+          <h1
+            className="text-4xl md:text-5xl font-extrabold text-white mb-6"
+            style={{
+              lineHeight: 1.15,
+              letterSpacing: "0.5px",
+              textShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              transition: "all 0.6s cubic-bezier(.4,0,.2,1)"
+            }}
+          >
+            Connect with our team for<br />
+            <span className="text-[#bfffe2]">Ayurvedic guidance & support.</span>
+          </h1>
+          <p
+            className="text-white/90 text-xl md:text-2xl font-medium"
+            style={{
+              maxWidth: "700px",
+              lineHeight: 1.5,
+              transition: "all 0.6s cubic-bezier(.4,0,.2,1)"
+            }}
+          >
+            Reach out for personalized advice, center details, or any help you need. We're here to support your wellness journey with expert care and prompt responses.
+          </p>
+        </div>
+      </section>
+      <div className="bg-gradient-to-br from-emerald-50/60 via-emerald-100 to-white min-h-screen flex flex-col">
+        <div className="max-w-7xl mx-auto px-4 py-12 flex-1">
+          {/* Move Locate Our Center map to the top */}
+          <div className="mb-10 animate-fadeIn">
+            <div
+              className="overflow-hidden shadow-lg border border-emerald-100 mx-auto"
+              style={{ maxWidth: 1300, position: "relative", height: 340 }}
+            >
+              <iframe
+                title="AyurSutra Center Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3772.964184710017!2d73.85674307519644!3d18.52043098257409!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c06c3e6b5e6b%3A0x8e1e4e1e4e1e4e1e!2sPune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000001!5m2!1sen!2sin"
+                style={{
+                  zIndex: 3,
+                  position: "absolute",
+                  height: "180",
+                  width: "100%",
+                  padding: 0,
+                  borderWidth: 0,
+                  margin: 0,
+                  left: 0,
+                  top: 0,
+                  touchAction: "pan-x pan-y"
+                }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-6 border border-emerald-100 flex flex-col items-center">
-              <span className="text-emerald-600 text-3xl mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-5.857 3.514a1 1 0 0 1-1.286 0L2 5.383V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5.383z"/></svg>
-              </span>
-              <h2 className="font-semibold text-[#1E4B3C] mb-1">Email</h2>
-              <p className="text-gray-700 text-sm">
-                <a href="mailto:support@ayursutra.com" className="text-orange-500 underline">support@ayursutra.com</a>
-              </p>
-            </div>
-            <div className="bg-white rounded-xl shadow-md p-6 border border-emerald-100 flex flex-col items-center">
-              <span className="text-emerald-600 text-3xl mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.293l6 6V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9.293l6-6zm5 6.707V13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10l5-5 5 5z"/></svg>
-              </span>
-              <h2 className="font-semibold text-[#1E4B3C] mb-1">Visit Us</h2>
-              <p className="text-gray-700 text-sm">AyurSutra HQ, Wellness Avenue, Mumbai</p>
+            <p className="text-gray-700 mt-2 text-sm text-center">
+              Find us at AyurSutra HQ, Lavale, Pune, Maharashtra.
+            </p>
+          </div>
+
+          {/* Ayurvedic Centers as Cards with Map */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-4 animate-fadeIn">Our Ayurvedic Centers</h2>
+            <div className="grid md:grid-cols-3 gap-10">
+              {ayurCenters.map((center) => (
+                <div
+                  key={center.name}
+                  className="bg-white shadow-lg border border-emerald-100 overflow-hidden flex flex-col animate-fadeIn"
+                  style={{ width: 400, height: 470, minWidth: 320, maxWidth: 400, margin: "0 auto", transition: "box-shadow 0.3s" }}
+                >
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h3 className="text-xl font-bold text-[#1E4B3C] mb-1">{center.name}</h3>
+                    <div className="text-emerald-700 mb-1">{center.city}</div>
+                    <div className="font-semibold mb-1">{center.address}</div>
+                    <div className="text-sm mb-1">
+                      <span className="font-semibold">AI Agent:</span> {center.aiAgent}
+                    </div>
+                    <div className="text-sm mb-1">
+                      <span className="font-semibold">Customer:</span> {center.customer}
+                    </div>
+                    <div className="mb-1">
+                      <span className="font-semibold text-emerald-700">Timings:</span> {center.timings}
+                    </div>
+                    <div className="mb-2">
+                      <span className="font-semibold text-emerald-700">{center.type}</span>
+                    </div>
+                    <div className="rounded-lg overflow-hidden border border-emerald-50 shadow-sm mb-2 w-full">
+                      <iframe
+                        title={center.name + " Location"}
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(center.address + ', ' + center.city)}&output=embed`}
+                        width="100%"
+                        height="180"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      ></iframe>
+                    </div>
+                    <button
+                      className="mt-auto bg-emerald-600 text-white font-semibold px-4 py-2 rounded hover:bg-emerald-700 transition"
+                      onClick={() => window.open(center.mapsUrl, "_blank")}
+                    >
+                      View on Map
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
           {/* Image and info before the form */}
@@ -63,11 +266,11 @@ export const Contact = () => {
             </div>
           </div>
           {/* Contact form */}
-          <form className="bg-white rounded-2xl shadow-md p-8 space-y-6 border border-emerald-100 animate-fadeIn">
+          <form className="bg-white rounded-2xl shadow-md p-8 space-y-6 border border-emerald-100 animate-fadeIn mb-8 transition-all duration-700">
             <div>
               <label className="block text-[#1E4B3C] font-semibold mb-2" htmlFor="name">Name</label>
               <input
-                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all duration-300"
                 type="text"
                 id="name"
                 name="name"
@@ -78,7 +281,7 @@ export const Contact = () => {
             <div>
               <label className="block text-[#1E4B3C] font-semibold mb-2" htmlFor="email">Email</label>
               <input
-                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all duration-300"
                 type="email"
                 id="email"
                 name="email"
@@ -89,7 +292,7 @@ export const Contact = () => {
             <div>
               <label className="block text-[#1E4B3C] font-semibold mb-2" htmlFor="message">Message</label>
               <textarea
-                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-4 py-2 border border-emerald-200 rounded focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all duration-300"
                 id="message"
                 name="message"
                 rows={5}
@@ -99,7 +302,7 @@ export const Contact = () => {
             </div>
             <button
               type="submit"
-              className="bg-[#1E4B3C] text-white font-bold px-6 py-2 rounded hover:bg-emerald-700 transition"
+              className="bg-[#1E4B3C] text-white font-bold px-6 py-2 rounded hover:bg-emerald-700 transition-all duration-300"
             >
               Send Message
             </button>

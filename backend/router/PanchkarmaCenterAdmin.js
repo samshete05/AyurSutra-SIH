@@ -6,7 +6,7 @@ const PanchakarmaCenterRouter = express.Router();
 const z = require('zod');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { PanchkarmaModel } = require("../db/db");
+// const { PanchkarmaModel } = require("../db/db");
 
 const JWT_KEY = process.env.JWT_KEY;
 const otpgenerator = require("otp-generator");
@@ -272,24 +272,28 @@ PanchakarmaCenterRouter.post("/CenterVerifyOtp", async (req, res) => {
 })
 
 PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
-  //for dropdown menu get all list all centers
+  try {
+    console.log("➡️ allcenterList hit");
 
-  const token = req.cookies.uidcookie;
+    // console.log("Model loaded:", PanchkarmaModel && PanchkarmaModel.modelName);
 
-  if (!token) {
-    return res.json({ message: "not_signedIn" });
+    const allCenters = await PanchakarmaCenterModel.find({});
+    // console.log("Centers fetched:", allCenters.length);
+
+    return res.json({
+      success: true,
+      centers: allCenters,
+    });
+
+  } catch (err) {
+    console.error("🔥 ERROR inside /allcenterList:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
-
-
-  const AllCenters = await PanchkarmaModel.find({});
-
-
-  res.json({
-    message: "All centers list",
-    AllCenters: AllCenters
-  })
-
-})
+});
 
 // ******************** ADD THERAPY ********************
 PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async (req, res) => {
@@ -445,10 +449,11 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
 PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
   // console.log("hitting get data routes");
 
-  const {email}=req.body;
+  const {centerId}=req.body;
+  console.log("hitting the routes",centerId);
 
   const PanchakarmaCenter=await PanchakarmaCenterModel.findOne({
-    email:email
+    _id:centerId
   });
 
   const getAllTherapy=await TherapyModel.find({
@@ -509,16 +514,17 @@ PanchakarmaCenterRouter.post("/get-therapists",async(req,res)=>{
 
 // *************************** GET CENTER PROFILE ********************************
 PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
+  console.log("hitting profile route")
   try {
-    const { email } = req.body;
+    const { centerId } = req.body;
+    console.log(centerId);
 
-    if (!email) {
-      return res.status(400).json({ message: "Email_Required" });
+
+    if (!centerId) {
+      return res.status(400).json({ message: "CenterId_Required" });
     }
 
-    const center = await PanchakarmaCenterModel.findOne({ email: email })
-      .select("-password")
-      .populate("Doctors");
+    const center = await PanchakarmaCenterModel.findOne({ _id:centerId });
 
     if (!center) {
       return res.status(404).json({ message: "Center_Not_Found" });

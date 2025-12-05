@@ -1,5 +1,7 @@
 const express = require("express");
 const patientRouter=express.Router();
+const twilio = require("twilio");
+
 
 const z =require('zod');
 const bcrypt=require("bcrypt");
@@ -574,109 +576,94 @@ patientRouter.post("/logout",async(req,res)=>{
 
 // *************************** BOOK GENERAL APPOINTMENT ********************************
 patientRouter.post("/bookGeneralAppointment", async function (req, res) {
-  const schema = z.object({
-    selectedDate: z.string().min(1),
-    selectedSlot: z.enum(["morning", "evening"]),
-    patientName: z.string(),
-    patientEmail: z.string().email(),
-    patientPhone: z.string().length(10),
-    patientAge: z.number().or(z.string().transform(Number)),
-    patientGender: z.enum(["male", "female", "other"]),
-    notes: z.string().optional(),
-    serviceType: z.string().default("general"),
-    isPhoneVerified: z.boolean(),
-    centerId: z.string(),
-    tokenAmount: z.string().optional().default("0"),
-    tokenNumber: z.string().optional(),
-  });
-
-  const parsed = schema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(422).json({
-      message: "Invalid_Input",
-      errors: parsed.error.errors,
-    });
-  }
-
-  const data = parsed.data;
-
   try {
+    const data = req.body;
+    
+    // Simple validation
+    if (!data.selectedDate || !data.selectedSlot || !data.patientName || !data.patientPhone || !data.patientEmail || !data.centerId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     // Find patient
     const patient = await PatientModel.findOne({ email: data.patientEmail });
     if (!patient) {
-      return res.status(404).json({ message: "Patient_Not_Found" });
+      return res.status(404).json({ message: "Patient not found" });
     }
 
-    // Find center to get name and slot details
+    // Find center
     const center = await PanchakarmaCenterModel.findById(data.centerId);
     if (!center) {
-      return res.status(404).json({ message: "Center_Not_Found" });
+      return res.status(404).json({ message: "Center not found" });
     }
 
-    // Get slot details
-    const slotInfo = center.slots[data.selectedSlot];
+    // Generate simple IDs
+    const bookingId = "BKG" + Date.now().toString().slice(-8);
+    const tokenNumber = "T" + Math.floor(Math.random() * 900 + 100);
 
-    // Create appointment with ALL required fields
-    const appointment = await CenterAppointmentModel.create({
-      // Basic info
-      ServiceType: data.serviceType,
+    // Set slot times
+    let slotTime;
+    if (data.selectedSlot === "morning") {
+      slotTime = { startTime: "10:00 AM", endTime: "12:00 PM" };
+    } else {
+      slotTime = { startTime: "05:00 PM", endTime: "07:00 PM" };
+    }
+
+    // Create appointment directly
+    const appointmentData = {
+      bookingId: bookingId,
+      tokenNumber: tokenNumber,
+      
       patientId: patient._id,
       CenterId: data.centerId,
       TherapyId: null,
-
-      // Patient details
+      
+      ServiceType: data.serviceType || "general",
+      
       PatientName: data.patientName,
       PatientPhone: data.patientPhone,
       patientEmail: data.patientEmail,
       PatientAge: String(data.patientAge),
       PatientGender: data.patientGender,
       notes: data.notes || "",
-      isPhoneVerified: data.isPhoneVerified,
-
-      // Appointment timing
+      isPhoneVerified: data.isPhoneVerified || false,
+      
       appointmentDate: new Date(data.selectedDate),
       appointmentSlot: data.selectedSlot,
-      slotDetails: {
-        startTime: slotInfo.startTime,
-        endTime: slotInfo.endTime,
-      },
-
-      // Center info
-      centerName: center.name,
-
-      // Token & Payment
-      tokenNumber:
-        data.tokenNumber ||
-        `T-${String(Math.floor(Math.random() * 999) + 1).padStart(3, "0")}`,
-      Amount: data.tokenAmount || slotInfo.tokenAmount || "0",
-      PaymentStatus: "paid", // or 'pending' based on your flow
-
-      // Status
+      slotDetails: slotTime,
+      
+      centerName: center.name || center.CenterName || "Panchakarma Center",
+      
+      Amount: data.tokenAmount || "100",
+      PaymentStatus: "paid",
       status: "scheduled",
-    });
+    };
 
-    // Update center's appointment list
+    // Save to database
+    const appointment = await CenterAppointmentModel.create(appointmentData);
+
+    // Update center if needed
     await PanchakarmaCenterModel.findByIdAndUpdate(data.centerId, {
-      $push: { GeneralAppointment: appointment._id },
+      $push: { GeneralAppointment: appointment._id }
     });
 
-    // Return the created appointment with bookingId
-    return res.status(201).json({
-      message: "Appointment_Booked",
-      appointmentId: appointment._id,
-      bookingId: appointment.bookingId,
-      tokenNumber: appointment.tokenNumber,
-      appointment: appointment, // Send full object
+    // Return success
+    return res.status(200).json({
+      success: true,
+      message: "Appointment booked successfully",
+      bookingId: bookingId,
+      tokenNumber: tokenNumber,
+      appointmentId: appointment._id
     });
-  } catch (err) {
-    console.log("DB Error:", err);
-    return res.status(500).json({
-      message: "Server_Error",
-      error: err.message,
+
+  } catch (error) {
+    console.log("Error in booking:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
     });
   }
 });
-
 
 // *************************** GET PATIENT APPOINTMENTS ********************************
 patientRouter.get("/appointments", async function (req, res) {
@@ -1405,6 +1392,85 @@ patientRouter.get("/notifications/unread/count", async function (req, res) {
   } catch (err) {
     console.error("Error getting patient unread count:", err);
     return res.status(500).json({ message: "Server_error" });
+  }
+});
+
+
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+
+
+patientRouter.post("/appointment-otp",async(req,res)=>{
+
+    const {phoneNo,email}=req.body;
+   
+    console.log("yeah numbe rhain ",phoneNo);
+    console.log(email);
+    
+    const otp=otpgenerator.generate(6,{
+        digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
+     })
+
+    const response=await OtpModel.create({
+          phoneNo:phoneNo,
+            otp:otp,
+            email:email
+      })
+
+  
+      await client.messages.create({
+      body: `Your AyurSutra verification OTP is ${otp}`,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNo}`,
+    });
+    
+      res.json({
+        message:"otp_send",
+        otp
+      })
+
+})
+
+patientRouter.post("/verify-appointment-otp", async (req, res) => {
+  try {
+    const { phoneNo, otp } = req.body;
+
+    console.log(phoneNo," ",otp);
+
+    if (!phoneNo || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone and OTP are required",
+      });
+    }
+
+    const record = await OtpModel.findOne({ phoneNo }).sort({ createdAt: -1 });
+
+    if (!record) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired or not found",
+      });
+    }
+
+    if (record.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect_OTP",
+      });
+    }
+
+    // OTP matched → delete it
+    await OtpModel.deleteMany({ phoneNo });
+
+    return res.json({
+      success: true,
+      message: "OTP_verified_successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error verifying OTP",
+    });
   }
 });
 

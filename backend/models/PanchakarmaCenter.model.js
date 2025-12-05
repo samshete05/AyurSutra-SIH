@@ -18,6 +18,7 @@ const PanchakarmaCenterSchema = new schema({
   },
 
   location: { type: String },
+  address:{type:String},
   latitude: { type: Number },
   longitude: { type: Number },
 
@@ -31,7 +32,7 @@ const PanchakarmaCenterSchema = new schema({
     type: Boolean,
     default: false,
   },
-
+  rating:String,
   // Store doctor references
   Doctors: [
     {

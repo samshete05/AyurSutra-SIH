@@ -94,6 +94,55 @@ export const Service = () => {
               Join the movement to modernize Panchakarma care. AyurSutra is more than software—it's your partner in delivering holistic healing with confidence and clarity.
             </p>
           </div>
+
+          {/* New: More About Our Services Section */}
+          <div className="mt-16 max-w-5xl mx-auto animate-fadeIn">
+            <h2 className="text-2xl font-bold text-[#1E4B3C] mb-6 text-center">How AyurSutra Software Helps Your Center</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white rounded-xl shadow border border-emerald-100 p-6">
+                <h4 className="font-semibold text-[#1E4B3C] mb-2">Integrated Therapy Management</h4>
+                <p className="text-gray-700 text-base">
+                  Schedule, track, and manage all Panchakarma therapies in one place. Automated reminders and digital records ensure every session is smooth and error-free.
+                </p>
+              </div>
+              <div className="bg-white rounded-xl shadow border border-emerald-100 p-6">
+                <h4 className="font-semibold text-[#1E4B3C] mb-2">Patient Engagement Tools</h4>
+                <p className="text-gray-700 text-base">
+                  Empower patients with access to their therapy plans, progress charts, and feedback forms. Enhance satisfaction and outcomes with personalized care.
+                </p>
+              </div>
+              <div className="bg-white rounded-xl shadow border border-emerald-100 p-6">
+                <h4 className="font-semibold text-[#1E4B3C] mb-2">Staff & Resource Optimization</h4>
+                <p className="text-gray-700 text-base">
+                  Manage staff schedules, room occupancy, and inventory with real-time dashboards. Reduce manual errors and maximize center efficiency.
+                </p>
+              </div>
+              <div className="bg-white rounded-xl shadow border border-emerald-100 p-6">
+                <h4 className="font-semibold text-[#1E4B3C] mb-2">Analytics & Reporting</h4>
+                <p className="text-gray-700 text-base">
+                  Generate insightful reports on therapy outcomes, patient satisfaction, and operational metrics. Make informed decisions and continuously improve your services.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* New: Call to Action Section */}
+          <div className="mt-20 text-center animate-fadeIn">
+            <div className="inline-block bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] rounded-2xl px-10 py-8 shadow text-white">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-emerald-100">
+                Ready to transform your Panchakarma center?
+              </h2>
+              <p className="mb-6 text-lg">
+                Discover how AyurSutra can simplify your workflow, improve patient outcomes, and grow your practice.
+              </p>
+              <a
+                href="/contact"
+                className="inline-block bg-white text-[#1E4B3C] font-bold px-8 py-3 rounded-lg shadow hover:bg-emerald-100 transition"
+              >
+                Get Started Today
+              </a>
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
