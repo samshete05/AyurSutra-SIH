@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 import axios from "axios";
 
-const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => {
-  const patientEmail=localStorage.getItem("email");
-  console.log("center id is",centerId);
+const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) => {
+  const patientEmail = localStorage.getItem("email");
+  console.log("data aaa gayaaaa", centerData);
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
     serviceType: "general",
@@ -45,6 +45,17 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
   const [otpSent, setOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const otpInputRefs = useRef([]);
+
+  // Safe default slots to prevent undefined errors
+  const getSafeSlots = () => {
+    if (!centerData || !centerData.slots) {
+      return {
+        morning: { startTime: "10:00 AM", endTime: "12:00 PM", tokenAmount: 100 },
+        evening: { startTime: "05:00 PM", endTime: "07:00 PM", tokenAmount: 100 },
+      };
+    }
+    return centerData.slots;
+  };
 
   if (!isOpen) return null;
 
@@ -82,29 +93,35 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
   };
 
   const handleSubmit = async () => {
-  try {
-    const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
-      selectedDate: bookingData.selectedDate,
-      selectedSlot: bookingData.selectedSlot,
-      patientName: bookingData.patientName,
-      patientPhone: bookingData.patientPhone,
-      patientEmail: patientEmail,
-      patientAge: bookingData.patientAge,
-      patientGender: bookingData.patientGender,
-      notes: bookingData.notes,
-      serviceType: bookingData.serviceType,
-      isPhoneVerified: bookingData.isPhoneVerified,
-      centerId:centerId
-    });
+    try {
+      const safeSlots = getSafeSlots();
+      const slotInfo = safeSlots[bookingData.selectedSlot];
+      
+      const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
+        selectedDate: bookingData.selectedDate,
+        selectedSlot: bookingData.selectedSlot,
+        patientName: bookingData.patientName,
+        patientPhone: bookingData.patientPhone,
+        patientEmail: patientEmail,
+        patientAge: bookingData.patientAge,
+        patientGender: bookingData.patientGender,
+        notes: bookingData.notes,
+        serviceType: bookingData.serviceType,
+        isPhoneVerified: bookingData.isPhoneVerified,
+        centerId: centerId,
+        tokenNumber: bookingData.tokenNumber,
+        tokenAmount: String(slotInfo?.tokenAmount || 100),
+        centerName: centerData?.name || "Medical Center",
+      });
 
-    console.log("SUCCESS:", resp.data);
+      console.log("SUCCESS:", resp.data);
+      window.location.reload();
 
-  } catch (err) {
-    console.log("🔥 BACKEND SAYS:", err.response?.data);
-    alert(JSON.stringify(err.response?.data, null, 2));
-  }
-};
-
+    } catch (err) {
+      console.log("🔥 BACKEND SAYS:", err.response?.data);
+      alert(JSON.stringify(err.response?.data, null, 2));
+    }
+  };
 
   const generateAvailableDates = () => {
     const dates = [];
@@ -125,37 +142,77 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       return { ok: false, message: "Enter a valid 10-digit phone number" };
     }
 
-    // Save phone immediately so the component won't clear local input
+    // Keep input persistent
     handleDataUpdate({ patientPhone: phone });
 
-    setIsLoading(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
+    try {
+      setIsLoading(true);
+
+      const resp = await axios.post("http://localhost:3000/patient/appointment-otp", {
+        phoneNo: phone,
+        email: patientEmail
+      });
+
+      console.log("from backend!!", resp);
+      // If backend returns success
+      if (resp.data.message == 'otp_send') {
+
         setOtpSent(true);
         setIsLoading(false);
+
+        // Focus OTP input
         setTimeout(() => otpInputRefs.current[0]?.focus(), 80);
-        alert(`OTP sent to +91 ${phone} (Demo: use 123456)`);
-        resolve({ ok: true });
-      }, 700);
-    });
+
+        return { ok: true };
+      } else {
+        setIsLoading(false);
+        return { ok: false, message: resp.data.message };
+      }
+    } catch (err) {
+      setIsLoading(false);
+      return {
+        ok: false,
+        message: err.response?.data?.message || "Server error sending OTP",
+      };
+    }
   };
 
   // VERIFY OTP for phone
   const verifyOTPForPhone = async (phone) => {
     const otpValue = otpBoxes.join("");
-    if (otpValue.length !== 6) return { ok: false, message: "Please enter complete OTP" };
-    setIsLoading(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setIsLoading(false);
-        if (otpValue === "123456") {
-          handleDataUpdate({ patientPhone: phone, isPhoneVerified: true });
-          resolve({ ok: true });
-        } else {
-          resolve({ ok: false, message: "Invalid OTP. Please try again." });
+
+    if (otpValue.length !== 6) {
+      return { ok: false, message: "Please enter complete OTP" };
+    }
+
+    try {
+      setIsLoading(true);
+
+      const resp = await axios.post(
+        "http://localhost:3000/patient/verify-appointment-otp",
+        {
+          phoneNo: phone,
+          otp: otpValue,
         }
-      }, 800);
-    });
+      );
+
+      console.log("verify or not", resp);
+
+      setIsLoading(false);
+
+      if (resp.data.success) {
+        handleDataUpdate({ patientPhone: phone, isPhoneVerified: true });
+        return { ok: true };
+      } else {
+        return { ok: false, message: resp.data.message || "Invalid OTP" };
+      }
+    } catch (err) {
+      setIsLoading(false);
+      return {
+        ok: false,
+        message: err.response?.data?.message || "Server error verifying OTP",
+      };
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -217,27 +274,32 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       setSelectedSlot(bookingData.selectedSlot);
     }, [currentStep]);
 
+    // Use safe slots function
+    const safeSlots = getSafeSlots();
+
     const slots = [
-      { 
-        id: "morning", 
-        label: "Morning Slot", 
-        icon: Sun, 
-        time: `${centerData.slots.morning.startTime} - ${centerData.slots.morning.endTime}`, 
-        available: selectedDate ? checkSlotAvailability(selectedDate, "morning") : true 
+      {
+        id: "morning",
+        label: "Morning Slot",
+        icon: Sun,
+        time: `${safeSlots.morning.startTime} - ${safeSlots.morning.endTime}`,
+        tokenAmount: safeSlots.morning.tokenAmount || 100,
+        available: selectedDate ? checkSlotAvailability(selectedDate, "morning") : true,
       },
-      { 
-        id: "evening", 
-        label: "Evening Slot", 
-        icon: Moon, 
-        time: `${centerData.slots.evening.startTime} - ${centerData.slots.evening.endTime}`, 
-        available: selectedDate ? checkSlotAvailability(selectedDate, "evening") : true 
-      },
+      {
+        id: "evening",
+        label: "Evening Slot",
+        icon: Moon,
+        time: `${safeSlots.evening.startTime} - ${safeSlots.evening.endTime}`,
+        tokenAmount: safeSlots.evening.tokenAmount || 100,
+        available: selectedDate ? checkSlotAvailability(selectedDate, "evening") : true,
+      }
     ];
 
     const continueHandler = () => {
-      if (!selectedDate || !selectedSlot) { 
-        alert("Please select both date and slot"); 
-        return; 
+      if (!selectedDate || !selectedSlot) {
+        alert("Please select both date and slot");
+        return;
       }
       handleDataUpdate({ selectedDate, selectedSlot });
       handleNext();
@@ -252,7 +314,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
 
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-            <Calendar className="w-4 h-4 text-[#1E4B3C]" /> 
+            <Calendar className="w-4 h-4 text-[#1E4B3C]" />
             Select Appointment Date
           </label>
 
@@ -265,14 +327,13 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
               const monthName = date.toLocaleDateString("en-US", { month: "short" });
 
               return (
-                <button 
-                  key={idx} 
-                  onClick={() => setSelectedDate(dateString)} 
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    isSelected 
-                      ? "border-[#1E4B3C] bg-[#1E4B3C] text-white" 
+                <button
+                  key={idx}
+                  onClick={() => setSelectedDate(dateString)}
+                  className={`p-3 rounded-lg border-2 transition-all ${isSelected
+                      ? "border-[#1E4B3C] bg-[#1E4B3C] text-white"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <div className="text-xs font-medium">{dayName}</div>
                   <div className="text-xl font-bold my-1">{dayNum}</div>
@@ -286,22 +347,21 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
         {selectedDate && (
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Clock className="w-4 h-4 text-[#1E4B3C]" /> 
+              <Clock className="w-4 h-4 text-[#1E4B3C]" />
               Select Time Slot
             </label>
             <div className="grid gap-3">
               {slots.map((slot) => (
-                <button 
-                  key={slot.id} 
-                  onClick={() => slot.available && setSelectedSlot(slot.id)} 
-                  disabled={!slot.available} 
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${
-                    !slot.available 
-                      ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed" 
-                      : selectedSlot === slot.id 
-                      ? "border-[#1E4B3C] bg-[#1E4B3C]/5" 
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                <button
+                  key={slot.id}
+                  onClick={() => slot.available && setSelectedSlot(slot.id)}
+                  disabled={!slot.available}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${!slot.available
+                      ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                      : selectedSlot === slot.id
+                        ? "border-[#1E4B3C] bg-[#1E4B3C]/5"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   <div className="flex items-center gap-4">
                     <slot.icon className="w-8 h-8 text-[#1E4B3C]" />
@@ -333,10 +393,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-blue-900">
-                  Token Amount: ₹{centerData.slots[selectedSlot].tokenAmount}
+                  Token Amount: ₹{safeSlots[selectedSlot]?.tokenAmount || 100}
                 </p>
                 <p className="text-xs text-blue-700 mt-1 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> 
+                  <CheckCircle2 className="w-3 h-3" />
                   Fully Refundable after visit or cancellation (24h before)
                 </p>
               </div>
@@ -345,22 +405,21 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
         )}
 
         <div className="flex gap-3 pt-4 border-t">
-          <button 
-            onClick={handleClose} 
+          <button
+            onClick={handleClose}
             className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
           >
             Cancel
           </button>
-          <button 
-            onClick={continueHandler} 
-            disabled={!selectedDate || !selectedSlot} 
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${
-              selectedDate && selectedSlot 
-                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white" 
+          <button
+            onClick={continueHandler}
+            disabled={!selectedDate || !selectedSlot}
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${selectedDate && selectedSlot
+                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+              }`}
           >
-            Continue 
+            Continue
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -372,8 +431,8 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
   const Step2_PhoneVerification = () => {
     const [phoneInput, setPhoneInput] = useState(bookingData.patientPhone || "");
 
-    useEffect(() => { 
-      if (!otpSent) setPhoneInput(bookingData.patientPhone || ""); 
+    useEffect(() => {
+      if (!otpSent) setPhoneInput(bookingData.patientPhone || "");
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentStep, bookingData.patientPhone]);
 
@@ -393,45 +452,44 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
               <Phone className="w-4 h-4 text-gray-500" />
               <span className="font-medium text-gray-700">+91</span>
             </div>
-            <input 
-              type="tel" 
-              value={phoneInput} 
-              onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))} 
-              placeholder="9876543210" 
-              disabled={otpSent} 
-              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed" 
+            <input
+              type="tel"
+              value={phoneInput}
+              onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              placeholder="9876543210"
+              disabled={otpSent}
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             />
           </div>
           <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
-            <Shield className="w-3 h-3" /> 
+            <Shield className="w-3 h-3" />
             We'll send a 6-digit OTP to verify your phone number
           </p>
         </div>
 
         {!otpSent && (
-          <button 
+          <button
             onClick={async () => {
-              if (!phoneInput || phoneInput.length !== 10) { 
+              if (!phoneInput || phoneInput.length !== 10) {
                 alert("Please enter a valid 10-digit phone number");
-                return; 
+                return;
               }
               await sendOTPToPhone(phoneInput);
-            }} 
-            disabled={isLoading || phoneInput.length !== 10} 
-            className={`w-full py-3 rounded-lg transition-all font-semibold flex items-center justify-center gap-2 ${
-              phoneInput.length === 10
-                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white" 
+            }}
+            disabled={isLoading || phoneInput.length !== 10}
+            className={`w-full py-3 rounded-lg transition-all font-semibold flex items-center justify-center gap-2 ${phoneInput.length === 10
+                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+              }`}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> 
+                <Loader2 className="w-5 h-5 animate-spin" />
                 Sending OTP...
               </>
             ) : (
               <>
-                <Phone className="w-5 h-5" /> 
+                <Phone className="w-5 h-5" />
                 Send OTP to Phone
               </>
             )}
@@ -474,16 +532,16 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
         )}
 
         <div className="flex gap-3 pt-4 border-t">
-          <button 
-            onClick={handlePrevious} 
+          <button
+            onClick={handlePrevious}
             className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
           >
-            <ChevronLeft className="w-4 h-4" /> 
+            <ChevronLeft className="w-4 h-4" />
             Back
           </button>
 
           {otpSent && (
-            <button 
+            <button
               onClick={async () => {
                 setIsLoading(true);
                 const res = await verifyOTPForPhone(bookingData.patientPhone || phoneInput);
@@ -493,22 +551,21 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
                 } else {
                   alert(res.message || "OTP verify failed");
                 }
-              }} 
-              disabled={isLoading || otpBoxes.join("").length !== 6} 
-              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${
-                otpBoxes.join("").length === 6 && !isLoading 
-                  ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white" 
+              }}
+              disabled={isLoading || otpBoxes.join("").length !== 6}
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${otpBoxes.join("").length === 6 && !isLoading
+                  ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+                }`}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> 
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Verifying...
                 </>
               ) : (
                 <>
-                  Verify & Continue 
+                  Verify & Continue
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
@@ -572,13 +629,13 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input 
-                type="text" 
-                value={formData.patientName} 
-                onChange={(e) => handleChange("patientName", e.target.value)} 
-                placeholder="Enter your full name" 
-                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors" 
-                required 
+              <input
+                type="text"
+                value={formData.patientName}
+                onChange={(e) => handleChange("patientName", e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors"
+                required
               />
             </div>
           </div>
@@ -603,17 +660,16 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
                 <Phone className="w-4 h-4 text-gray-500" />
                 <span className="font-medium text-gray-700">+91</span>
               </div>
-              <input 
-                type="tel" 
-                value={formData.patientPhone} 
-                onChange={(e) => handleChange("patientPhone", e.target.value.replace(/\D/g, "").slice(0, 10))} 
-                placeholder="9876543210" 
-                required 
+              <input
+                type="tel"
+                value={formData.patientPhone}
+                onChange={(e) => handleChange("patientPhone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="9876543210"
+                required
                 // lock the field when phone is verified
                 disabled={bookingData.isPhoneVerified}
-                className={`flex-1 px-4 py-3 border-2 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors ${
-                  bookingData.isPhoneVerified ? "bg-gray-50 border-green-200 text-gray-700 cursor-not-allowed" : "border-gray-200"
-                }`}
+                className={`flex-1 px-4 py-3 border-2 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors ${bookingData.isPhoneVerified ? "bg-gray-50 border-green-200 text-gray-700 cursor-not-allowed" : "border-gray-200"
+                  }`}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">We'll use this for SMS updates</p>
@@ -624,15 +680,15 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Age <span className="text-red-500">*</span>
               </label>
-              <input 
-                type="number" 
-                value={formData.patientAge} 
-                onChange={(e) => handleChange("patientAge", e.target.value)} 
-                placeholder="Enter age" 
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors" 
-                min="1" 
-                max="120" 
-                required 
+              <input
+                type="number"
+                value={formData.patientAge}
+                onChange={(e) => handleChange("patientAge", e.target.value)}
+                placeholder="Enter age"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors"
+                min="1"
+                max="120"
+                required
               />
             </div>
 
@@ -640,10 +696,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Gender <span className="text-red-500">*</span>
               </label>
-              <select 
-                value={formData.patientGender} 
-                onChange={(e) => handleChange("patientGender", e.target.value)} 
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors" 
+              <select
+                value={formData.patientGender}
+                onChange={(e) => handleChange("patientGender", e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors"
                 required
               >
                 <option value="">Select</option>
@@ -660,35 +716,34 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
             </label>
             <div className="relative">
               <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <textarea 
-                value={formData.notes} 
-                onChange={(e) => handleChange("notes", e.target.value)} 
-                placeholder="Any specific concerns or requirements..." 
-                rows="4" 
-                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors resize-none" 
+              <textarea
+                value={formData.notes}
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Any specific concerns or requirements..."
+                rows="4"
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors resize-none"
               />
             </div>
           </div>
         </div>
 
         <div className="flex gap-3 pt-4 border-t">
-          <button 
-            onClick={handlePrevious} 
+          <button
+            onClick={handlePrevious}
             className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
           >
-            <ChevronLeft className="w-4 h-4" /> 
+            <ChevronLeft className="w-4 h-4" />
             Back
           </button>
-          <button 
-            onClick={handleContinue} 
-            disabled={!formData.patientName || !formData.patientAge || !formData.patientGender} 
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${
-              formData.patientName && formData.patientAge && formData.patientGender 
-                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white" 
+          <button
+            onClick={handleContinue}
+            disabled={!formData.patientName || !formData.patientAge || !formData.patientGender}
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all font-semibold ${formData.patientName && formData.patientAge && formData.patientGender
+                ? "bg-[#1E4B3C] hover:bg-[#163A2E] text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+              }`}
           >
-            Review Booking 
+            Review Booking
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -698,7 +753,20 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
 
   // STEP 4: Review
   const Step4_Review = () => {
+    const safeSlots = getSafeSlots();
+    const slotInfo = (() => {
+      const slot = safeSlots[bookingData.selectedSlot];
+      const SlotIcon = bookingData.selectedSlot === "morning" ? Sun : Moon;
+      return {
+        name: bookingData.selectedSlot === "morning" ? "Morning" : "Evening",
+        icon: SlotIcon,
+        time: `${slot?.startTime || "N/A"} - ${slot?.endTime || "N/A"}`,
+        amount: slot?.tokenAmount || 100
+      };
+    })();
+
     const formatDate = (dateString) => {
+      if (!dateString) return "Not selected";
       const date = new Date(dateString);
       const today = new Date();
       const tomorrow = new Date(today);
@@ -711,17 +779,6 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       }
       return date.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     };
-
-    const slotInfo = (() => {
-      const slot = centerData.slots[bookingData.selectedSlot];
-      const SlotIcon = bookingData.selectedSlot === "morning" ? Sun : Moon;
-      return { 
-        name: bookingData.selectedSlot === "morning" ? "Morning" : "Evening", 
-        icon: SlotIcon, 
-        time: `${slot.startTime} - ${slot.endTime}`, 
-        amount: slot.tokenAmount 
-      };
-    })();
 
     const handleConfirmPayment = () => {
       setIsLoading(true);
@@ -750,7 +807,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
                   <span className="text-xs font-semibold">APPOINTMENT DETAILS</span>
                 </div>
                 <h4 className="text-2xl font-bold mb-1">General Consultation</h4>
-                <p className="text-sm opacity-90">{centerData.name}</p>
+                <p className="text-sm opacity-90">{centerData?.name || "Medical Center"}</p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
                 <slotInfo.icon className="w-8 h-8" />
@@ -843,7 +900,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
                   <ul className="text-xs text-blue-800 space-y-1">
                     <li>• Full refund after your visit</li>
                     <li>• Cancel 24 hours before for full refund</li>
-                    <li>• {centerData.bookingSettings?.tokenRefundPolicy}</li>
+                    <li>• {centerData?.bookingSettings?.tokenRefundPolicy || "Standard refund policy applies"}</li>
                   </ul>
                 </div>
               </div>
@@ -868,27 +925,27 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button 
-            onClick={handlePrevious} 
-            disabled={isLoading} 
+          <button
+            onClick={handlePrevious}
+            disabled={isLoading}
             className="flex items-center gap-2 px-6 py-3.5 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-semibold text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronLeft className="w-5 h-5" /> 
+            <ChevronLeft className="w-5 h-5" />
             Back
           </button>
-          <button 
-            onClick={handleConfirmPayment} 
-            disabled={isLoading} 
+          <button
+            onClick={handleConfirmPayment}
+            disabled={isLoading}
             className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#1E4B3C] to-[#2A6850] hover:from-[#163A2E] hover:to-[#1E4B3C] text-white rounded-xl transition-all font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-6 h-6 animate-spin" /> 
+                <Loader2 className="w-6 h-6 animate-spin" />
                 Processing Payment...
               </>
             ) : (
               <>
-                <Check className="w-6 h-6" /> 
+                <Check className="w-6 h-6" />
                 Pay ₹{slotInfo.amount} & Confirm
               </>
             )}
@@ -900,7 +957,20 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
 
   // STEP 5: Confirmation
   const Step5_Confirmation = () => {
+    const safeSlots = getSafeSlots();
+    const slotInfo = (() => {
+      const slot = safeSlots[bookingData.selectedSlot];
+      const SlotIcon = bookingData.selectedSlot === "morning" ? Sun : Moon;
+      return {
+        name: bookingData.selectedSlot === "morning" ? "Morning" : "Evening",
+        icon: SlotIcon,
+        time: `${slot?.startTime || "N/A"} - ${slot?.endTime || "N/A"}`,
+        amount: slot?.tokenAmount || 100
+      };
+    })();
+
     const formatDate = (dateString) => {
+      if (!dateString) return "Not selected";
       const date = new Date(dateString);
       const today = new Date();
       const tomorrow = new Date(today);
@@ -913,17 +983,6 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       }
       return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     };
-
-    const slotInfo = (() => {
-      const slot = centerData.slots[bookingData.selectedSlot];
-      const SlotIcon = bookingData.selectedSlot === "morning" ? Sun : Moon;
-      return { 
-        name: bookingData.selectedSlot === "morning" ? "Morning" : "Evening", 
-        icon: SlotIcon, 
-        time: `${slot.startTime} - ${slot.endTime}`, 
-        amount: slot.tokenAmount 
-      };
-    })();
 
     return (
       <div className="space-y-6 max-w-2xl mx-auto py-4">
@@ -986,7 +1045,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
           <div className="p-6 space-y-3">
             <div className="flex justify-between items-start py-2">
               <span className="text-sm text-gray-600">Center</span>
-              <span className="font-semibold text-gray-900 text-right">{centerData.name}</span>
+              <span className="font-semibold text-gray-900 text-right">{centerData?.name || "Medical Center"}</span>
             </div>
 
             <div className="flex justify-between items-start py-2">
@@ -1054,14 +1113,14 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
           <p className="text-sm text-gray-600 mb-3 text-center">Need Help?</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href={`tel:${centerData.customerNumber}`}
+              href={`tel:${centerData?.customerNumber || "0000000000"}`}
               className="flex items-center gap-2 px-5 py-2.5 bg-[#1E4B3C] hover:bg-[#163A2E] text-white rounded-xl transition-all font-semibold shadow-md hover:shadow-lg"
             >
               <Phone className="w-4 h-4" />
-              Call {centerData.customerNumber}
+              Call {centerData?.customerNumber || "Customer Service"}
             </a>
             <a
-              href={centerData.locationUrl}
+              href={centerData?.locationUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 rounded-xl transition-all font-semibold"
@@ -1087,24 +1146,21 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       {steps.map((step, index) => (
         <React.Fragment key={step.number}>
           <div className="flex flex-col items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-              step.number < currentStep 
-                ? "bg-emerald-600 text-white" 
-                : step.number === currentStep 
-                ? "bg-[#1E4B3C] text-white ring-4 ring-[#1E4B3C]/20" 
-                : "bg-gray-200 text-gray-500"
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${step.number < currentStep
+                ? "bg-emerald-600 text-white"
+                : step.number === currentStep
+                  ? "bg-[#1E4B3C] text-white ring-4 ring-[#1E4B3C]/20"
+                  : "bg-gray-200 text-gray-500"
+              }`}>
               {step.number < currentStep ? <Check className="w-5 h-5" /> : step.number}
             </div>
-            <span className={`text-xs mt-2 font-medium hidden sm:block ${
-              step.number <= currentStep ? "text-gray-900" : "text-gray-500"
-            }`}>{step.title}</span>
+            <span className={`text-xs mt-2 font-medium hidden sm:block ${step.number <= currentStep ? "text-gray-900" : "text-gray-500"
+              }`}>{step.title}</span>
           </div>
 
           {index < steps.length - 1 && (
-            <div className={`flex-1 h-1 mx-2 rounded-full transition-all ${
-              step.number < currentStep ? "bg-emerald-600" : "bg-gray-200"
-            }`} />
+            <div className={`flex-1 h-1 mx-2 rounded-full transition-all ${step.number < currentStep ? "bg-emerald-600" : "bg-gray-200"
+              }`} />
           )}
         </React.Fragment>
       ))}
@@ -1130,10 +1186,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
             <h2 className="text-2xl font-bold text-gray-900">
               {currentStep === 5 ? "Booking Confirmed!" : "Book Appointment"}
             </h2>
-            <p className="text-sm text-gray-600 mt-1">{centerData.name}</p>
+            <p className="text-sm text-gray-600 mt-1">{centerData?.name || "Medical Center"}</p>
           </div>
-          <button 
-            onClick={handleClose} 
+          <button
+            onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
             <X className="w-6 h-6 text-gray-500" />

@@ -1,5 +1,7 @@
 const express = require("express");
 const patientRouter=express.Router();
+const twilio = require("twilio");
+
 
 const z =require('zod');
 const bcrypt=require("bcrypt");
@@ -1349,6 +1351,86 @@ patientRouter.get("/notifications/unread/count", async function (req, res) {
     return res.status(500).json({ message: "Server_error" });
   }
 });
+
+
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+
+
+patientRouter.post("/appointment-otp",async(req,res)=>{
+
+    const {phoneNo,email}=req.body;
+   
+    console.log("yeah numbe rhain ",phoneNo);
+    console.log(email);
+    
+    const otp=otpgenerator.generate(6,{
+        digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
+     })
+
+    const response=await OtpModel.create({
+          phoneNo:phoneNo,
+            otp:otp,
+            email:email
+      })
+
+  
+      await client.messages.create({
+      body: `Your AyurSutra verification OTP is ${otp}`,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNo}`,
+    });
+    
+      res.json({
+        message:"otp_send",
+        otp
+      })
+
+})
+
+patientRouter.post("/verify-appointment-otp", async (req, res) => {
+  try {
+    const { phoneNo, otp } = req.body;
+
+    console.log(phoneNo," ",otp);
+
+    if (!phoneNo || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone and OTP are required",
+      });
+    }
+
+    const record = await OtpModel.findOne({ phoneNo }).sort({ createdAt: -1 });
+
+    if (!record) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired or not found",
+      });
+    }
+
+    if (record.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect_OTP",
+      });
+    }
+
+    // OTP matched → delete it
+    await OtpModel.deleteMany({ phoneNo });
+
+    return res.json({
+      success: true,
+      message: "OTP_verified_successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error verifying OTP",
+    });
+  }
+});
+
 
 module.exports={
    patientRouter:patientRouter

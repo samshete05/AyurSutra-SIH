@@ -1,20 +1,33 @@
+// components/TherapyCard.jsx
 import React from "react";
 import { Leaf, Clock, Target, Info } from "lucide-react";
 
-const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBook }) => {
+const TherapyCard = ({ 
+  _id,
+  therapyName,
+  category,
+  centerId,
+ description,
+  price,
+  TherapyImg,
+  duration,
+  onBook ,
+  maxPatientsPerDay
+}) => {
   return (
     <div className="rounded-2xl bg-white border border-[#1E4B3C]/10 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col text-sm md:text-base h-full cursor-pointer">
 
       {/* Image */}
-      {therapyImage && (
-        <div className="h-36 md:h-40 w-full overflow-hidden">
-          <img
-            src={therapyImage}
-            alt={name}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      )}
+      <div className="h-36 md:h-40 w-full overflow-hidden">
+        <img
+          src={TherapyImg}
+          alt={name}
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/300x200?text=Therapy";
+          }}
+        />
+      </div>
 
       {/* Content */}
       <div className="px-4 pt-4 pb-2 flex flex-col gap-3 flex-grow">
@@ -23,22 +36,18 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 text-[#1E4B3C]">
             <Leaf className="h-5 w-5" />
-            <p className="text-xs md:text-sm font-semibold uppercase tracking-wide">
-              Therapy
-            </p>
+            <p className="font-semibold text-[#1E4B3C] text-sm md:text-lg leading-snug">
+          {therapyName}
+        </p>
           </div>
 
-          {price && (
-            <span className="text-xs md:text-lg font-semibold text-[#1E4B3C]">
-              ₹{price}
-            </span>
-          )}
+          <span className="text-xs md:text-lg font-semibold text-[#1E4B3C]">
+            {typeof price === 'number' ? `₹${price}` : price}
+          </span>
         </div>
 
         {/* Name */}
-        <p className="font-semibold text-[#1E4B3C] text-sm md:text-lg leading-snug">
-          {name}
-        </p>
+       
 
         {/* Chips */}
         <div className="flex flex-wrap gap-2 text-xs md:text-sm text-black">
@@ -48,17 +57,17 @@ const TherapyCard = ({ name, focus, duration, summary, price, therapyImage, onBo
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
             <Clock className="h-4 w-4" />
-            <span>{duration}</span>
+            <span>{duration} min</span>
           </span>
         </div>
 
         {/* Summary */}
         <div className="mt-1 flex items-start gap-2 text-xs md:text-sm text-black leading-snug">
           <Info className="h-4 w-4 mt-[2px] flex-shrink-0" />
-          <p>{summary}</p>
+          <p className="line-clamp-2">{description}</p>
         </div>
 
-        {/* Book Button — Sticks to bottom */}
+        {/* Book Button */}
         <div className="mt-auto">
           <button
             onClick={onBook}
