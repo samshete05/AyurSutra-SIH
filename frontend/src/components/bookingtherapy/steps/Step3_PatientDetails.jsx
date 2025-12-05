@@ -59,7 +59,7 @@ const Step3_PatientDetails = ({ bookingData, handleDataUpdate, handleNext, handl
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm font-medium text-gray-700">Phone Number <span className="text-red-500">*</span></label>
             {isPhoneVerified && (
@@ -77,7 +77,7 @@ const Step3_PatientDetails = ({ bookingData, handleDataUpdate, handleNext, handl
             <input value={formData.patientPhone} onChange={(e) => handleChange("patientPhone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="9876543210" disabled={isPhoneVerified} className={`flex-1 px-4 py-3 border-2 rounded-lg focus:border-[#1E4B3C] ${isPhoneVerified ? "bg-gray-50 border-green-200 cursor-not-allowed" : "border-gray-200"}`} />
           </div>
           <p className="text-xs text-gray-500 mt-1">We'll use this for SMS updates</p>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-2 gap-4">
           <div>

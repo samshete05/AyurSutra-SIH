@@ -22,6 +22,7 @@ import DoctorCard from "../../components/DoctorCard";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import BookingGeneralAppointment from "../../components/BookingGeneralAppointment";
+import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTherapyAppointment";
 // Uncomment if you have therapy booking component
 // import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTherapyAppointment";
 
@@ -632,9 +633,39 @@ const CenterDetails = () => {
     />
 
     <Footer />
-  </>
-);
 
-};
+          {/* THERAPY BOOKING MODAL - ADD THIS */}
+      {isTherapyModalOpen && selectedTherapy && center && (
+        <BookingTherapyAppointment
+          isOpen={isTherapyModalOpen}
+          onClose={() => {
+            setIsTherapyModalOpen(false);
+            setSelectedTherapy(null);
+          }}
+          centerData={{
+            id: center._id || centerId,
+            name: center.name || center.CenterName || "Wellness Center",
+            address: center.address || "",
+            phone: center.MobileNo || center.customerNumber || "",
+            slots: center.slots || {
+              morning: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM"],
+              evening: ["04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
+            }
+          }}
+          therapyData={{
+            id: selectedTherapy._id,
+            name: selectedTherapy.therapyName,
+            category: selectedTherapy.category,
+            description: selectedTherapy.description,
+            price: selectedTherapy.price,
+            image: selectedTherapy.TherapyImg,
+            duration: selectedTherapy.duration,
+            maxPatientsPerDay: selectedTherapy.maxPatientsPerDay
+          }}
+        />
+      )}
+  
+    </>  
+)};
 
 export default CenterDetails;

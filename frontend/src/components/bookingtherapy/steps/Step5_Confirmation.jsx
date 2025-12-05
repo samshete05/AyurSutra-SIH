@@ -1,10 +1,54 @@
 import React from "react";
 import { CheckCircle2, Calendar, Shield, MapPin, Phone } from "lucide-react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
   const formatDate = (d) => d ? new Date(d).toLocaleDateString() : "-";
   const slot = bookingData.selectedSlot ? (therapyData?.slots?.[bookingData.selectedSlot] || centerData.slots[bookingData.selectedSlot]) : null;
+ const patientEmail=localStorage.getItem("email");
+  const {centerId}=useParams();
 
+
+
+  const handleSubmit=async()=>{
+        try {
+          const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
+            selectedDate: bookingData.selectedDate,
+            selectedSlot: bookingData.selectedSlot,
+            patientName: bookingData.patientName,
+            patientPhone: bookingData.patientPhone,
+            patientEmail: patientEmail,
+            patientAge: bookingData.patientAge,
+            patientGender: bookingData.patientGender,
+            notes: bookingData.notes || "",
+            serviceType: "therapy",
+            isPhoneVerified: bookingData.isPhoneVerified || false,
+            centerId: centerId,
+            tokenAmount: "100",
+          });
+      
+          if (resp.data.success) {
+            alert(`Booking successful! Booking ID: ${resp.data.bookingId}`);
+            const resp2=await axios.post("http://localhost:3000/patient/pre-notification",{
+             phoneNo:bookingData.patientPhone
+            })
+
+            console.log("check pref notify!! ",resp2);
+          //  window.location.reload();
+          } else {
+            alert("Booking failed: " + resp.data.message);
+          }
+          
+        } catch (error) {
+          console.log("Error:", error);
+          alert("Booking error: " + (error.response?.data?.message || error.message));
+        }
+
+    window.location.reload();
+  }
+
+  console.log("final data is ",bookingData);
   return (
     <div className="space-y-6 max-w-2xl mx-auto py-4">
       <div className="text-center">
@@ -69,6 +113,16 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
             <p className="text-sm font-semibold text-green-900">+91 {bookingData.patientPhone}</p>
           </div>
         </div>
+      </div>
+
+
+        <div className="flex gap-3 pt-4">
+        <button
+          onClick={handleSubmit}
+          className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#1E4B3C] to-[#2A6850] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+        >
+          <span>Done</span>
+        </button>
       </div>
     </div>
   );

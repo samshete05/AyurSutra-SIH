@@ -1947,6 +1947,40 @@ patientRouter.post('/progress/daily-checkin/:patientId', async (req, res) => {
   }
 });
 
+patientRouter.post("/pre-notification",async(req,res)=>{
+    
+   const {phoneNo}=req.body;
+   
+    console.log("yeah numbe pre notify ",phoneNo);
+
+  
+      await client.messages.create({
+      body: `Congratulations Your Session has been Scheduled Successfully with Your Registered Number ${phoneNo} 
+      Check Your DashBoard for more details.` ,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNo}`,
+    });
+    
+
+    await client.messages.create({
+     body: `Consultation with an Ayurvedic Practitioner\n
+         Health Evaluation\n
+         Pre-Therapy Preparation (Snehana and Swedana)\n
+         Dietary Changes\n
+         Rest and Mental Preparation\n
+         Avoidance of Heavy Activities`,
+  from: process.env.TWILIO_NUMBER,
+  to: `+91${phoneNo}`,
+});
+
+    
+      res.json({
+        message:"message_send",
+        otp
+      })
+  
+
+})
 
 module.exports={
    patientRouter:patientRouter
