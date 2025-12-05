@@ -8,10 +8,12 @@ import CenterNavbarProfile from "./CenterNavbarProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { Search } from "lucide-react";
+import axios from 'axios'
 
 const CenterProfile = () => {
   const navigate = useNavigate();
-  const email = localStorage.getItem("email");
+  const centerId = localStorage.getItem("centerId");
+  const email=localStorage.getItem("email");
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(null);
@@ -28,18 +30,16 @@ const CenterProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch("http://localhost:3000/PanchKarmaCenter/getCenterProfile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email }),
-      });
+      const response = await axios.post("http://localhost:3000/PanchKarmaCenter/getCenterProfile", 
+        {centerId:centerId}
+      );
+      console.log("data is ",response);
 
-      if (response.ok) {
-        const data = await response.json();
-        setProfileData(data.center);
-        setEditedData(data.center);
+      if (response.data.message) {
+        // const data = await response.json();
+        console.log("ya yaa ",response.data.center);
+        setProfileData(response.data.center);
+        setEditedData(response.data.center);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);

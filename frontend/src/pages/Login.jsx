@@ -50,6 +50,7 @@ const Login = () => {
        localStorage.setItem("authToken", resp.data.token);
     localStorage.setItem("email", formData.emailOrPhone);
     localStorage.setItem("role", selectedRole);
+   if(selectedRole=='centerHead') localStorage.setItem("centerId",resp.data.centerId);
         navigate("/")
     } else if(resp.data.message=='center_not_exists'){
       alert("Center Not Exists!!");

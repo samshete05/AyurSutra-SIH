@@ -75,6 +75,7 @@ const OtpVerification = () => {
            localStorage.setItem("authToken", resp.data.token);
     localStorage.setItem("email", email);
     localStorage.setItem("role", selectedRole);
+    // if(selectedRole=='centerHead')  localStorage.setItem("centerId", resp.data.token);
         localStorage.setItem("authToken", resp.data.token);
         navigate("/",{state:{email:email}})
        } else{
