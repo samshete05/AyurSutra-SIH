@@ -20,6 +20,7 @@ import {
   Filter,
   RefreshCw,
 } from "lucide-react";
+import Loader from "../../components/Loader"
 
 const Appointments = () => {
   const navigate = useNavigate();
@@ -27,6 +28,18 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all"); // all, upcoming, past
   const [cancellingId, setCancellingId] = useState(null);
+
+  const getSlotTime = (appointment) => {
+    if (appointment.slotDetails?.startTime && appointment.slotDetails?.endTime) {
+      return `${appointment.slotDetails.startTime} - ${appointment.slotDetails.endTime}`;
+    }
+    if (appointment.appointmentSlot === 'morning') {
+      return '9:00 AM - 12:00 PM';
+    } else if (appointment.appointmentSlot === 'evening') {
+      return '4:00 PM - 7:00 PM';
+    }
+    return 'Not specified';
+  };
 
   // Fetch appointments on load
   useEffect(() => {
@@ -185,6 +198,16 @@ const Appointments = () => {
     }
   };
 
+  const getStatusBadge = (status, isUpcoming) => {
+    const config = getStatusConfig(status);
+    return (
+      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${config.color} ${isUpcoming ? 'shadow-md' : ''}`}>
+        <config.icon className="w-3.5 h-3.5" />
+        {config.label}
+      </div>
+    );
+  };
+
   const getFilteredAppointments = () => {
     const now = new Date();
     
@@ -307,7 +330,7 @@ const Appointments = () => {
         <div className="space-y-4">
           {loading ? (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-200">
-              <Loader2 className="w-12 h-12 text-[#1E4B3C] animate-spin mx-auto mb-4" />
+              <Loader />
               <p className="text-gray-600 font-semibold">Loading appointments...</p>
             </div>
           ) : filteredAppointments.length === 0 ? (
@@ -344,7 +367,7 @@ const Appointments = () => {
                   className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all overflow-hidden"
                 >
                   {/* Appointment Header */}
-                  <div className="bg-gradient-to-r from-[#1E4B3C] to-[#2A6850] p-6 text-white">
+                  <div className="bg-gradient-to-r from-[#1E4B3C] to-[#1e4b3c] p-6 text-white">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -353,7 +376,7 @@ const Appointments = () => {
                           </div>
                           <div>
                             <p className="text-xs opacity-75 uppercase tracking-wide">Booking ID</p>
-                            <p className="text-lg font-bold">#{appointment.bookingId}</p>
+                            <p className="text-lg font-bold">#{appointment.bookingId || appointment._id?.toString().slice(-8) || 'N/A'}</p>
                           </div>
                         </div>
                       </div>
@@ -381,7 +404,7 @@ const Appointments = () => {
                         <div className="flex items-center gap-2">
                           <SlotIcon className="w-4 h-4" />
                           <p className="font-semibold text-sm capitalize">
-                            {appointment.appointmentSlot} ({appointment.slotDetails.startTime} - {appointment.slotDetails.endTime})
+                            {appointment.appointmentSlot} ({getSlotTime(appointment)})
                           </p>
                         </div>
                       </div>

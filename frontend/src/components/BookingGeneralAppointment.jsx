@@ -81,8 +81,10 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
     onClose();
   };
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
   try {
+    const slotInfo = centerData.slots[bookingData.selectedSlot];
+    
     const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
       selectedDate: bookingData.selectedDate,
       selectedSlot: bookingData.selectedSlot,
@@ -94,10 +96,16 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData ,centerId}) => 
       notes: bookingData.notes,
       serviceType: bookingData.serviceType,
       isPhoneVerified: bookingData.isPhoneVerified,
-      centerId:centerId
+      centerId: centerId,
+      tokenNumber: bookingData.tokenNumber,
+      tokenAmount: String(slotInfo.tokenAmount),
     });
 
     console.log("SUCCESS:", resp.data);
+    alert(`Booking confirmed! Booking ID: ${resp.data.bookingId}`);
+    handleClose(); // Close modal
+    // Optionally navigate to appointments page
+    // navigate("/patient/appointments");
 
   } catch (err) {
     console.log("🔥 BACKEND SAYS:", err.response?.data);
