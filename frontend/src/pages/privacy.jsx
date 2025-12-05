@@ -6,26 +6,36 @@ const Privacy = () => {
     <>
       <Navbar />
       <div className="bg-emerald-50/40 min-h-screen flex flex-col">
+        {/* Header Section with gradient and animation */}
+        <div className="w-full py-12 px-4 bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] text-white animate-slideDown transition-all duration-700">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight animate-fadeIn" style={{textShadow: "0 2px 8px rgba(0,0,0,0.08)"}}>
+              Privacy Policy
+            </h1>
+            <p className="text-lg md:text-xl text-emerald-100 animate-fadeIn">
+              Your privacy and data security are our top priorities at AyurSutra.
+            </p>
+          </div>
+        </div>
         <div className="max-w-6xl mx-auto px-4 py-12 flex-1">
-          <h1 className="text-4xl font-bold text-[#1E4B3C] mb-8">Privacy Policy</h1>
-          
-          <section className="mb-8">
+          {/* Main Content Sections */}
+          <section className="mb-8 animate-fadeIn">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Summary</h2>
             <p className="text-gray-700">
               AyurSutra is committed to protecting your personal information. The information we collect or request from you is used primarily to help you identify and select the right center for your health needs and objectives. We do not sell your personal information to third parties and do not share it with others unless we have your consent or are required by law. We strive to maintain transparency about our data practices and give you control over your information.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Introduction</h2>
             <p className="text-gray-700">
               This Privacy Policy applies to the AyurSutra website and services. By using our platform, you consent to the collection, use, and disclosure of your information as described in this policy. We recommend you review this policy regularly as it may be updated from time to time. AyurSutra operates in accordance with the laws of the Republic of India and is committed to upholding the highest standards of privacy and data protection.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">What Information We Collect</h2>
-            <ul className="list-disc pl-6 text-gray-700">
+            <ul className="list-disc pl-6 text-gray-700 space-y-1">
               <li>Name, address, contact number, email address, and other personal information</li>
               <li>Credit card, debit card, or other payment details for transactional purposes</li>
               <li>Information related to therapy bookings, preferences, health goals, and conditions</li>
@@ -39,7 +49,7 @@ const Privacy = () => {
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-fadeIn">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">How We Use Your Information</h2>
             <ul className="list-disc pl-6 text-gray-700">
               <li>To process bookings and payments</li>
@@ -55,7 +65,7 @@ const Privacy = () => {
             </ul>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Cookies & Tracking Technologies</h2>
             <p className="text-gray-700">
               AyurSutra uses cookies and tracking technologies to enhance your experience. Cookies help us recognize your browser, remember your preferences, and analyze website traffic. You can control cookie settings in your browser. Blocking cookies may affect some features of our site. We may use cookies to:
@@ -68,7 +78,7 @@ const Privacy = () => {
             </ul>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Third-Party Relationships</h2>
             <p className="text-gray-700">
               Our site may contain links to third-party websites. AyurSutra is not responsible for the privacy practices or content of these sites. We recommend reviewing their privacy policies before providing any personal information.
@@ -78,14 +88,14 @@ const Privacy = () => {
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-fadeIn">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Data Security</h2>
             <p className="text-gray-700">
               We use industry-standard security measures to protect your information from unauthorized access, alteration, disclosure, or destruction. These include encryption, secure servers, and regular security audits. However, no method of transmission over the Internet or electronic storage is 100% secure, so we cannot guarantee absolute security. Please keep your account credentials confidential and notify us of any unauthorized access.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Your Rights & Choices</h2>
             <ul className="list-disc pl-6 text-gray-700">
               <li>You may request access to, correction, or deletion of your personal information at any time.</li>
@@ -96,28 +106,28 @@ const Privacy = () => {
             </ul>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Children's Privacy</h2>
             <p className="text-gray-700">
               AyurSutra does not knowingly collect personal information from children under the age of 16. If you believe we have collected such information, please contact us to have it removed. Parents and guardians are encouraged to monitor their children's online activities.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-fadeIn">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">International Users</h2>
             <p className="text-gray-700">
               AyurSutra is based in India and governed by Indian law. If you are accessing our services from outside India, please be aware that your information may be transferred to, stored, and processed in India. By using our services, you consent to such transfer.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Policy Updates</h2>
             <p className="text-gray-700">
               We may update this Privacy Policy from time to time. Changes will be posted on this page, and your continued use of our website constitutes acceptance of those changes. Significant changes will be communicated via email or platform notifications.
             </p>
           </section>
 
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-xl font-semibold text-[#1E4B3C] mb-2">Contact Us</h2>
             <p className="text-gray-700">
               If you have any questions or concerns about this Privacy Policy or your personal information, please visit our <a href="/help-center" className="text-orange-500 underline">Help Center</a> or email us at <a href="mailto:support@ayursutra.com" className="text-orange-500 underline">support@ayursutra.com</a>.
@@ -126,6 +136,17 @@ const Privacy = () => {
         </div>
         <Footer />
       </div>
+      {/* Animations */}
+      <style>{`
+        .animate-fadeIn { animation: fadeIn 1s ease; }
+        .animate-slideDown { animation: slideDown 1s ease; }
+        .animate-slideLeft { animation: slideLeft 1s ease; }
+        .animate-slideRight { animation: slideRight 1s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(-40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideRight { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      `}</style>
     </>
   );
 };
