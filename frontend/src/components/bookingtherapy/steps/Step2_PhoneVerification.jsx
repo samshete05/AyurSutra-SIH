@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Phone, Shield, AlertCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import axios from "axios";
 
 const Step2_PhoneVerification = ({
   bookingData,
@@ -14,38 +15,79 @@ const Step2_PhoneVerification = ({
   setOtpDigit,
   handleOtpKeyDown,
   handleOtpPaste,
-  sendOTPToPhone,
-  verifyOTPForPhone,
   isLoading,
   setIsLoading,
 }) => {
   const [phoneInput, setPhoneInput] = useState(bookingData.patientPhone || "");
+  const [patientEmail, setPatientEmail] = useState(bookingData.patientEmail || "");
 
   useEffect(() => {
     if (!otpSent) setPhoneInput(bookingData.patientPhone || "");
   }, [bookingData.patientPhone, otpSent]);
 
+  // Function to send OTP to phone number
+  const sendOTPToPhone = async (phone) => {
+    console.log("is this phone no",phone);
+    try {
+      const response = await axios.post("http://localhost:3000/patient/appointment-otp", {
+        phoneNo: phone,
+        email: patientEmail, // Send patient's email along with the phone number
+      });
+
+      if (response.status === 200) {
+        return { ok: true };
+      } else {
+        return { ok: false, message: response.data.message || "Failed to send OTP" };
+      }
+    } catch (error) {
+      return { ok: false, message: "Network error: " + error.message };
+    }
+  };
+
+  // Function to verify OTP
+  const verifyOTPForPhone = async (phone) => {
+    try {
+      const otpValue = otpBoxes.join(""); // Join OTP digits into one string
+
+      const response = await axios.post("http://localhost:3000/patient/verify-appointment-otp", {
+        phoneNo: phone,
+        otp: otpValue, // Send phone number and OTP for verification
+      });
+      bookingData.patientPhone=phone;
+
+      if (response.status === 200) {
+        return { ok: true };
+      } else {
+        return { ok: false, message: response.data.message || "OTP verification failed" };
+      }
+    } catch (error) {
+      return { ok: false, message: "Network error: " + error.message };
+    }
+  };
+
+  // Start OTP sending process
   const startSend = async () => {
     if (!phoneInput || phoneInput.length !== 10) {
       alert("Enter a valid 10-digit phone number");
       return;
     }
-    const res = await sendOTPToPhone(phoneInput);
+    const res = await sendOTPToPhone(phoneInput); // Call the sendOTPToPhone function
     if (res.ok) {
-      setOtpSent(true);
+      setOtpSent(true); // If OTP is sent successfully, set the state
     } else {
       alert(res.message || "Failed to send OTP");
     }
   };
 
+  // Submit OTP verification process
   const submitVerify = async () => {
-    setIsLoading(true);
-    const res = await verifyOTPForPhone(bookingData.patientPhone || phoneInput);
-    setIsLoading(false);
+    setIsLoading(true); // Set loading state before API call
+    const res = await verifyOTPForPhone(phoneInput); // Call the verifyOTPForPhone function
+    setIsLoading(false); // Reset loading state after API call completes
     if (res.ok) {
-      handleNext();
+      handleNext(); // If OTP is verified successfully, move to the next step
     } else {
-      alert(res.message || "OTP verify failed");
+      alert(res.message || "OTP verification failed");
     }
   };
 
@@ -151,7 +193,7 @@ const Step2_PhoneVerification = ({
               <ChevronLeft className="w-4 h-4" />
               Back
             </button>
-            
+
             <button
               onClick={submitVerify}
               disabled={isLoading || otpBoxes.join("").length !== 6}
