@@ -141,7 +141,8 @@ patientRouter.post("/register", async function(req,res){
    res.json({
         message:"OTP_Send",
         email:email,
-        role:registerUser.role
+        role:registerUser.role,
+        id:registerUser._id
    })
 
     if(registerUser!=null) await sendemail(registerUser.email,"Email verification code:",otp);
@@ -257,6 +258,7 @@ patientRouter.post("/login", async function (req, res) {
       token,
       message: "logedin",
       role: centerUser.role,
+      centerId:centerUser._id,
       profileimg: centerUser.ProfileImg,
     });
   }

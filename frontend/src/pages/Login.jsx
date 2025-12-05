@@ -47,11 +47,12 @@ const Login = () => {
     console.log("yahi toh han vo",resp);
     localStorage.setItem("profileImg",resp.data.profileimg);
     if(resp.data.message=='logedin'){
-      localStorage.setItem("authToken", resp.data.token);
       localStorage.setItem("patientId", resp.data.patientId);
       localStorage.setItem("email", formData.emailOrPhone);
       localStorage.setItem("role", selectedRole);
-      navigate("/")
+      localStorage.setItem("authToken", resp.data.token);
+      if(selectedRole=='centerHead') localStorage.setItem("centerId",resp.data.centerId);
+        navigate("/")
     } else if(resp.data.message=='center_not_exists'){
       alert("Center Not Exists!!");
       return;

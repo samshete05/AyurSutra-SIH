@@ -63,6 +63,7 @@ const SignUp = () => {
               return;
             }
            else if(resp.data.message=='OTP_Send'){
+             if(selectedUserRole=='centerHead') localStorage.setItem("centerId",resp.data.id);
               navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
            }
             console.log(resp);
