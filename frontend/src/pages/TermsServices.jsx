@@ -6,26 +6,34 @@ const TermsServices = () => {
     <>
       <Navbar />
       <div className="bg-emerald-50/40 min-h-screen flex flex-col">
+        {/* Header Section with gradient - matching about page */}
+        <section className="bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] text-white transition-all duration-700 ease-in-out">
+          <div className="mx-auto max-w-6xl px-4 py-16 md:px-6 lg:px-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-100 animate-fadeIn">
+              LEGAL
+            </p>
+            <h1 className="mt-2 text-4xl md:text-5xl font-extrabold leading-tight animate-slideDown">
+              Terms and Conditions
+            </h1>
+            <p className="mt-4 max-w-2xl text-base md:text-lg text-emerald-50/90 animate-fadeIn">
+              Please read these terms carefully before using AyurSutra. By accessing our platform, you agree to be bound by these terms and conditions.
+            </p>
+          </div>
+        </section>
         <div className="max-w-6xl mx-auto px-4 py-12 flex-1">
-          <h1 className="text-4xl font-bold text-[#1E4B3C] text-center mb-6 font-sans">
-            Terms and Conditions
-          </h1>
-          <p className="text-gray-700 text-center mb-8">
-            <span className="font-semibold">Effective Date:</span> 30th May 2025<br />
-            <span className="font-semibold">Last Updated:</span> 30th May 2025
-          </p>
-          <section className="mb-8">
+         
+          <section className="mb-8 animate-fadeIn">
             <p className="text-lg text-gray-800 mb-4">
               Welcome to AyurSutra, your trusted platform for discovering and booking Panchakarma therapies and wellness retreats. These Terms and Conditions ("Terms") govern your use of our website, services, and your relationship with AyurSutra ("we", "us", or "our"). By accessing or using our website and services, you agree to be bound by these Terms. If you do not agree, please do not use our platform.
             </p>
           </section>
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-2">1. About AyurSutra</h2>
             <p className="text-gray-700">
               AyurSutra is a curated platform that connects individuals with trusted Panchakarma centers and wellness retreats. We facilitate the booking process and provide personalized recommendations but do not own or operate the centers listed.
             </p>
           </section>
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-2">2. Use of the Website</h2>
             <p className="text-gray-700 mb-2">
               You agree to use the website for lawful purposes only and in a manner that does not infringe the rights of, restrict, or inhibit the use and enjoyment of this site by any third party.
@@ -36,7 +44,7 @@ const TermsServices = () => {
               <li>Post or transmit offensive, infringing, or unlawful content.</li>
             </ul>
           </section>
-          <section className="mb-8">
+          <section className="mb-8 animate-fadeIn">
             <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-2">3. Booking and Payment</h2>
             <p className="text-gray-700">
               All bookings made through AyurSutra are subject to availability and confirmation by the respective center. Payment terms, cancellation policies, and refund procedures are outlined during the booking process and may vary by center.
@@ -47,7 +55,7 @@ const TermsServices = () => {
               <li>Contact our support team for any payment-related queries or issues.</li>
             </ul>
           </section>
-          <section className="mb-8">
+          <section className="mb-8 animate-slideLeft">
             <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-2">4. Third-Party Services</h2>
             <p className="text-gray-700 mb-2">
               AyurSutra acts as an intermediary between clients and third-party centers or providers. We are not liable for actions, negligence, or omissions of any third-party service provider.
@@ -60,7 +68,7 @@ const TermsServices = () => {
               <li>AyurSutra may assist in communication but does not guarantee resolution of disputes with third parties.</li>
             </ul>
           </section>
-          <section className="mb-8">
+          <section className="mb-8 animate-slideRight">
             <h2 className="text-2xl font-semibold text-[#1E4B3C] mb-2">5. Health and Medical Disclaimer</h2>
             <p className="text-gray-700 mb-2">
               AyurSutra does not offer medical advice. Any Ayurvedic treatments, detox programs, or recommendations provided via AyurSutra should be considered complementary and not a substitute for medical treatment. Please consult your physician before beginning any health program.
@@ -141,6 +149,17 @@ const TermsServices = () => {
         </div>
         <Footer />
       </div>
+      {/* Animations */}
+      <style>{`
+        .animate-fadeIn { animation: fadeIn 1s ease; }
+        .animate-slideDown { animation: slideDown 1s ease; }
+        .animate-slideLeft { animation: slideLeft 1s ease; }
+        .animate-slideRight { animation: slideRight 1s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(-40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideRight { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      `}</style>
     </>
   );
 };
