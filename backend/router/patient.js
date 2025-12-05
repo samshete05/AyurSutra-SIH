@@ -1395,10 +1395,8 @@ patientRouter.get("/notifications/unread/count", async function (req, res) {
   }
 });
 
-
+// *************************** APPOINTMENT OTP ***************************
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-
-
 patientRouter.post("/appointment-otp",async(req,res)=>{
 
     const {phoneNo,email}=req.body;

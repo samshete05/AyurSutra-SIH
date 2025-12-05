@@ -93,7 +93,6 @@ const NotificationTemplates = {
         year: "numeric",
       });
     };
-    console.log("welcome back called");
 
     return createNotification({
       userId,
@@ -280,25 +279,6 @@ const NotificationTemplates = {
       ],
     }),
 
-  // Scenario 10: Low inventory/capacity alert (future feature)
-  lowCapacityAlert: (centerId, therapyName, availableSlots) =>
-    createNotification({
-      userId: centerId,
-      userType: "centerHead",
-      type: "alert",
-      title: `Low Capacity Alert! ⚠️`,
-      message: `${therapyName} has only ${availableSlots} slots remaining for today. Consider adjusting your schedule.`,
-      priority: "high",
-      actionable: true,
-      actions: [
-        {
-          label: "Manage Schedule",
-          type: "primary",
-          link: "/view-therapy",
-        },
-      ],
-    }),
-
   // Scenario 11: Payment received
   paymentReceived: (centerId, patientName, amount, therapyName) =>
     createNotification({
@@ -333,25 +313,6 @@ const NotificationTemplates = {
           label: "View Reviews",
           type: "primary",
           link: "/center-reviews",
-        },
-      ],
-    }),
-
-  // Scenario 13: Daily summary
-  dailySummary: (centerId, appointmentCount, revenue, newPatients) =>
-    createNotification({
-      userId: centerId,
-      userType: "centerHead",
-      type: "reminder",
-      title: `Daily Summary 📊`,
-      message: `Today: ${appointmentCount} appointments, ₹${revenue} revenue, ${newPatients} new patients. Great work!`,
-      priority: "low",
-      actionable: true,
-      actions: [
-        {
-          label: "View Dashboard",
-          type: "primary",
-          link: "/dashboard",
         },
       ],
     }),
