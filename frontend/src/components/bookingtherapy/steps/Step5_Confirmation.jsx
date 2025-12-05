@@ -30,6 +30,11 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
       
           if (resp.data.success) {
             alert(`Booking successful! Booking ID: ${resp.data.bookingId}`);
+            const resp2=await axios.post("http://localhost:3000/patient/pre-notification",{
+             phoneNo:bookingData.patientPhone
+            })
+
+            console.log("check pref notify!! ",resp2);
           //  window.location.reload();
           } else {
             alert("Booking failed: " + resp.data.message);
