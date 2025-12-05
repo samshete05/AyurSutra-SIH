@@ -422,12 +422,15 @@ const Appointments = () => {
                         </h4>
                         <div className="space-y-2 text-sm">
                           <div className="bg-gray-50 rounded-lg p-3">
-                            <p className="font-semibold text-[#1E4B3C]">{appointment.centerName}</p>
+                            <p className="font-semibold text-[#1E4B3C]">
+                              {appointment.centerId?.name || "Unknown Center"}
+                            </p>
                             {appointment.centerId?.address && (
-                              <p className="text-gray-600 text-xs mt-1">{appointment.centerId.address}</p>
+                              <p className="text-gray-600 text-xs mt-1">
+                                {appointment.centerId.address}
+                              </p>
                             )}
                           </div>
-                          
                           {appointment.centerId?.phone && (
                             <div className="flex items-center gap-2 text-gray-600">
                               <Phone className="w-4 h-4 text-[#1E4B3C]" />

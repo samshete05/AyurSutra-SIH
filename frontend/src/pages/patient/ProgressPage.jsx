@@ -34,13 +34,24 @@ import {
   MinusCircle
 } from "lucide-react";
 import Loader from "../../components/Loader";
+import { useNavigate } from "react-router-dom";
 
 function ProgressPage() {
   const [loading, setLoading] = useState(true);
   const [selectedView, setSelectedView] = useState("overview");
   const [progressData, setProgressData] = useState(null);
   const [animateStats, setAnimateStats] = useState(false);
+  const navigate = useNavigate();
 
+  const [dailyCheckin, setDailyCheckin] = useState({
+    wellnessScore: 0,
+    symptoms: [],
+    mood: '',
+    notes: ''
+  });
+
+  const patientId = localStorage.getItem("patientId") || new URLSearchParams(window.location.search).get("patientId");
+  console.log(patientId)
   useEffect(() => {
     fetchProgressData();
   }, []);
@@ -51,10 +62,7 @@ function ProgressPage() {
     }
   }, [progressData]);
 
-  const fetchProgressData = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      const mockData = {
+  const mockData = {
         // THERAPY TRACKING DATA
         currentTherapy: {
           name: "Panchakarma Detoxification Program",
@@ -339,10 +347,6 @@ function ProgressPage() {
         }
       };
 
-      setProgressData(mockData);
-      setLoading(false);
-    }, 1000);
-  };
 
   const getDoshaColor = (dosha) => {
     const colors = {
@@ -363,13 +367,227 @@ function ProgressPage() {
     return badges[status] || badges.completed;
   };
 
+  // ==================== FETCH REAL DATA FROM BACKEND ====================
+  const fetchProgressData = async () => {
+    if (!patientId) {
+      console.error("❌ No patientId found");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      console.log("🔍 Fetching progress for patient:", patientId);
+      
+      const response = await fetch(
+        `http://localhost:3000/patient/progress/${patientId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 401 || response.status === 403) {
+        // token invalid or different user
+        localStorage.removeItem('authToken');
+        navigate('/login');
+        return;
+      }
+
+      const data = await response.json();
+      console.log("📊 Backend response:", data);
+
+      if (response.ok && data.progressData) {
+        setProgressData(data.progressData);
+        
+        // Trigger animations after data loads
+        setTimeout(() => setAnimateStats(true), 300);
+      } else {
+        console.warn("⚠️ No progress data, using fallback");
+        // Use your existing mock data as fallback
+        setProgressData(mockData);
+        setTimeout(() => setAnimateStats(true), 300);
+      }
+    } catch (error) {
+      console.error("❌ Network error:", error);
+      // Fallback to mock data
+      setProgressData(mockData);
+      setTimeout(() => setAnimateStats(true), 300);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ==================== SUBMIT DAILY CHECK-IN ====================
+  const submitDailyCheckin = async () => {
+    if (dailyCheckin.wellnessScore === 0) {
+      alert("Please select a wellness score");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `http://localhost:3000/patient/progress/daily-checkin/${patientId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dailyCheckin)
+        }
+      );
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('✅ Daily progress saved successfully!');
+        // Reset form
+        setDailyCheckin({ wellnessScore: 0, symptoms: [], mood: '', notes: '' });
+        // Refresh data
+        fetchProgressData();
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Checkin error:", error);
+      alert('Failed to save progress. Please try again.');
+    }
+  };
+
+  // ==================== LOAD DATA ON MOUNT ====================
+  useEffect(() => {
+    fetchProgressData();
+  }, [patientId]);
+
+  // ==================== DAILY CHECK-IN FORM COMPONENT ====================
+  const DailyCheckinForm = () => (
+    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-emerald-200 mb-8">
+      <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+        <Sparkles className="w-8 h-8 text-emerald-600" />
+        Daily Wellness Check-in
+      </h3>
+      
+      {/* Wellness Score Slider */}
+      <div className="mb-8">
+        <label className="block text-lg font-semibold text-slate-700 mb-4">
+          How do you feel today? (0-10)
+        </label>
+        <div className="relative">
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step="0.5"
+            value={dailyCheckin.wellnessScore}
+            onChange={(e) => setDailyCheckin({
+              ...dailyCheckin, 
+              wellnessScore: parseFloat(e.target.value)
+            })}
+            className="w-full h-4 bg-gradient-to-r from-slate-200 to-slate-300 rounded-full appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-600 transition-all"
+          />
+          <div className="flex justify-between mt-2 text-sm text-slate-500">
+            <span>😴 Poor</span>
+            <span className="text-2xl font-black text-emerald-600">
+              {dailyCheckin.wellnessScore || 0}
+            </span>
+            <span>😊 Excellent</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mood Selection */}
+      <div className="mb-8">
+        <label className="block text-lg font-semibold text-slate-700 mb-4">
+          Current mood:
+        </label>
+        <select
+          value={dailyCheckin.mood}
+          onChange={(e) => setDailyCheckin({
+            ...dailyCheckin, 
+            mood: e.target.value
+          })}
+          className="w-full p-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 text-lg font-medium transition-all"
+        >
+          <option value="">Select your mood...</option>
+          <option value="excellent">😊 Excellent</option>
+          <option value="good">😐 Good</option>
+          <option value="average">😕 Average</option>
+          <option value="tired">😴 Tired</option>
+          <option value="stressed">😰 Stressed</option>
+        </select>
+      </div>
+
+      {/* Notes/Symptoms */}
+      <div className="mb-8">
+        <label className="block text-lg font-semibold text-slate-700 mb-4">
+          Notes or Symptoms:
+        </label>
+        <textarea
+          value={dailyCheckin.notes}
+          onChange={(e) => setDailyCheckin({
+            ...dailyCheckin, 
+            notes: e.target.value
+          })}
+          placeholder="How was your sleep? Any pain, digestion issues, or observations?"
+          rows={4}
+          className="w-full p-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 text-lg resize-vertical transition-all"
+        />
+      </div>
+
+      {/* Submit Button */}
+      <button
+        onClick={submitDailyCheckin}
+        disabled={dailyCheckin.wellnessScore === 0}
+        className={`w-full py-4 px-8 rounded-2xl font-black text-xl shadow-2xl transform transition-all duration-300 ${
+          dailyCheckin.wellnessScore > 0
+            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white hover:shadow-emerald-500/25 hover:scale-[1.02] active:scale-[0.98]'
+            : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+        }`}
+      >
+        <CheckCircle className="w-6 h-6 inline mr-2" />
+        Save Today's Progress
+      </button>
+    </div>
+  );
+
+  // ==================== LOADING & EMPTY STATES ====================
   if (loading) {
     return (
-      <Loader />
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+        <Loader />
+      </div>
     );
   }
 
-  if (!progressData) return null;
+  if(!progressData && !loading){
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-3xl p-12 shadow-2xl text-center max-w-md mx-auto border border-emerald-200">
+          <Activity className="w-20 h-20 text-emerald-400 mx-auto mb-6 animate-pulse" />
+          <h2 className="text-3xl font-black text-slate-900 mb-4">No Progress Data</h2>
+          <p className="text-slate-600 mb-8">
+            No active therapy found. Book a therapy session to start tracking.
+          </p>
+          <button
+            onClick={() => navigate('/patient/book-therapy')}
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all"
+          >
+            Book Therapy Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
@@ -1221,7 +1439,7 @@ function ProgressPage() {
 
       </div>
 
-      <style jsx>{`
+      {/* <style jsx>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
@@ -1229,7 +1447,7 @@ function ProgressPage() {
         .animate-shimmer {
           animation: shimmer 2s infinite;
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 }
