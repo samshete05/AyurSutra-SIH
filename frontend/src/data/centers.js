@@ -21,21 +21,25 @@ const centers = [
     openingTime: "07:00",
     closingTime: "21:00",
 
+    // Slot Configuration (added maxTherapySlots = same as maxCapacity)
     slots: {
       morning: {
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 15,
+        maxTherapySlots: 15,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "19:00",
         maxCapacity: 15,
+        maxTherapySlots: 15,
         tokenAmount: 100,
       },
     },
 
+    // Booking Settings
     bookingSettings: {
       advanceBookingDays: 2,
       requireOTP: true,
@@ -180,12 +184,14 @@ const centers = [
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 12,
+        maxTherapySlots: 12,
         tokenAmount: 100,
       },
       evening: {
         startTime: "16:00",
         endTime: "20:00",
         maxCapacity: 12,
+        maxTherapySlots: 12,
         tokenAmount: 100,
       },
     },
@@ -207,8 +213,7 @@ const centers = [
         summary:
           "Dry herbal powder massage to stimulate circulation and support inch loss.",
         price: "1500",
-        therapyImage:
-          "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg",
       },
       {
         id: "pizhichil",
@@ -218,8 +223,7 @@ const centers = [
         summary:
           "Warm medicated oil is poured in streams over the body for deep rejuvenation.",
         price: "2600",
-        therapyImage:
-          "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738344/pexels-photo-3738344.jpeg",
       },
     ],
 
@@ -267,12 +271,14 @@ const centers = [
         startTime: "08:00",
         endTime: "12:30",
         maxCapacity: 20,
+        maxTherapySlots: 20,
         tokenAmount: 150,
       },
       evening: {
         startTime: "16:00",
         endTime: "21:00",
         maxCapacity: 20,
+        maxTherapySlots: 20,
         tokenAmount: 150,
       },
     },
@@ -294,8 +300,7 @@ const centers = [
         summary:
           "Medicated oils are administered through the nose to clear channels in the head and neck.",
         price: "1200",
-        therapyImage:
-          "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738346/pexels-photo-3738346.jpeg",
       },
       {
         id: "virechana",
@@ -305,8 +310,7 @@ const centers = [
         summary:
           "Planned purgation therapy to eliminate excess pitta and deep-seated toxins.",
         price: "3500",
-        therapyImage:
-          "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738347/pexels-photo-3738347.jpeg",
       },
     ],
 
@@ -364,12 +368,14 @@ const centers = [
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 18,
+        maxTherapySlots: 18,
         tokenAmount: 120,
       },
       evening: {
         startTime: "15:30",
         endTime: "20:30",
         maxCapacity: 18,
+        maxTherapySlots: 18,
         tokenAmount: 120,
       },
     },
@@ -391,8 +397,7 @@ const centers = [
         summary:
           "Head, neck and shoulder oil massage to ease tension and nourish hair roots.",
         price: "1000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738348/pexels-photo-3738348.jpeg",
       },
       {
         id: "netra-tarpana",
@@ -402,8 +407,7 @@ const centers = [
         summary:
           "Ghee-based therapy to soothe and nourish tired, dry eyes from screen exposure.",
         price: "1400",
-        therapyImage:
-          "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738349/pexels-photo-3738349.jpeg",
       },
     ],
 
@@ -434,9 +438,9 @@ const centers = [
     rating: 4.5,
     reviewCount: 167,
     image:
-      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-clinics-zya6rv81qb.jpg",
     images: [
-      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-doctors-zya6rv81qb.jpg",
+      "https://images.jdmagicbox.com/v2/comp/delhi/g1/011pxx11.xx11.230404160028.b5g1/catalogue/dr-viswambharan-kerala-ayur-arogya-green-park-delhi-ayurvedic-clinics-zya6rv81qb.jpg",
       "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
     ],
     locationUrl: "https://www.google.com/maps/embed?pb=PASTE_OJAS_EMBED_URL_HERE",
@@ -450,12 +454,14 @@ const centers = [
         startTime: "08:00",
         endTime: "12:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "19:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
     },
@@ -477,8 +483,7 @@ const centers = [
         summary:
           "Structured detox plan including snehana, swedana and cleansing therapies.",
         price: "12000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738350/pexels-photo-3738350.jpeg",
       },
     ],
 
@@ -525,12 +530,14 @@ const centers = [
         startTime: "09:30",
         endTime: "13:00",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "18:30",
         maxCapacity: 10,
+        maxTherapySlots: 10,
         tokenAmount: 100,
       },
     },
@@ -552,8 +559,7 @@ const centers = [
         summary:
           "Heated herbal bolus massage to reduce pain and stiffness in joints.",
         price: "1700",
-        therapyImage:
-          "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738351/pexels-photo-3738351.jpeg",
       },
     ],
 
@@ -599,12 +605,14 @@ const centers = [
         startTime: "08:30",
         endTime: "12:30",
         maxCapacity: 14,
+        maxTherapySlots: 14,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:00",
         endTime: "20:00",
         maxCapacity: 14,
+        maxTherapySlots: 14,
         tokenAmount: 100,
       },
     },
@@ -626,8 +634,7 @@ const centers = [
         summary:
           "Stimulation of vital marma points to balance energy and relieve pain.",
         price: "1900",
-        therapyImage:
-          "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738352/pexels-photo-3738352.jpeg",
       },
     ],
 
@@ -674,12 +681,14 @@ const centers = [
         startTime: "09:00",
         endTime: "13:00",
         maxCapacity: 16,
+        maxTherapySlots: 16,
         tokenAmount: 100,
       },
       evening: {
         startTime: "16:00",
         endTime: "21:00",
         maxCapacity: 16,
+        maxTherapySlots: 16,
         tokenAmount: 100,
       },
     },
@@ -701,8 +710,7 @@ const centers = [
         summary:
           "Combination of abhyanga, shirodhara and counselling to reset stress patterns.",
         price: "9800",
-        therapyImage:
-          "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738353/pexels-photo-3738353.jpeg",
       },
     ],
 
@@ -735,7 +743,7 @@ const centers = [
     image:
       "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
     images: [
-      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
+      "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-andheri-mumbai-clinics-g3yMeMOnHu-250.jpg",
       "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
     ],
     locationUrl: "https://www.google.com/maps/embed?pb=PASTE_SAUMYA_EMBED_URL_HERE",
@@ -749,12 +757,14 @@ const centers = [
         startTime: "08:30",
         endTime: "12:30",
         maxCapacity: 13,
+        maxTherapySlots: 13,
         tokenAmount: 100,
       },
       evening: {
         startTime: "15:30",
         endTime: "20:00",
         maxCapacity: 13,
+        maxTherapySlots: 13,
         tokenAmount: 100,
       },
     },
@@ -776,8 +786,7 @@ const centers = [
         summary:
           "Traditional postnatal care with abhyanga, belly binding and diet guidance.",
         price: "15000",
-        therapyImage:
-          "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
+        therapyImage: "https://images.pexels.com/photos/3738354/pexels-photo-3738354.jpeg",
       },
     ],
 

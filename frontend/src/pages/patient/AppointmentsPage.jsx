@@ -1,19 +1,45 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  ChevronRight,
+  Phone,
+  Mail,
+  IndianRupee,
+  Sun,
+  Moon,
+  User,
+  Activity,
+  Filter,
+  RefreshCw,
+} from "lucide-react";
+import Loader from "../../components/Loader"
 
 const Appointments = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showBooking, setShowBooking] = useState(false);
-  const [formData, setFormData] = useState({
-    centerId: "",
-    appointmentDate: "",
-    treatmentType: "",
-    symptoms: "",
-    notes: ""
-  });
+  const [filterStatus, setFilterStatus] = useState("all"); // all, upcoming, past
+  const [cancellingId, setCancellingId] = useState(null);
+
+  const getSlotTime = (appointment) => {
+    if (appointment.slotDetails?.startTime && appointment.slotDetails?.endTime) {
+      return `${appointment.slotDetails.startTime} - ${appointment.slotDetails.endTime}`;
+    }
+    if (appointment.appointmentSlot === 'morning') {
+      return '9:00 AM - 12:00 PM';
+    } else if (appointment.appointmentSlot === 'evening') {
+      return '4:00 PM - 7:00 PM';
+    }
+    return 'Not specified';
+  };
 
   // Fetch appointments on load
   useEffect(() => {
@@ -22,317 +48,542 @@ const Appointments = () => {
 
   const fetchAppointments = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("authToken");
+      
       if (!token) {
         navigate("/login");
         return;
       }
 
-      const resp = await axios.get("http://localhost:3000/patient/getAppointments", {
+      const response = await fetch("http://localhost:3000/patient/appointments", {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        withCredentials: true
       });
 
-      if (resp.data.message === "Success") {
-        setAppointments(resp.data.appointments);
+      const data = await response.json();
+
+      if (response.ok && data.message === "Success") {
+        setAppointments(data.appointments);
+      } else {
+        console.error("Failed to fetch appointments:", data.message);
       }
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching appointments:", err);
-      setLoading(false);
       if (err.response?.status === 401) {
         alert("Session expired. Please login again.");
         navigate("/login");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleBookAppointment = async (event) => {
-    event.preventDefault();
+  const handleCancelAppointment = async (bookingId) => {
+    const appointment = appointments.find(apt => apt.bookingId === bookingId);
     
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("Please login first");
-        navigate("/login");
-        return;
-      }
-
-      const resp = await axios.post(
-        "http://localhost:3000/patient/bookAppointment",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          withCredentials: true
-        }
-      );
-
-      if (resp.data.message === "Appointment_Booked") {
-        alert("Appointment booked successfully!");
-        setShowBooking(false);
-        fetchAppointments(); // Refresh list
-        // Reset form
-        setFormData({
-          centerId: "",
-          doctorId: "",
-          appointmentDate: "",
-          appointmentTime: "",
-          treatmentType: "",
-          symptoms: "",
-          notes: ""
-        });
-      } else {
-        alert("Failed to book appointment");
-      }
-    } catch (err) {
-      console.log("Full error:", err);
-      console.log("Error response:", err.response?.data);
-      console.log("Error status:", err.response?.status);
-      alert(`Error: ${err.response?.data?.message || err.message}`);
+    if (!appointment.canCancel) {
+      alert("Cannot cancel: Appointment must be cancelled at least 24 hours in advance.");
+      return;
     }
-  };
 
-  const handleCancelAppointment = async (appointmentId) => {
-    if (!window.confirm("Are you sure you want to cancel this appointment?")) {
+    if (!window.confirm("Are you sure you want to cancel this appointment? If eligible, you will receive a full refund.")) {
       return;
     }
 
     try {
+      setCancellingId(bookingId);
       const token = localStorage.getItem("authToken");
-      const resp = await axios.post(
-        "http://localhost:3000/patient/cancelAppointment",
-        { appointmentId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          withCredentials: true
-        }
-      );
 
-      if (resp.data.message === "Appointment_Cancelled") {
-        alert("Appointment cancelled");
-        fetchAppointments();
+      const response = await fetch("http://localhost:3000/patient/cancelAppointment", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          bookingId,
+          reason: "Patient requested cancellation"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message === "Appointment_Cancelled_Successfully") {
+        alert(data.data.info || "Appointment cancelled successfully");
+        fetchAppointments(); // Refresh list
+      } else {
+        alert(data.info || data.message || "Failed to cancel appointment");
       }
     } catch (err) {
-      console.error("Error cancelling:", err);
-      alert("Error cancelling appointment");
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      console.error("Error cancelling appointment:", err);
+      alert("Error cancelling appointment. Please try again.");
+    } finally {
+      setCancellingId(null);
     }
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return `Today, ${date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return `Tomorrow, ${date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    }
+    return date.toLocaleDateString("en-US", { 
+      weekday: "long",
+      year: "numeric", 
+      month: "long", 
+      day: "numeric" 
     });
   };
 
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case 'scheduled':
+        return { 
+          color: 'bg-blue-100 text-blue-800 border-blue-200',
+          icon: Clock,
+          label: 'Scheduled'
+        };
+      case 'confirmed':
+        return { 
+          color: 'bg-green-100 text-green-800 border-green-200',
+          icon: CheckCircle2,
+          label: 'Confirmed'
+        };
+      case 'checked-in':
+        return { 
+          color: 'bg-purple-100 text-purple-800 border-purple-200',
+          icon: User,
+          label: 'Checked In'
+        };
+      case 'in-progress':
+        return { 
+          color: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+          icon: Activity,
+          label: 'In Progress'
+        };
+      case 'completed':
+        return { 
+          color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          icon: CheckCircle2,
+          label: 'Completed'
+        };
+      case 'cancelled':
+        return { 
+          color: 'bg-red-100 text-red-800 border-red-200',
+          icon: XCircle,
+          label: 'Cancelled'
+        };
+      case 'no-show':
+        return { 
+          color: 'bg-gray-100 text-gray-800 border-gray-200',
+          icon: AlertCircle,
+          label: 'No Show'
+        };
+      default:
+        return { 
+          color: 'bg-gray-100 text-gray-800 border-gray-200',
+          icon: Clock,
+          label: status
+        };
+    }
+  };
+
+  const getStatusBadge = (status, isUpcoming) => {
+    const config = getStatusConfig(status);
+    return (
+      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${config.color} ${isUpcoming ? 'shadow-md' : ''}`}>
+        <config.icon className="w-3.5 h-3.5" />
+        {config.label}
+      </div>
+    );
+  };
+
+  const getFilteredAppointments = () => {
+    const now = new Date();
+    
+    switch (filterStatus) {
+      case 'upcoming':
+        return appointments.filter(apt => 
+          new Date(apt.appointmentDate) >= now && 
+          ['scheduled', 'confirmed'].includes(apt.status)
+        );
+      case 'past':
+        return appointments.filter(apt => 
+          new Date(apt.appointmentDate) < now || 
+          ['completed', 'cancelled', 'no-show'].includes(apt.status)
+        );
+      default:
+        return appointments;
+    }
+  };
+
+  const filteredAppointments = getFilteredAppointments();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50 to-emerald-100 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50/30 to-emerald-100/50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-[#1E4B3C]">My Appointments</h1>
-            <p className="text-sm text-gray-600 mt-1">Manage your healthcare appointments</p>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#1E4B3C] mb-2">
+                My Appointments
+              </h1>
+              <p className="text-sm text-gray-600">
+                Manage and track your healthcare appointments
+              </p>
+            </div>
+            
+            <button
+              onClick={() => navigate("/patient/find-centers")}
+              className="flex items-center gap-2 bg-gradient-to-r from-[#1E4B3C] to-[#2A6850] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#163A2E] hover:to-[#1E4B3C] transition-all shadow-lg hover:shadow-xl"
+            >
+              <Calendar className="w-5 h-5" />
+              Book New Appointment
+            </button>
           </div>
-          <button
-            onClick={() => setShowBooking(!showBooking)}
-            className="bg-[#1E4B3C] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-emerald-800 transition-colors"
-          >
-            {showBooking ? "✕ Close" : "+ Book New Appointment"}
-          </button>
-        </div>
 
-        {/* Booking Form */}
-        {showBooking && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-emerald-100">
-            <h2 className="text-xl font-bold text-[#1E4B3C] mb-4">Book New Appointment</h2>
-            <form onSubmit={handleBookAppointment} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Center ID <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="centerId"
-                    value={formData.centerId}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="eg. 674d1234567890abcdef1234"
-                    className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-[#1E4B3C] focus:ring-1 focus:ring-[#1E4B3C]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Date <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="appointmentDate"
-                    value={formData.appointmentDate}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-[#1E4B3C] focus:ring-1 focus:ring-[#1E4B3C]"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Treatment Type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="treatmentType"
-                    value={formData.treatmentType}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-[#1E4B3C] focus:ring-1 focus:ring-[#1E4B3C]"
-                  >
-                    <option value="">Select treatment type</option>
-                    <option value="Panchakarma Consultation">Panchakarma Consultation</option>
-                    <option value="Abhyanga">Abhyanga (Oil Massage)</option>
-                    <option value="Shirodhara">Shirodhara</option>
-                    <option value="Basti">Basti (Enema Therapy)</option>
-                    <option value="Nasya">Nasya (Nasal Therapy)</option>
-                    <option value="General Consultation">General Consultation</option>
-                    <option value="Follow-up">Follow-up Visit</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Symptoms / Reason for Visit
-                  </label>
-                  <input
-                    type="text"
-                    name="symptoms"
-                    value={formData.symptoms}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Back pain, stress, digestive issues"
-                    className="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-[#1E4B3C] focus:ring-1 focus:ring-[#1E4B3C]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Additional Notes
-                </label>
-                <textarea
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleInputChange}
-                  rows="3"
-                  placeholder="Any special requirements, allergies, or preferences"
-                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-[#1E4B3C] focus:ring-1 focus:ring-[#1E4B3C]"
-                />
-              </div>
-
+          {/* Filter Tabs */}
+          <div className="flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-200">
+            {[
+              { key: 'all', label: 'All Appointments' },
+              { key: 'upcoming', label: 'Upcoming' },
+              { key: 'past', label: 'Past' }
+            ].map((filter) => (
               <button
-                type="submit"
-                className="w-full bg-[#1E4B3C] text-white py-3 rounded-full font-semibold hover:bg-emerald-800 transition-colors"
+                key={filter.key}
+                onClick={() => setFilterStatus(filter.key)}
+                className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                  filterStatus === filter.key
+                    ? 'bg-[#1E4B3C] text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
               >
-                Confirm Booking
+                {filter.label}
+                {filter.key !== 'all' && (
+                  <span className="ml-2 text-xs opacity-75">
+                    ({filter.key === 'upcoming' 
+                      ? appointments.filter(apt => apt.isUpcoming).length
+                      : appointments.filter(apt => !apt.isUpcoming && apt.status !== 'scheduled').length
+                    })
+                  </span>
+                )}
               </button>
-            </form>
+            ))}
           </div>
-        )}
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+            <div className="bg-white rounded-xl p-4 border-2 border-blue-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total</p>
+                  <p className="text-2xl font-bold text-blue-600">{appointments.length}</p>
+                </div>
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <Calendar className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border-2 border-green-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Upcoming</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {appointments.filter(apt => apt.isUpcoming).length}
+                  </p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 border-2 border-emerald-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Completed</p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {appointments.filter(apt => apt.status === 'completed').length}
+                  </p>
+                </div>
+                <div className="bg-emerald-100 p-3 rounded-lg">
+                  <Activity className="w-6 h-6 text-emerald-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Appointments List */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading appointments...</div>
-          ) : appointments.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-emerald-100">
-              <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-gray-500 text-lg font-semibold">No appointments found</p>
-              <p className="text-sm text-gray-400 mt-2">Book your first appointment to get started</p>
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-200">
+              <Loader />
+              <p className="text-gray-600 font-semibold">Loading appointments...</p>
+            </div>
+          ) : filteredAppointments.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center border-2 border-dashed border-gray-300">
+              <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-10 h-10 text-gray-400" />
+              </div>
+              <p className="text-gray-700 text-lg font-semibold mb-2">
+                No {filterStatus !== 'all' && filterStatus} appointments found
+              </p>
+              <p className="text-sm text-gray-500 mb-6">
+                {filterStatus === 'all' 
+                  ? "Book your first appointment to get started with your healthcare journey"
+                  : `You don't have any ${filterStatus} appointments at the moment`
+                }
+              </p>
+              <button
+                onClick={() => navigate("/patient/find-centers")}
+                className="inline-flex items-center gap-2 bg-[#1E4B3C] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#163A2E] transition-all"
+              >
+                <Calendar className="w-5 h-5" />
+                Book New Appointment
+              </button>
             </div>
           ) : (
-            appointments.map((appointment) => (
-              <div
-                key={appointment._id}
-                className="bg-white rounded-2xl shadow-lg p-6 border border-emerald-100 hover:shadow-xl transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-[#1E4B3C]">
-                        {appointment.treatmentType}
-                      </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(appointment.status)}`}>
-                        {appointment.status}
-                      </span>
+            filteredAppointments.map((appointment) => {
+              const statusConfig = getStatusConfig(appointment.status);
+              const StatusIcon = statusConfig.icon;
+              const SlotIcon = appointment.appointmentSlot === 'morning' ? Sun : Moon;
+
+              return (
+                <div
+                  key={appointment._id}
+                  className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all overflow-hidden"
+                >
+                  {/* Appointment Header */}
+                  <div className="bg-gradient-to-r from-[#1E4B3C] to-[#1e4b3c] p-6 text-white">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
+                            <Calendar className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs opacity-75 uppercase tracking-wide">Booking ID</p>
+                            <p className="text-lg font-bold">#{appointment.bookingId || appointment._id?.toString().slice(-8) || 'N/A'}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${statusConfig.color} bg-white`}>
+                        <StatusIcon className="w-4 h-4" />
+                        <span className="font-semibold text-sm">{statusConfig.label}</span>
+                      </div>
                     </div>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span className="font-semibold">Date:</span> {formatDate(appointment.appointmentDate)}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="font-semibold">Time:</span> {appointment.appointmentTime}
-                      </div>
-                      {appointment.symptoms && (
-                        <div className="flex items-start gap-2 mt-2">
-                          <svg className="w-4 h-4 text-emerald-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span><span className="font-semibold">Symptoms:</span> {appointment.symptoms}</span>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Calendar className="w-4 h-4 opacity-75" />
+                          <p className="text-xs opacity-75">Date</p>
                         </div>
+                        <p className="font-semibold text-sm">{formatDate(appointment.appointmentDate)}</p>
+                      </div>
+
+                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="w-4 h-4 opacity-75" />
+                          <p className="text-xs opacity-75">Time Slot</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <SlotIcon className="w-4 h-4" />
+                          <p className="font-semibold text-sm capitalize">
+                            {appointment.appointmentSlot} ({getSlotTime(appointment)})
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Appointment Body */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Center Details */}
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <MapPin className="w-5 h-5 text-[#1E4B3C]" />
+                          Center Details
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <p className="font-semibold text-[#1E4B3C]">{appointment.centerName}</p>
+                            {appointment.centerId?.address && (
+                              <p className="text-gray-600 text-xs mt-1">{appointment.centerId.address}</p>
+                            )}
+                          </div>
+                          
+                          {appointment.centerId?.phone && (
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Phone className="w-4 h-4 text-[#1E4B3C]" />
+                              <span>{appointment.centerId.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Patient Details */}
+                      <div>
+                        <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          <User className="w-5 h-5 text-[#1E4B3C]" />
+                          Patient Details
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs text-gray-500 mb-1">Name</p>
+                              <p className="font-semibold text-gray-900">{appointment.patientDetails.name}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs text-gray-500 mb-1">Age / Gender</p>
+                              <p className="font-semibold text-gray-900 capitalize">
+                                {appointment.patientDetails.age} yrs / {appointment.patientDetails.gender}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2">
+                            <Mail className="w-4 h-4 text-[#1E4B3C]" />
+                            <span className="text-xs">{appointment.patientDetails.email}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2">
+                            <Phone className="w-4 h-4 text-[#1E4B3C]" />
+                            <span className="text-xs">+91 {appointment.patientDetails.phone}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Token & Service Info */}
+                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-500 p-3 rounded-lg">
+                            <FileText className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-blue-700 font-medium">Token Number</p>
+                            <p className="text-2xl font-bold text-blue-900">{appointment.tokenNumber}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-green-500 p-3 rounded-lg">
+                            <IndianRupee className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-green-700 font-medium">Token Amount</p>
+                            <p className="text-2xl font-bold text-green-900">₹{appointment.tokenAmount}</p>
+                            {appointment.paymentStatus === 'refunded' && (
+                              <p className="text-xs text-green-600 mt-1">✓ Refunded</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    {appointment.notes && (
+                      <div className="mt-4 bg-amber-50 rounded-xl p-4 border border-amber-200">
+                        <div className="flex items-start gap-2">
+                          <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-amber-900 mb-1">Additional Notes</p>
+                            <p className="text-sm text-amber-800">{appointment.notes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cancellation Info */}
+                    {appointment.status === 'cancelled' && appointment.cancellationReason && (
+                      <div className="mt-4 bg-red-50 rounded-xl p-4 border border-red-200">
+                        <div className="flex items-start gap-2">
+                          <XCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-red-900 mb-1">Cancellation Reason</p>
+                            <p className="text-sm text-red-800">{appointment.cancellationReason}</p>
+                            {appointment.cancelledAt && (
+                              <p className="text-xs text-red-600 mt-1">
+                                Cancelled on {new Date(appointment.cancelledAt).toLocaleDateString('en-US', {
+                                  month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      {appointment.canCancel && (
+                        <button
+                          onClick={() => handleCancelAppointment(appointment.bookingId)}
+                          disabled={cancellingId === appointment.bookingId}
+                          className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {cancellingId === appointment.bookingId ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Cancelling...
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-4 h-4" />
+                              Cancel Appointment
+                            </>
+                          )}
+                        </button>
                       )}
-                      {appointment.notes && (
-                        <div className="flex items-start gap-2 text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg">
-                          <span className="font-semibold">Notes:</span> {appointment.notes}
-                        </div>
+
+                      {appointment.isUpcoming && (
+                        <button
+                          onClick={() => {/* Add view details or navigation */}}
+                          className="flex items-center gap-2 px-6 py-3 border-2 border-[#1E4B3C] text-[#1E4B3C] rounded-xl font-semibold hover:bg-[#1E4B3C] hover:text-white transition-all"
+                        >
+                          View Details
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>
-                  {appointment.status === 'pending' && (
-                    <button
-                      onClick={() => handleCancelAppointment(appointment._id)}
-                      className="ml-4 bg-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
+
+        {/* Refresh Button */}
+        {!loading && appointments.length > 0 && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={fetchAppointments}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#1E4B3C] rounded-xl font-semibold border-2 border-[#1E4B3C] hover:bg-[#1E4B3C] hover:text-white transition-all shadow-md"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh Appointments
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

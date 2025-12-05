@@ -13,9 +13,9 @@ const otpgenerator=require("otp-generator");
 const sendemail=require("../otplogic/otp");
 const OtpModel = require("../models/Otp.model");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
-const AppointmentModel = require("../models/PatientAppointment.model")
 const notificationModel = require("../models/Notification.model");
 const { NotificationTemplates } = require("../utils/notificationHelper");
+const PatientAppointment = require("../models/PatientAppointment.model")
 const CenterAppointmentModel = require("../models/CenterAppointment.model");
 const PatientModel = require("../models/Patient.model");
 
@@ -262,7 +262,7 @@ patientRouter.post("/login", async function (req, res) {
   return res.json({ message: "Invalid_role" });
 });
 
-
+// *************************** VERIFY OTP ********************************
 patientRouter.post("/verifyOTP", async (req, res) => {
   const { email, otp, password,role } = req.body;
   
@@ -307,8 +307,6 @@ patientRouter.get("/getPatientInfo",async(req,res)=>{
    console.log("email here",email);
 
 })
-
-
 
 // *************************** RESEND CODE ********************************
 patientRouter.post("/resendCode",async(req,res)=>{
@@ -576,78 +574,101 @@ patientRouter.post("/logout",async(req,res)=>{
 
 // *************************** BOOK GENERAL APPOINTMENT ********************************
 patientRouter.post("/bookGeneralAppointment", async function (req, res) {
-  const schema = z.object({
-    selectedDate: z.string().min(1),
-    selectedSlot: z.enum(["morning", "evening"]),
-    patientName: z.string(),
-    patientEmail:z.string(),
-    patientPhone: z.string().length(10),
-    patientAge: z.number().or(z.string().transform(Number)),
-    patientGender: z.enum(["male", "female", "other"]),
-    notes: z.string().optional(),
-    serviceType: z.string().default("general"),
-    isPhoneVerified: z.boolean(),
-    centerId: z.string(), 
-  });
-
-  const parsed = schema.safeParse(req.body);
-
-  if (!parsed.success) {
-    return res.status(422).json({
-      message: "Invalid_Input",
-      errors: parsed.error.errors,
-    });
-  }
-
-  const data = parsed.data;
-
-  const patient=await PatientModel.findOne({
-    email:data.patientEmail
-  })
-
   try {
-   
-    const appointment = await CenterAppointmentModel.create({
-      ServiceType: data.serviceType,
-      patientId: patient._id,              
-      Amount: "0",                  
-      PaymentStatus: "pending",
-      TherapyId: null, 
+    const data = req.body;
+    
+    // Simple validation
+    if (!data.selectedDate || !data.selectedSlot || !data.patientName || !data.patientPhone || !data.patientEmail || !data.centerId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Find patient
+    const patient = await PatientModel.findOne({ email: data.patientEmail });
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Find center
+    const center = await PanchakarmaCenterModel.findById(data.centerId);
+    if (!center) {
+      return res.status(404).json({ message: "Center not found" });
+    }
+
+    // Generate simple IDs
+    const bookingId = "BKG" + Date.now().toString().slice(-8);
+    const tokenNumber = "T" + Math.floor(Math.random() * 900 + 100);
+
+    // Set slot times
+    let slotTime;
+    if (data.selectedSlot === "morning") {
+      slotTime = { startTime: "10:00 AM", endTime: "12:00 PM" };
+    } else {
+      slotTime = { startTime: "05:00 PM", endTime: "07:00 PM" };
+    }
+
+    // Create appointment directly
+    const appointmentData = {
+      bookingId: bookingId,
+      tokenNumber: tokenNumber,
+      
+      patientId: patient._id,
+      CenterId: data.centerId,
+      TherapyId: null,
+      
+      ServiceType: data.serviceType || "general",
+      
       PatientName: data.patientName,
       PatientPhone: data.patientPhone,
-      PatientAge: data.patientAge,
+      patientEmail: data.patientEmail,
+      PatientAge: String(data.patientAge),
       PatientGender: data.patientGender,
       notes: data.notes || "",
-      CenterId: data.centerId,
+      isPhoneVerified: data.isPhoneVerified || false,
+      
+      appointmentDate: new Date(data.selectedDate),
+      appointmentSlot: data.selectedSlot,
+      slotDetails: slotTime,
+      
+      centerName: center.name || center.CenterName || "Panchakarma Center",
+      
+      Amount: data.tokenAmount || "100",
+      PaymentStatus: "paid",
+      status: "scheduled",
+    };
+
+    // Save to database
+    const appointment = await CenterAppointmentModel.create(appointmentData);
+
+    // Update center if needed
+    await PanchakarmaCenterModel.findByIdAndUpdate(data.centerId, {
+      $push: { GeneralAppointment: appointment._id }
     });
 
-    await PanchakarmaCenterModel.findByIdAndUpdate(
-      data.centerId,
-      {
-        $push: { GeneralAppointment: appointment._id },
-      }
-    );
-
-    return res.status(201).json({
-      message: "Appointment_Booked",
-      appointmentId: appointment._id,
+    // Return success
+    return res.status(200).json({
+      success: true,
+      message: "Appointment booked successfully",
+      bookingId: bookingId,
+      tokenNumber: tokenNumber,
+      appointmentId: appointment._id
     });
-  } catch (err) {
-    console.log("DB Error:", err);
-    return res.status(500).json({
-      message: "Server Error",
-      error: err.message,
+
+  } catch (error) {
+    console.log("Error in booking:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
     });
   }
 });
 
-
 // *************************** GET PATIENT APPOINTMENTS ********************************
-patientRouter.get("/appointments", async function(req, res) {
-  const token = req.headers.authorization?.split(' ')[1];
+patientRouter.get("/appointments", async function (req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  console.log(req)
   if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
@@ -656,51 +677,75 @@ patientRouter.get("/appointments", async function(req, res) {
 
     // Query parameters for filtering
     const { status, upcoming } = req.query;
-
     let query = { patientId };
 
-    // Filter by status if provided
     if (status) {
       query.status = status;
     }
 
-    // Filter for upcoming appointments
-    if (upcoming === 'true') {
+    if (upcoming === "true") {
       query.appointmentDate = { $gte: new Date() };
-      query.status = { $in: ['scheduled', 'confirmed'] };
+      query.status = { $in: ["scheduled", "confirmed"] };
     }
 
-    const appointments = await PatientAppointment.find(query)
-      .populate('centerId', 'name address phone locationUrl')
+    const appointments = await CenterAppointmentModel.find(query)
+      .populate("CenterId", "name address phone locationUrl slots")
+      .populate("TherapyId", "name description")
       .sort({ appointmentDate: -1 })
       .lean();
 
-    // Add computed fields
-    const appointmentsWithExtras = appointments.map(apt => ({
-      ...apt,
-      isUpcoming: apt.appointmentDate > new Date() && apt.status === 'scheduled',
-      canCancel: new Date(apt.appointmentDate.getTime() - 24 * 60 * 60 * 1000) > new Date() &&
-                 ['scheduled', 'confirmed'].includes(apt.status)
-    }));
+    // Add computed fields for frontend
+    const appointmentsWithExtras = appointments.map((apt) => {
+      const isUpcoming =
+        new Date(apt.appointmentDate) > new Date() &&
+        ["scheduled", "confirmed"].includes(apt.status);
+
+      const hoursDiff =
+        (new Date(apt.appointmentDate) - new Date()) / (1000 * 60 * 60);
+      const canCancel =
+        hoursDiff >= 24 && ["scheduled", "confirmed"].includes(apt.status);
+
+      // Map fields for frontend compatibility
+      return {
+        ...apt,
+        centerId: apt.CenterId, // Alias for frontend
+        therapyId: apt.TherapyId, // Alias for frontend
+        patientDetails: {
+          name: apt.PatientName,
+          phone: apt.PatientPhone,
+          email: apt.patientEmail,
+          age: apt.PatientAge,
+          gender: apt.PatientGender,
+        },
+        tokenAmount: apt.Amount,
+        paymentStatus: apt.PaymentStatus,
+        isUpcoming,
+        canCancel,
+      };
+    });
 
     res.json({
       message: "Success",
       count: appointmentsWithExtras.length,
-      appointments: appointmentsWithExtras
+      appointments: appointmentsWithExtras,
     });
-
   } catch (err) {
     console.error("Error fetching appointments:", err);
-    res.status(500).json({ message: "Server_Error" });
+
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid_Token" });
+    }
+
+    res.status(500).json({ message: "Server_Error", error: err.message });
   }
 });
 
 // *************************** GET SINGLE APPOINTMENT BY BOOKING ID ********************************
 patientRouter.get("/appointments/:bookingId", async function(req, res) {
   const token = req.headers.authorization?.split(' ')[1];
+  
   if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
@@ -708,14 +753,15 @@ patientRouter.get("/appointments/:bookingId", async function(req, res) {
     const patientId = decoded.id;
     const { bookingId } = req.params;
 
-    const appointment = await PatientAppointment.findOne({ 
+    const appointment = await CenterAppointment.findOne({ 
       bookingId,
       patientId 
-    }).populate('centerId', 'name address phone locationUrl slots');
+    })
+    .populate('centerId', 'name address phone locationUrl slots')
+    .populate('therapyId', 'name description duration price');
 
     if (!appointment) {
-      res.status(404).json({ message: "Appointment_Not_Found" });
-      return;
+      return res.status(404).json({ message: "Appointment_Not_Found" });
     }
 
     res.json({
@@ -725,7 +771,7 @@ patientRouter.get("/appointments/:bookingId", async function(req, res) {
 
   } catch (err) {
     console.error("Error fetching appointment:", err);
-    res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error", error: err.message });
   }
 });
 
@@ -738,17 +784,15 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
 
   const checkData = requiredData.safeParse(req.body);
   if (!checkData.success) {
-    res.status(422).json({ 
+    return res.status(422).json({ 
       message: "Invalid_Input",
       errors: checkData.error.errors 
     });
-    return;
   }
 
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
@@ -756,35 +800,32 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
     const patientId = decoded.id;
     const { bookingId, reason } = checkData.data;
 
-    const appointment = await PatientAppointment.findOne({ 
+    const appointment = await CenterAppointment.findOne({ 
       bookingId,
       patientId 
     });
 
     if (!appointment) {
-      res.status(404).json({ message: "Appointment_Not_Found" });
-      return;
+      return res.status(404).json({ message: "Appointment_Not_Found" });
     }
 
     // Check if already cancelled
     if (appointment.status === 'cancelled') {
-      res.status(400).json({ message: "Appointment_Already_Cancelled" });
-      return;
+      return res.status(400).json({ message: "Appointment_Already_Cancelled" });
     }
 
     // Check if cancellation is allowed (24 hours before)
     if (!appointment.canCancel()) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "Cancellation_Not_Allowed",
         info: "Appointments must be cancelled at least 24 hours in advance for a full refund."
       });
-      return;
     }
 
     // Cancel the appointment
     await appointment.cancelAppointment(reason, 'patient');
 
-    // TODO: Send cancellation SMS and Email
+    // TODO: Send cancellation notifications
     // await sendCancellationSMS(appointment.patientDetails.phone, appointment);
     // await sendCancellationEmail(appointment.patientDetails.email, appointment);
 
@@ -803,7 +844,7 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
 
   } catch (err) {
     console.error("Error cancelling appointment:", err);
-    res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error", error: err.message });
   }
 });
 
@@ -1431,6 +1472,283 @@ patientRouter.post("/verify-appointment-otp", async (req, res) => {
   }
 });
 
+// *************************** GET COMPLETED THERAPIES PENDING FEEDBACK ***************************
+patientRouter.get("/therapies/pending-feedback", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+
+    // Find all completed therapies without feedback
+    const pendingFeedbacks = await TherapySessionModel.aggregate([
+      {
+        $match: {
+          patientId: decoded.id,
+          status: "completed",
+          feedbackGiven: { $ne: true },
+        },
+      },
+      {
+        $lookup: {
+          from: "panchkarmacenters", // Center collection
+          localField: "centerId",
+          foreignField: "_id",
+          as: "centerDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "therapies", // Therapy type collection
+          localField: "therapyId",
+          foreignField: "_id",
+          as: "therapyDetails",
+        },
+      },
+      {
+        $unwind: "$centerDetails",
+      },
+      {
+        $unwind: "$therapyDetails",
+      },
+      {
+        $project: {
+          _id: 1,
+          therapyName: "$therapyDetails.name",
+          therapyType: "$therapyDetails.type",
+          centerName: "$centerDetails.centerName",
+          centerAddress: "$centerDetails.address",
+          doctorName: "$doctorName",
+          completedDate: "$endDate",
+          startDate: "$startDate",
+          duration: {
+            $dateDiff: {
+              startDate: "$startDate",
+              endDate: "$endDate",
+              unit: "day",
+            },
+          },
+          sessionsCompleted: "$sessionsCompleted",
+          totalSessions: "$totalSessions",
+        },
+      },
+      {
+        $sort: { completedDate: -1 },
+      },
+    ]);
+
+    // When marking therapy as completed
+    await TherapySessionModel.findByIdAndUpdate(therapyId, {
+      status: "completed",
+      endDate: new Date(),
+      feedbackGiven: false,
+    });
+
+    // Create feedback notification for patient
+    await notificationService.therapyCompletedFeedback(
+      patientId,
+      therapy.therapyName,
+      center.centerName,
+      session.doctorName,
+      therapyId
+    );
+
+    return res.json({
+      message: "Success",
+      pendingFeedbacks: pendingFeedbacks,
+      count: pendingFeedbacks.length,
+    });
+  } catch (err) {
+    console.error("Error fetching pending feedbacks:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** GET SPECIFIC THERAPY FOR FEEDBACK ***************************
+patientRouter.get("/therapy/:therapyId/feedback-details", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { therapyId } = req.params;
+
+    const therapySession = await TherapySessionModel.findOne({
+      _id: therapyId,
+      patientId: decoded.id,
+      status: "completed"
+    })
+      .populate("centerId", "centerName address city state")
+      .populate("therapyId", "name type description");
+
+    if (!therapySession) {
+      return res.status(404).json({ message: "Therapy_Not_Found" });
+    }
+
+    // Check if feedback already given
+    const existingFeedback = await FeedbackModel.findOne({
+      therapySessionId: therapyId
+    });
+
+    return res.json({
+      message: "Success",
+      therapy: {
+        id: therapySession._id,
+        therapyName: therapySession.therapyId.name,
+        therapyType: therapySession.therapyId.type,
+        centerName: therapySession.centerId.centerName,
+        centerAddress: `${therapySession.centerId.address}, ${therapySession.centerId.city}`,
+        doctorName: therapySession.doctorName,
+        completedDate: therapySession.endDate,
+        startDate: therapySession.startDate,
+        sessionsCompleted: therapySession.sessionsCompleted,
+        totalSessions: therapySession.totalSessions
+      },
+      feedbackExists: !!existingFeedback,
+      existingFeedback: existingFeedback || null
+    });
+
+  } catch (err) {
+    console.error("Error fetching therapy details:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** SUBMIT FEEDBACK ***************************
+patientRouter.post("/therapy/:therapyId/feedback", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const { therapyId } = req.params;
+    const {
+      therapyRating,
+      therapyComment,
+      centerRating,
+      centerComment,
+      doctorRating,
+      doctorComment,
+    } = req.body;
+
+    // Validation
+    if (!therapyRating || !centerRating || !doctorRating) {
+      return res.status(400).json({ message: "All_Ratings_Required" });
+    }
+
+    // Get therapy details
+    const therapySession = await TherapySessionModel.findOne({
+      _id: therapyId,
+      patientId: decoded.id,
+      status: "completed",
+    });
+
+    if (!therapySession) {
+      return res.status(404).json({ message: "Therapy_Not_Found" });
+    }
+
+    // Check for duplicate feedback
+    const existingFeedback = await FeedbackModel.findOne({
+      therapySessionId: therapyId,
+    });
+
+    if (existingFeedback) {
+      return res.status(400).json({ message: "Feedback_Already_Submitted" });
+    }
+
+    // Create feedback
+    const newFeedback = new FeedbackModel({
+      therapySessionId: therapyId,
+      patientId: decoded.id,
+      centerId: therapySession.centerId,
+      doctorName: therapySession.doctorName,
+
+      therapyRating: therapyRating,
+      therapyComment: therapyComment || "",
+
+      centerRating: centerRating,
+      centerComment: centerComment || "",
+
+      doctorRating: doctorRating,
+      doctorComment: doctorComment || "",
+
+      overallRating: Math.round(
+        (therapyRating + centerRating + doctorRating) / 3
+      ),
+      submittedAt: new Date(),
+    });
+
+    await newFeedback.save();
+
+    // Mark therapy as feedback given
+    await TherapySessionModel.findByIdAndUpdate(therapyId, {
+      feedbackGiven: true,
+      feedbackId: newFeedback._id,
+    });
+
+    // Create notification for center admin
+    await notificationModel.create({
+      userId: therapySession.centerId,
+      userType: "centerHead",
+      type: "feedback",
+      title: "New Patient Feedback Received",
+      message: `Patient has submitted feedback for ${therapySession.therapyId.name}. Overall rating: ${newFeedback.overallRating}/5`,
+      priority: "medium",
+      actionable: true,
+      actions: [
+        {
+          label: "View Feedback",
+          link: `/center/feedback/${newFeedback._id}`,
+          type: "primary",
+        },
+      ],
+      read: false,
+    });
+
+    // Create center notification for new patient feedback
+    await notificationModel.create({
+      userId: therapySession.centerId,
+      userType: "centerHead",
+      type: "feedback",
+      title: "New Patient Feedback Received",
+      message: `Patient has submitted feedback for ${therapySession.therapyId.name}. Overall rating: ${newFeedback.overallRating}/5`,
+      priority: "medium",
+      actionable: true,
+      actions: [
+        {
+          label: "View Feedback",
+          link: `/center/feedback/${newFeedback._id}`,
+          type: "primary",
+        },
+      ],
+      read: false,
+    });
+
+    // Optionally notify patient feedback submitted (use your notificationService here)
+    await notificationService.feedbackSubmitted(
+      decoded.id,
+      therapySession.therapyId.name,
+      newFeedback.overallRating
+    );
+
+    // Optionally notify center admin about new feedback
+    await notificationService.newPatientFeedback(
+      therapySession.centerId,
+      decoded.name || "Patient",
+      therapySession.therapyId.name,
+      newFeedback.overallRating,
+      therapyId
+    );
+
+    return res.json({
+      message: "Feedback_Submitted_Successfully",
+      feedback: newFeedback,
+    });
+  } catch (err) {
+    console.error("Error submitting feedback:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
 
 module.exports={
    patientRouter:patientRouter

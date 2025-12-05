@@ -93,35 +93,35 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
   };
 
   const handleSubmit = async () => {
-    try {
-      const safeSlots = getSafeSlots();
-      const slotInfo = safeSlots[bookingData.selectedSlot];
-      
-      const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
-        selectedDate: bookingData.selectedDate,
-        selectedSlot: bookingData.selectedSlot,
-        patientName: bookingData.patientName,
-        patientPhone: bookingData.patientPhone,
-        patientEmail: patientEmail,
-        patientAge: bookingData.patientAge,
-        patientGender: bookingData.patientGender,
-        notes: bookingData.notes,
-        serviceType: bookingData.serviceType,
-        isPhoneVerified: bookingData.isPhoneVerified,
-        centerId: centerId,
-        tokenNumber: bookingData.tokenNumber,
-        tokenAmount: String(slotInfo?.tokenAmount || 100),
-        centerName: centerData?.name || "Medical Center",
-      });
+  try {
+    const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
+      selectedDate: bookingData.selectedDate,
+      selectedSlot: bookingData.selectedSlot,
+      patientName: bookingData.patientName,
+      patientPhone: bookingData.patientPhone,
+      patientEmail: patientEmail,
+      patientAge: bookingData.patientAge,
+      patientGender: bookingData.patientGender,
+      notes: bookingData.notes || "",
+      serviceType: "general",
+      isPhoneVerified: bookingData.isPhoneVerified || false,
+      centerId: centerId,
+      tokenAmount: "100",
+    });
 
-      console.log("SUCCESS:", resp.data);
-      window.location.reload();
-
-    } catch (err) {
-      console.log("🔥 BACKEND SAYS:", err.response?.data);
-      alert(JSON.stringify(err.response?.data, null, 2));
+    if (resp.data.success) {
+      alert(`Booking successful! Booking ID: ${resp.data.bookingId}`);
+      handleClose();
+    } else {
+      alert("Booking failed: " + resp.data.message);
     }
-  };
+    
+  } catch (error) {
+    console.log("Error:", error);
+    alert("Booking error: " + (error.response?.data?.message || error.message));
+  }
+};
+  
 
   const generateAvailableDates = () => {
     const dates = [];
@@ -1183,8 +1183,8 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col my-4">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {currentStep === 5 ? "Booking Confirmed!" : "Book Appointment"}
+            <h2 className="text-xl text-black-800">
+              {currentStep === 5 ? "Booking Confirmed!" : "Booking General Appointment At"}
             </h2>
             <p className="text-sm text-gray-600 mt-1">{centerData?.name || "Medical Center"}</p>
           </div>
