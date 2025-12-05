@@ -6,7 +6,7 @@ const schema = mongoose.Schema;
 const otpSchema = new schema({
   email: {
     type: String,
-    required: true
+    required: false
   },
   otp: {
     type: String
@@ -15,7 +15,11 @@ const otpSchema = new schema({
     type: Date,
     expires: '5m',
     default: Date.now
-  }
+  },
+  phoneNo: {
+    type: String,
+    required: false
+  },
 });
 
 

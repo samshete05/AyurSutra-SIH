@@ -159,6 +159,96 @@ const About = () => {
             </p>
           </div>
         </section>
+
+        {/* New: Our Values */}
+        <section className="mx-auto max-w-6xl px-4 pb-20 md:px-6 lg:px-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#1E4B3C] mb-10 animate-fadeIn">
+            Our Core Values
+          </h2>
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 text-center animate-fadeIn">
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-2">Authenticity</h4>
+              <p className="text-gray-700 text-base">
+                We honor the roots of Ayurveda and Panchakarma, blending tradition with technology for genuine healing.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 text-center animate-fadeIn">
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-2">Empathy</h4>
+              <p className="text-gray-700 text-base">
+                Every feature is designed with compassion for patients, staff, and center owners—wellness is personal.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 text-center animate-fadeIn">
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-2">Innovation</h4>
+              <p className="text-gray-700 text-base">
+                We continuously improve our platform, embracing new ideas to make holistic care more accessible and effective.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 text-center animate-fadeIn">
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-2">Integrity</h4>
+              <p className="text-gray-700 text-base">
+                Data privacy, transparency, and ethical practices are at the heart of everything we do.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* New: Meet the Team */}
+        <section className="mx-auto max-w-6xl px-4 pb-24 md:px-6 lg:px-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#1E4B3C] mb-10 animate-fadeIn">
+            Meet the AyurSutra Team
+          </h2>
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 flex flex-col items-center animate-fadeIn">
+              <div className="w-24 h-24 rounded-full bg-emerald-100 mb-4 flex items-center justify-center text-3xl font-bold text-[#1E4B3C]">
+                A
+              </div>
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-1">A</h4>
+              <p className="text-emerald-700 mb-1">Founder & CEO</p>
+              <p className="text-gray-700 text-center text-sm">
+                Visionary behind AyurSutra, passionate about digital health and Ayurveda.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 flex flex-col items-center animate-fadeIn">
+              <div className="w-24 h-24 rounded-full bg-emerald-100 mb-4 flex items-center justify-center text-3xl font-bold text-[#1E4B3C]">
+                R
+              </div>
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-1">R</h4>
+              <p className="text-emerald-700 mb-1">CTO</p>
+              <p className="text-gray-700 text-center text-sm">
+                Leads product development, ensuring reliability and innovation.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow border border-emerald-100 p-6 flex flex-col items-center animate-fadeIn">
+              <div className="w-24 h-24 rounded-full bg-emerald-100 mb-4 flex items-center justify-center text-3xl font-bold text-[#1E4B3C]">
+                S
+              </div>
+              <h4 className="text-lg font-bold text-[#1E4B3C] mb-1">S</h4>
+              <p className="text-emerald-700 mb-1">Lead Ayurveda Expert</p>
+              <p className="text-gray-700 text-center text-sm">
+                Guides our clinical content and ensures authentic Ayurvedic practices.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* New: Call to Action */}
+        <section className="mx-auto max-w-4xl px-4 pb-24 md:px-6 lg:px-8 text-center">
+          <div className="rounded-2xl bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] p-10 text-white shadow-lg animate-fadeIn">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-emerald-100">
+              Ready to experience the future of Panchakarma?
+            </h2>
+            <p className="mb-6 text-lg">
+              Join AyurSutra and transform your center's operations, patient care, and outcomes. Let's bring Ayurveda into the digital age—together.
+            </p>
+            <a
+              href="/contact"
+              className="inline-block bg-white text-[#1E4B3C] font-bold px-8 py-3 rounded-lg shadow hover:bg-emerald-100 transition"
+            >
+              Contact Us
+            </a>
+          </div>
+        </section>
       </div>
       <Footer />
       {/* Animations */}
