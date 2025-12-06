@@ -539,7 +539,7 @@ const megaMenuConfig = {
 const Navbar = () => {
   const navigate = useNavigate();
 
-  // --- auth + user info from localStorage ---
+  // --- auth & profile data ---
   const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("authToken");
@@ -554,13 +554,13 @@ const Navbar = () => {
       ? rawProfileImage
       : null;
 
-  const isLoggedIn = Boolean(token);
-
   const [activeMegaKey, setActiveMegaKey] = useState(null);
 
-  // avatar dropdown + notifications
+  // profile dropdown
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
+
+  // notifications
   const [unreadCount, setUnreadCount] = useState(0);
 
   const handleOpen = (key) => {
@@ -573,9 +573,12 @@ const Navbar = () => {
 
   const activeMega = activeMegaKey ? megaMenuConfig[activeMegaKey] : null;
 
-  // fetch notifications (same logic as your other file)
+  const isLoggedIn = Boolean(token);
+
+  // --- notifications fetch ---
   const fetchNotifications = async () => {
     if (!token || !role) return;
+
     const endpoint =
       role === "patient"
         ? "http://localhost:3000/patient/notifications/unread/count"
@@ -589,6 +592,7 @@ const Navbar = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (res.ok) {
         const data = await res.json();
         const count = data.unreadCount || 0;
@@ -608,14 +612,14 @@ const Navbar = () => {
     // fetch fresh
     fetchNotifications();
 
-    // listen to global updates
+    // listen to global updates (from center pages)
     const handler = (e) => setUnreadCount(e.detail.count);
     window.addEventListener("notificationUpdate", handler);
 
     return () => window.removeEventListener("notificationUpdate", handler);
   }, [email, role, token]);
 
-  // close avatar dropdown on outside click
+  // close profile dropdown on outside click
   useEffect(() => {
     const clickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -636,7 +640,7 @@ const Navbar = () => {
     window.location.reload();
   };
 
-  const handleDashboardClick = () => {
+  const HandleDashboardClick = () => {
     if (role === "patient") navigate("/patient");
     else if (role === "centerHead") navigate("/PanchaKarma-Dashboard");
     else navigate("/");
@@ -722,18 +726,38 @@ const Navbar = () => {
               Care Programs
             </button>
 
-            {/* ⭐ FIND CENTER ADDED HERE ⭐ */}
+            {/* FIND CENTER */}
             <Link
               to="/center-map"
               className="pb-1 border-b-2 border-transparent text-emerald-900 hover:text-[#1E4B3C] font-semibold"
             >
               Find Center
             </Link>
+
+            {/* BLOGS (external) */}
+            <a
+              href="https://blogs.ayursutra.online"
+              className="pb-1 border-b-2 border-transparent text-emerald-900 hover:text-[#1E4B3C] font-semibold"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Blogs
+            </a>
+
+            {/* SHOP (external) */}
+            <a
+              href="https://shop.ayursutra.online"
+              className="pb-1 border-b-2 border-transparent text-emerald-900 hover:text-[#1E4B3C] font-semibold"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Shop
+            </a>
           </div>
 
-          {/* RIGHT SIDE: Auth-based */}
+          {/* RIGHT SIDE: Auth + avatar */}
           <div className="hidden md:flex items-center gap-3 text-sm">
-            {/* Not logged in: Login + Get Started */}
+            {/* NOT LOGGED IN */}
             {!isLoggedIn && (
               <>
                 <Link
@@ -751,15 +775,17 @@ const Navbar = () => {
               </>
             )}
 
-            {/* Logged in: Avatar + Name + Notification badge + Dropdown */}
+            {/* LOGGED IN */}
             {isLoggedIn && (
               <div className="flex items-center gap-3">
+                {/* Name */}
                 {userName && (
                   <span className="hidden lg:block text-emerald-900 font-medium max-w-[140px] truncate">
                     {userName}
                   </span>
                 )}
 
+                {/* Avatar + notification badge */}
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
@@ -793,6 +819,7 @@ const Navbar = () => {
                       )}
                     </div>
 
+                    {/* Notification badge */}
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
                         {unreadCount > 9 ? "9+" : unreadCount}
@@ -800,11 +827,12 @@ const Navbar = () => {
                     )}
                   </button>
 
+                  {/* Dropdown */}
                   {profileOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900 cursor-pointer"
-                        onClick={handleDashboardClick}
+                        onClick={HandleDashboardClick}
                       >
                         Dashboard
                       </button>
