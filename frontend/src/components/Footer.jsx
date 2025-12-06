@@ -10,6 +10,7 @@ import {
   FaLinkedinIn
 } from "react-icons/fa6";
 import { RxTwitterLogo } from "react-icons/rx";
+import RoutesTester from "../components/RoutesTester"
 
 const Footer = () => {
   return (
@@ -225,6 +226,7 @@ const Footer = () => {
           </p>
         </div>
       </div>
+      <RoutesTester/>
       
     </footer>
   );

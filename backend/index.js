@@ -17,7 +17,12 @@ const app = express();
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://www.ayursutra.online/",
+    "https://ayursutra.online/",
+    "https://ayursutra-6l5i.onrender.com/"
+  ],
   credentials: true,
 }));
 
