@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import SidePanel from "../components/CenterSidePanel";
 import Logo from "../components/SidePanelLogo";
-import CenterNavbarProfile from "../pages/Center/CenterNavbarProfile";
+import CenterNavbarProfile from "../pages/center/CenterNavbarProfile";
 
 const CenterLayout = ({ children, showSearch = true, searchPlaceholder = "Search..." }) => {
   const navigate = useNavigate();
