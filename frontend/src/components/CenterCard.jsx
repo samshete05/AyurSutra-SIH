@@ -26,7 +26,7 @@ const CenterCard = ({
   // If slug missing, create one from name
   const finalSlug = slug || makeSlug(name || "center");
 
-  console.log("final",finalSlug);
+  // console.log("final",finalSlug);
 
   return (
 <Link to={`/center/${finalSlug}/${centerId}`}>

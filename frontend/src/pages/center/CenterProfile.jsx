@@ -1,7 +1,7 @@
 // pages/Center/CenterProfile.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, Save, X, MapPin, Phone, Mail, Building, FileText } from "lucide-react";
+import { Camera, Save, X, MapPin, Phone, Mail, Building, FileText, Clock } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import CenterNavbarProfile from "./CenterNavbarProfile";
@@ -9,11 +9,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { Search } from "lucide-react";
 import axios from 'axios'
+import Loader from "../../components/Loader";
 
 const CenterProfile = () => {
   const navigate = useNavigate();
   const centerId = localStorage.getItem("centerId");
-  const email=localStorage.getItem("email");
+  const email = localStorage.getItem("email");
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(null);
@@ -21,6 +22,8 @@ const CenterProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [centerImages, setCenterImages] = useState([]);
+  const [newCenterImages, setNewCenterImages] = useState([]);
 
   useEffect(() => {
     if (email) {
@@ -31,16 +34,15 @@ const CenterProfile = () => {
   const fetchProfile = async () => {
     try {
       const response = await axios.post("http://localhost:3000/PanchKarmaCenter/getCenterProfile", 
-        {centerId:centerId}
+        { centerId }
       );
-      console.log("data is ",response);
-
-      if (response.data.message) {
-        // const data = await response.json();
-        console.log("ya yaa ",response.data.center);
-        setProfileData(response.data.center);
-        setEditedData(response.data.center);
-      }
+      
+      console.log("Profile data:", response.data.center);
+      
+      const centerData = response.data.center;
+      setProfileData(centerData);
+      setEditedData(centerData);
+      setCenterImages(centerData.centerImages || []);
     } catch (error) {
       console.error("Error fetching profile:", error);
     }
@@ -61,22 +63,43 @@ const CenterProfile = () => {
     }
   };
 
+  const handleCenterImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setNewCenterImages(files);
+    
+    const previews = files.map(file => URL.createObjectURL(file));
+    setCenterImages(prev => [...prev.filter(img => !img.startsWith('blob:')), ...previews]);
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("email", email);
-      formData.append("Adminname", editedData.Adminname);
-      formData.append("CenterName", editedData.CenterName);
-      formData.append("MobileNo", editedData.MobileNo);
-      formData.append("location", editedData.location || "");
-      formData.append("latitude", editedData.latitude || 0);
-      formData.append("longitude", editedData.longitude || 0);
+      formData.append("centerId", centerId);
+      
+      // All schema fields (excluding lat/lng)
+      formData.append("Adminname", editedData.Adminname || "");
+      formData.append("CenterName", editedData.CenterName || "");
+      formData.append("MobileNo", editedData.MobileNo || "");
+      formData.append("mainAddress", editedData.mainAddress || "");
+      formData.append("city", editedData.city || "");
+      formData.append("locationUrl", editedData.locationUrl || "");
       formData.append("BotNumber", editedData.BotNumber || "");
+      formData.append("morningOpenTime", editedData.morningOpenTime || "");
+      formData.append("morningCloseTime", editedData.morningCloseTime || "");
+      formData.append("eveningOpenTime", editedData.eveningOpenTime || "");
+      formData.append("eveningCloseTime", editedData.eveningCloseTime || "");
+      formData.append("onTime", editedData.onTime || "");
+      formData.append("closeTime", editedData.closeTime || "");
 
       if (profileImage) {
         formData.append("profileImg", profileImage);
       }
+
+      newCenterImages.forEach((file) => {
+        formData.append("centerImages", file);
+      });
 
       const response = await fetch("http://localhost:3000/PanchKarmaCenter/updateCenterProfile", {
         method: "POST",
@@ -86,10 +109,11 @@ const CenterProfile = () => {
       if (response.ok) {
         const data = await response.json();
         alert("Profile updated successfully!");
-        fetchProfile(); // Refresh data
+        fetchProfile();
         setIsEditing(false);
         setProfileImage(null);
         setImagePreview(null);
+        setNewCenterImages([]);
       } else {
         const error = await response.json();
         alert(error.message || "Failed to update profile");
@@ -104,6 +128,8 @@ const CenterProfile = () => {
 
   const handleCancel = () => {
     setEditedData(profileData);
+    setCenterImages(profileData?.centerImages || []);
+    setNewCenterImages([]);
     setIsEditing(false);
     setProfileImage(null);
     setImagePreview(null);
@@ -111,12 +137,7 @@ const CenterProfile = () => {
 
   if (!profileData) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-emerald-600 border-r-transparent"></div>
-          <p className="mt-4 text-slate-600">Loading profile...</p>
-        </div>
-      </div>
+      <Loader />
     );
   }
 
@@ -138,7 +159,6 @@ const CenterProfile = () => {
             <button className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-xl md:hidden">
               ☰
             </button>
-
             <div className="relative hidden items-center md:flex">
               <span className="pointer-events-none absolute left-3 text-slate-400">
                 <Search className="h-6 w-6 cursor-pointer text-gray-600" />
@@ -149,7 +169,6 @@ const CenterProfile = () => {
               />
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
               <FontAwesomeIcon icon={faBell} className="text-xl" />
@@ -167,7 +186,6 @@ const CenterProfile = () => {
                 <h1 className="text-2xl font-semibold text-slate-800">Center Profile</h1>
                 <p className="text-sm text-slate-500">Manage your center information and settings</p>
               </div>
-
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
@@ -212,7 +230,6 @@ const CenterProfile = () => {
                       {profileData.Adminname?.charAt(0).toUpperCase() || "C"}
                     </div>
                   )}
-
                   {isEditing && (
                     <label className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition-colors">
                       <Camera className="h-5 w-5" />
@@ -329,56 +346,205 @@ const CenterProfile = () => {
                   />
                 </div>
 
-                {/* Location (Full width) */}
+                {/* Main Address (Full width) */}
                 <div className="md:col-span-2">
                   <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                     <MapPin className="h-4 w-4 text-emerald-600" />
-                    Location Address
+                    Main Address
                   </label>
                   <input
                     type="text"
-                    value={editedData.location || ""}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    value={editedData.mainAddress || ""}
+                    onChange={(e) => handleInputChange("mainAddress", e.target.value)}
                     disabled={!isEditing}
-                    placeholder="Enter your center's address"
+                    placeholder="Enter full street address"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-600"
                   />
                 </div>
 
-                {/* Latitude */}
+                {/* City */}
                 <div>
                   <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                     <MapPin className="h-4 w-4 text-emerald-600" />
-                    Latitude
+                    City
                   </label>
                   <input
-                    type="number"
-                    step="0.000001"
-                    value={editedData.latitude || ""}
-                    onChange={(e) => handleInputChange("latitude", parseFloat(e.target.value))}
+                    type="text"
+                    value={editedData.city || ""}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
                     disabled={!isEditing}
-                    placeholder="0.000000"
+                    placeholder="Enter city name"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-600"
                   />
                 </div>
 
-                {/* Longitude */}
+                {/* Google Maps Link */}
                 <div>
                   <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
                     <MapPin className="h-4 w-4 text-emerald-600" />
-                    Longitude
+                    Google Maps Link
                   </label>
                   <input
-                    type="number"
-                    step="0.000001"
-                    value={editedData.longitude || ""}
-                    onChange={(e) => handleInputChange("longitude", parseFloat(e.target.value))}
+                    type="url"
+                    value={editedData.locationUrl || ""}
+                    onChange={(e) => handleInputChange("locationUrl", e.target.value)}
                     disabled={!isEditing}
-                    placeholder="0.000000"
+                    placeholder="https://maps.google.com/..."
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-600"
                   />
                 </div>
               </div>
+
+              {/* Working Hours Section */}
+              <div className="mt-8 md:col-span-2">
+                <label className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-700 block">
+                  <Clock className="h-5 w-5 text-emerald-600" />
+                  Slot/Appointment Booking Time 
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-6 rounded-2xl">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Morning Open</label>
+                    <input
+                      type="time"
+                      value={editedData.morningOpenTime || "09:00"}
+                      onChange={(e) => handleInputChange("morningOpenTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Morning Close</label>
+                    <input
+                      type="time"
+                      value={editedData.morningCloseTime || "13:00"}
+                      onChange={(e) => handleInputChange("morningCloseTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Evening Open</label>
+                    <input
+                      type="time"
+                      value={editedData.eveningOpenTime || "16:00"}
+                      onChange={(e) => handleInputChange("eveningOpenTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Evening Close</label>
+                    <input
+                      type="time"
+                      value={editedData.eveningCloseTime || "20:00"}
+                      onChange={(e) => handleInputChange("eveningCloseTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Total  Hours Section */}
+              <div className="mt-8 md:col-span-2">
+                <label className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-700 block">
+                  <Clock className="h-5 w-5 text-emerald-600" />
+                  Working Hours
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-6 rounded-2xl">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Morning Open</label>
+                    <input
+                      type="time"
+                      value={editedData.morningOpenTime || "09:00"}
+                      onChange={(e) => handleInputChange("onTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">Evening Close</label>
+                    <input
+                      type="time"
+                      value={editedData.eveningCloseTime || "20:00"}
+                      onChange={(e) => handleInputChange("closeTime", e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 disabled:bg-slate-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Center Images Section */}
+              <div className="mt-8 md:col-span-2">
+                <label className="mb-4 flex items-center gap-2 text-sm font-medium text-slate-700 block">
+                  <Camera className="h-5 w-5 text-emerald-600" />
+                  Center Images (Max 5)
+                </label>
+                
+                {isEditing ? (
+                  <div>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleCenterImagesChange}
+                      className="w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-8 py-8 text-sm file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                    />
+                    <p className="mt-2 text-xs text-slate-500">Upload up to 5 images (Max 5MB each)</p>
+                    
+                    {newCenterImages.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {newCenterImages.map((file, idx) => (
+                          <img
+                            key={idx}
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${idx + 1}`}
+                            className="h-20 w-20 rounded-xl object-cover border"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {centerImages?.length > 0 ? (
+                      centerImages.map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={img}
+                          alt={`Center ${idx + 1}`}
+                          className="h-24 w-24 rounded-xl object-cover border"
+                        />
+                      ))
+                    ) : (
+                      <p className="col-span-full py-8 text-center text-slate-500 border-2 border-dashed border-slate-200 rounded-xl">
+                        No center images uploaded
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Google Maps Display */}
+              {profileData.locationUrl && !isEditing && (
+                <div className="mt-8 md:col-span-2">
+                  <label className="mb-4 flex items-center gap-2 text-sm font-medium text-slate-700 block">
+                    <MapPin className="h-4 w-4 text-emerald-600" />
+                    Location on Map
+                  </label>
+                  <iframe
+                    src={profileData.locationUrl}
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-2xl w-full"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </main>

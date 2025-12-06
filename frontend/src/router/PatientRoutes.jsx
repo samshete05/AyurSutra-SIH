@@ -24,6 +24,7 @@ function PatientRoutes() {
         <Route path="ai-recommendation" element={<AIRecommendationPage />} />
         <Route path="my-treatments" element={<MyTreatmentsPage />} />
         <Route path="progress" element={<ProgressPage />} />
+        <Route path="/patient/progress/:patientId" element={<ProgressPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="my-profile" element={<MyProfilePage />} />

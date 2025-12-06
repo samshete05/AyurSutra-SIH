@@ -17,9 +17,18 @@ const PanchakarmaCenterSchema = new schema({
     unique: true,
   },
 
-  location: { type: String },
-  address:{type:String},
-  latitude: { type: Number },
+  // location: { type: String },
+  // address:{type:String},
+  // latitude: { type: Number },
+
+  // WORKING HOURS - NEW FIELDS
+  morningOpenTime: { type: String, default: "09:00" },
+  morningCloseTime: { type: String, default: "01:00" },
+  eveningOpenTime: { type: String, default: "04:00" },
+  eveningCloseTime: { type: String, default: "08:00" },
+  onTime: { type: String, default: "09:00" },
+  offTime: { type: String, default: "08:00" },
+
   longitude: { type: Number },
 
   MobileNo: { type: String, required: true },
@@ -32,7 +41,7 @@ const PanchakarmaCenterSchema = new schema({
     type: Boolean,
     default: false,
   },
-  rating:String,
+  rating: String,
   // Store doctor references
   Doctors: [
     {
@@ -41,12 +50,23 @@ const PanchakarmaCenterSchema = new schema({
     },
   ],
 
-  GeneralAppointment:[
+  GeneralAppointment: [
     {
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"CenterGeneralAppointment"
-    }
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CenterGeneralAppointment",
+    },
   ],
+
+  centerImages: [
+    {
+      type: String, // Cloudinary/Multer URLs
+      required: false,
+    },
+  ],
+  mainAddress: { type: String, required: false },
+  city: { type: String, required: false },
+  locationUrl: { type: String, required: false },
+
   // Last Login date
   lastLoginDate: {
     type: Date,

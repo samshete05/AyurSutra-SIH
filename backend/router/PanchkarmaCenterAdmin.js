@@ -1,8 +1,6 @@
 const express = require("express");
 
 const PanchakarmaCenterRouter = express.Router();
-
-
 const z = require('zod');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -514,103 +512,169 @@ PanchakarmaCenterRouter.post("/get-therapists",async(req,res)=>{
 
 // *************************** GET CENTER PROFILE ********************************
 PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
-  console.log("hitting profile route")
+  // console.log("hitting profile route");
   try {
     const { centerId } = req.body;
-    console.log(centerId);
 
-
+    // Validation
     if (!centerId) {
-      return res.status(400).json({ message: "CenterId_Required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Center ID is required" 
+      });
     }
 
-    const center = await PanchakarmaCenterModel.findOne({ _id:centerId });
+    const center = await PanchakarmaCenterModel.findById(centerId).select('-password').lean();
 
     if (!center) {
-      return res.status(404).json({ message: "Center_Not_Found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Center not found" 
+      });
     }
 
     return res.status(200).json({
-      message: "Profile_Fetched_Successfully",
-      center: center,
+      success: true,
+      message: "Profile fetched successfully",
+      center
     });
   } catch (err) {
     console.error("Error in /getCenterProfile:", err);
     return res.status(500).json({
-      message: "Internal_Server_Error",
-      error: err.message,
+      success: false,
+      message: "Internal server error"
     });
   }
 });
 
+// NEW MULTER CONFIG - ADD THIS BEFORE YOUR ROUTES
+const centerImagesUpload = upload.fields([
+  { name: "centerImages", maxCount: 5 },
+  { name: "profileImg", maxCount: 1 },
+]);
+
 // *************************** UPDATE CENTER PROFILE ********************************
-PanchakarmaCenterRouter.post("/updateCenterProfile",upload.single("profileImg"),
-  async function (req, res) {
-    try {
-      const { email } = req.body;
+PanchakarmaCenterRouter.post("/updateCenterProfile", centerImagesUpload, async function (req, res) {
+  try {
+    const {
+      email,
+      centerId,
+      Adminname,
+      CenterName,
+      MobileNo,
+      mainAddress,
+      city,
+      locationUrl,
+      // latitude,
+      // longitude,
+      BotNumber,
+      morningOpenTime,
+      morningCloseTime,
+      eveningOpenTime,
+      eveningCloseTime,
+      onTime,
+      closeTime,
+    } = req.body;
 
-      if (!email) {
-        return res.status(400).json({ message: "Email_Required" });
-      }
-
-      const center = await PanchakarmaCenterModel.findOne({ email: email });
-
-      if (!center) {
-        return res.status(404).json({ message: "Center_Not_Found" });
-      }
-
-      // Update allowed fields
-      if (req.body.Adminname) center.Adminname = req.body.Adminname;
-      if (req.body.CenterName) center.CenterName = req.body.CenterName;
-      if (req.body.MobileNo) center.MobileNo = req.body.MobileNo;
-      if (req.body.location) center.location = req.body.location;
-      if (req.body.latitude) center.latitude = parseFloat(req.body.latitude);
-      if (req.body.longitude) center.longitude = parseFloat(req.body.longitude);
-      if (req.body.BotNumber) center.BotNumber = req.body.BotNumber;
-
-      // Handle profile image
-      if (req.file) {
-        center.profileImg = req.file.path;
-      }
-
-      await center.save();
-
-      // CREATE NOTIFICATION FOR CENTER ADMIN
-      try {
-        await NotificationTemplates.profileUpdated(
-          center._id,
-          center.Adminname
-        );
-      } catch (error) {
-        console.error("Error creating notification:", error);
-      }
-
-      return res.status(200).json({
-        message: "Profile_Updated_Successfully",
-        center: {
-          id: center._id,
-          name: center.Adminname,
-          email: center.email,
-          centerName: center.CenterName,
-          role: center.role,
-          profileImg: center.profileImg,
-          mobileNo: center.MobileNo,
-          location: center.location,
-          licenseNo: center.licenseNo,
-          latitude: center.latitude,
-          longitude: center.longitude,
-          BotNumber: center.BotNumber,
-        },
-      });
-    } catch (err) {
-      console.error("Error in /updateCenterProfile:", err);
-      return res.status(500).json({
-        message: "Internal_Server_Error",
-        error: err.message,
+    // Validation
+    if (!email && !centerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email or Center ID is required",
       });
     }
+
+    // Find center by email OR centerId
+    const query = { _id: centerId };
+    const center = await PanchakarmaCenterModel.findOne(query);
+
+    if (!center) {
+      return res.status(404).json({
+        success: false,
+        message: "Center not found",
+      });
+    }
+
+    // Update fields with validation
+    if (Adminname) center.Adminname = Adminname.trim();
+    if (CenterName) center.CenterName = CenterName.trim();
+    if (MobileNo && /^[6-9]\d{9}$/.test(MobileNo)) center.MobileNo = MobileNo;
+    if (mainAddress) center.mainAddress = mainAddress.trim();
+    if (city) center.city = city.trim();
+    if (locationUrl && /^https?:\/\/maps\.google\.com\/.*/.test(locationUrl))
+      center.locationUrl = locationUrl;
+    // if (latitude) center.latitude = parseFloat(latitude);
+    // if (longitude) center.longitude = parseFloat(longitude);
+    if (BotNumber) center.BotNumber = BotNumber.trim();
+    if (morningOpenTime) center.morningOpenTime = morningOpenTime;
+    if (morningCloseTime) center.morningCloseTime = morningCloseTime;
+    if (eveningOpenTime) center.eveningOpenTime = eveningOpenTime;
+    if (eveningCloseTime) center.eveningCloseTime = eveningCloseTime;
+    if (onTime) center.onTime = onTime;
+    if (closeTime) center.closeTime = closeTime;
+
+    // profile image (single)
+    if (req.files && req.files.profileImg && req.files.profileImg.length > 0) {
+      const file = req.files.profileImg[0];
+      console.log("Updating profileImg with:", file.path);
+      center.profileImg = file.path;
+    }
+
+    // center images (multiple)
+    if (
+      req.files &&
+      req.files.centerImages &&
+      req.files.centerImages.length > 0
+    ) {
+      const imagePaths = req.files.centerImages.map((f) => f.path);
+      console.log("Updating centerImages with:", imagePaths);
+      center.centerImages = imagePaths;
+    }
+
+    // Save with validation
+    await center.save();
+
+    // CREATE NOTIFICATION (keep your existing logic)
+    try {
+      await NotificationTemplates.profileUpdated(center._id, center.Adminname);
+    } catch (error) {
+      console.error("Error creating notification:", error);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      center: {
+        _id: center._id,
+        Adminname: center.Adminname,
+        CenterName: center.CenterName,
+        email: center.email,
+        MobileNo: center.MobileNo,
+        mainAddress: center.mainAddress,
+        city: center.city,
+        locationUrl: center.locationUrl,
+        // latitude: center.latitude,
+        // longitude: center.longitude,
+        BotNumber: center.BotNumber,
+        profileImg: center.profileImg,
+        centerImages: center.centerImages,
+        licenseNo: center.licenseNo,
+        morningOpenTime: center.morningOpenTime,
+        morningCloseTime: center.morningCloseTime,
+        eveningOpenTime: center.eveningOpenTime,
+        eveningCloseTime: center.eveningCloseTime,
+        onTime: center.onTime,
+        closeTime: center.closeTime,
+      },
+    });
+  } catch (err) {
+    console.error("Error in /updateCenterProfile:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
   }
-);
+});
 
 
 // *************************** GET NOTIFICATION UNREAD ********************************

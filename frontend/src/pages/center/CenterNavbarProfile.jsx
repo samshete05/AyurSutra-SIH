@@ -31,12 +31,13 @@ const CenterNavbarProfile = () => {
 
   const fetchCenterProfile = async () => {
     try {
+      const centerId = localStorage.getItem("centerId")
       const response = await fetch("http://localhost:3000/PanchKarmaCenter/getCenterProfile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: email }),
+        body: JSON.stringify({ centerId }),
       });
 
       if (response.ok) {

@@ -47,7 +47,7 @@ function DashboardPage() {
     const profileData = await profileResponse.json();
 
     // Fetch appointments
-    const appointmentsResponse = await fetch('http://localhost:3000/patient/getAppointments', {
+    const appointmentsResponse = await fetch('http://localhost:3000/patient/appointments', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
