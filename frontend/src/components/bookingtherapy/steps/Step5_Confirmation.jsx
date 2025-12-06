@@ -7,6 +7,8 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
   const formatDate = (d) => d ? new Date(d).toLocaleDateString() : "-";
   const slot = bookingData.selectedSlot ? (therapyData?.slots?.[bookingData.selectedSlot] || centerData.slots[bookingData.selectedSlot]) : null;
  const patientEmail=localStorage.getItem("email");
+ const profileImg=localStorage.getItem("profileImg");
+
   const {centerId}=useParams();
 
 
@@ -26,6 +28,7 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
             isPhoneVerified: bookingData.isPhoneVerified || false,
             centerId: centerId,
             tokenAmount: "100",
+            profileImg:profileImg
           });
       
           if (resp.data.success) {

@@ -610,6 +610,8 @@ patientRouter.post("/bookGeneralAppointment", async function (req, res) {
       slotTime = { startTime: "05:00 PM", endTime: "07:00 PM" };
     }
 
+    console.log("bookign data is ",data);
+
     // Create appointment directly
     const appointmentData = {
       bookingId: bookingId,
@@ -623,9 +625,10 @@ patientRouter.post("/bookGeneralAppointment", async function (req, res) {
       
       PatientName: data.patientName,
       PatientPhone: data.patientPhone,
-      patientEmail: data.patientEmail,
+      PatientEmail: data.patientEmail,
       PatientAge: String(data.patientAge),
       PatientGender: data.patientGender,
+      // profileImg:data.profileImg,
       notes: data.notes || "",
       isPhoneVerified: data.isPhoneVerified || false,
       
@@ -669,51 +672,51 @@ patientRouter.post("/bookGeneralAppointment", async function (req, res) {
 
 // *************************** GET PATIENT APPOINTMENTS ********************************
 patientRouter.get("/appointments", async function (req, res) {
-  const token = req.headers.authorization?.split(" ")[1];
-  console.log(req)
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
   try {
+    // ---------------- AUTH CHECK ----------------
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
     const decoded = jwt.verify(token, JWT_KEY);
     const patientId = decoded.id;
 
-    // Query parameters for filtering
+    // ---------------- QUERY FILTERS ----------------
     const { status, upcoming } = req.query;
     let query = { patientId };
 
-    if (status) {
-      query.status = status;
-    }
+    if (status) query.status = status;
 
     if (upcoming === "true") {
       query.appointmentDate = { $gte: new Date() };
       query.status = { $in: ["scheduled", "confirmed"] };
     }
 
+    // ---------------- FETCH APPOINTMENTS ----------------
     const appointments = await CenterAppointmentModel.find(query)
-      .populate("CenterId", "name address phone locationUrl slots")
+      .populate("CenterId") // ← FULL PANCHAKARMA CENTER DETAILS
       .populate("TherapyId", "name description")
       .sort({ appointmentDate: -1 })
       .lean();
 
-    // Add computed fields for frontend
-    const appointmentsWithExtras = appointments.map((apt) => {
+    // ---------------- FORMAT RESPONSE ----------------
+    const finalArray = appointments.map((apt) => {
+      const center = apt.CenterId; // full center details
+
+      // Extra fields
       const isUpcoming =
         new Date(apt.appointmentDate) > new Date() &&
         ["scheduled", "confirmed"].includes(apt.status);
 
       const hoursDiff =
         (new Date(apt.appointmentDate) - new Date()) / (1000 * 60 * 60);
+
       const canCancel =
         hoursDiff >= 24 && ["scheduled", "confirmed"].includes(apt.status);
 
-      // Map fields for frontend compatibility
       return {
-        ...apt,
-        centerId: apt.CenterId, // Alias for frontend
-        therapyId: apt.TherapyId, // Alias for frontend
+        centerDetails: center, // FULL CENTER DETAILS
+        appointmentDetails: apt,
+
         patientDetails: {
           name: apt.PatientName,
           phone: apt.PatientPhone,
@@ -721,28 +724,37 @@ patientRouter.get("/appointments", async function (req, res) {
           age: apt.PatientAge,
           gender: apt.PatientGender,
         },
+
+        therapyDetails: apt.TherapyId || null,
+
         tokenAmount: apt.Amount,
         paymentStatus: apt.PaymentStatus,
+
         isUpcoming,
         canCancel,
       };
     });
 
+    // ---------------- SEND RESPONSE ----------------
     res.json({
       message: "Success",
-      count: appointmentsWithExtras.length,
-      appointments: appointmentsWithExtras,
+      count: finalArray.length,
+      appointments: finalArray,
     });
   } catch (err) {
     console.error("Error fetching appointments:", err);
 
     if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid_Token" });
+      return res.status(401).json({ message: "Invalid Token" });
     }
 
-    res.status(500).json({ message: "Server_Error", error: err.message });
+    res.status(500).json({
+      message: "Server Error",
+      error: err.message,
+    });
   }
 });
+
 
 // *************************** GET SINGLE APPOINTMENT BY BOOKING ID ********************************
 patientRouter.get("/appointments/:bookingId", async function(req, res) {
@@ -1019,7 +1031,7 @@ patientRouter.get("/getProfile", async function(req, res) {
   }
 });
 
-// *************************** UPDATE PROFILE ********************************
+
 patientRouter.put("/updateProfile", async function(req, res) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {

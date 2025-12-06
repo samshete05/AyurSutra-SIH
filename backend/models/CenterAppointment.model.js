@@ -15,9 +15,11 @@ const CenterAppointMentSchema=new mongoose.Schema({
             required:false,  
         },
         PatientName:String,
+        PatientEmail:String,
         PatientPhone:String,
         PatientAge:String,
         PatientGender:String,
+        // ProfileImg:String,
         notes:String,
         CenterId:{
             type:mongoose.Schema.Types.ObjectId,

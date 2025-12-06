@@ -36,6 +36,7 @@ import CenterNotifications from "../pages/center/CenterNotifications";
 import TermsServices from "../pages/TermsServices";
 import Privacy from "../pages/privacy";
 import HelpCenter from "../pages/HelpCenter";
+import AppointmentDetails from "../pages/patient/AppointmentDetail";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 

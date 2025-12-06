@@ -16,7 +16,8 @@ const TherapyModel = require("../models/Therapy.model");
 const TherapistModel = require("../models/Therapist.model");
 const upload = require("./multer.js");
 const { NotificationTemplates } = require("../utils/notificationHelper.js");
-const notificationModel = require("../models/Notification.model")
+const notificationModel = require("../models/Notification.model");
+const CenterAppointmentModel = require("../models/CenterAppointment.model.js");
 
 
 
@@ -833,6 +834,23 @@ PanchakarmaCenterRouter.post(
   }
 );
 
+
+PanchakarmaCenterRouter.post("/get-center-appoinment",async(req,res)=>{
+     const {centerId}=req.body;
+     
+     console.log("hitiing routing !!!!!!!!");
+     console.log(centerId);
+     
+
+     const appointmentData=await CenterAppointmentModel.find({
+      CenterId:centerId
+     });
+
+     res.json({
+      appointmentData
+     })
+
+})
 
 module.exports = {
   PanchakarmaCenterRouter: PanchakarmaCenterRouter

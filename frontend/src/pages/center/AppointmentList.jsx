@@ -13,36 +13,58 @@ import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import CenterNavbarProfile from "./CenterNavbarProfile";
 import CenterNavbar from "./CenterNavbar";
+import { useEffect } from "react";
+import axios from 'axios'
+import { useState } from "react";
 
-const patients = [
-  {
-    id: 1,
-    name: "George Lindelof",
-    photo: "https://i.pravatar.cc/80?img=1",
-    mobile: "+4 315 23 62",
-    email: "george@example.com",
-    amount: 1000,
-    paid: true,
-  },
-  {
-    id: 2,
-    name: "Eric Dyer",
-    photo: "https://i.pravatar.cc/80?img=2",
-    mobile: "+2 134 25 65",
-    email: "eric@example.com",
-    amount: 4000,
-    paid: false,
-  },
-  {
-    id: 3,
-    name: "Michael Campbell",
-    photo: "https://i.pravatar.cc/80?img=5",
-    mobile: "+1 756 52 73",
-    email: "michael@example.com",
-    amount: 2500,
-    paid: true,
-  },
-];
+// Helper function to get initials from name
+const getInitials = (name) => {
+  if (!name) return "?";
+  const names = name.split(" ");
+  if (names.length === 1) return names[0].charAt(0).toUpperCase();
+  return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+};
+
+// Helper function to generate random color based on name
+const getRandomColor = (name) => {
+  if (!name) return '#6b7280'; // default gray
+  
+  // Simple hash function for consistent colors
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const colors = [
+    '#3b82f6', // blue
+    '#10b981', // emerald
+    '#8b5cf6', // violet
+    '#f59e0b', // amber
+    '#ef4444', // red
+    '#ec4899', // pink
+    '#14b8a6', // teal
+    '#f97316', // orange
+    '#6366f1', // indigo
+    '#06b6d4', // cyan
+  ];
+  
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Avatar component that shows initials
+const AvatarWithInitials = ({ name, size = 9 }) => {
+  const initials = getInitials(name);
+  const bgColor = getRandomColor(name);
+  
+  return (
+    <div 
+      className={`h-${size} w-${size} rounded-full flex items-center justify-center text-white font-semibold shadow-sm`}
+      style={{ backgroundColor: bgColor }}
+    >
+      {initials}
+    </div>
+  );
+};
 
 // Small helper to escape CSV values
 const csvEscape = (value) => {
@@ -67,15 +89,40 @@ const PaymentBadge = ({ paid }) => {
 };
 
 const AppointmentList = () => {
+  const [patients, setpatients] = useState([]);
+  const centerId = localStorage.getItem("centerId");
+
+  useEffect(() => {
+    const getAppointmentData = async () => {
+      try {
+        const resp = await axios.post("http://localhost:3000/PanchKarmaCenter/get-center-appoinment", {
+          centerId: centerId
+        });
+
+        console.log(resp);
+        
+        if (resp.data && resp.data.appointmentData) {
+          setpatients(resp.data.appointmentData);
+        } else {
+          console.error("Invalid response format:", resp);
+        }
+      } catch (error) {
+        console.error("Error fetching appointment data:", error);
+      }
+    };
+    
+    getAppointmentData();
+  }, [centerId]);
+
   const handleExport = () => {
     // 1. Build CSV header
     const headers = ["Name", "Mobile", "Email", "Amount", "Payment Status"];
     const rows = patients.map((p) => [
-      csvEscape(p.name),
-      csvEscape(p.mobile),
-      csvEscape(p.email),
-      csvEscape(p.amount),
-      csvEscape(p.paid ? "Paid" : "Pending"),
+      csvEscape(p.PatientName),
+      csvEscape(p.PatientPhone),
+      csvEscape(p.PatientEmail),
+      csvEscape(p.Amount),
+      csvEscape(p.PaymentStatus ? "Paid" : "Pending"),
     ]);
 
     const csvContent =
@@ -101,7 +148,6 @@ const AppointmentList = () => {
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
         <Logo />
-
         <nav className="space-y-6 text-sm">
           <div>
             <SidePanel />
@@ -113,20 +159,18 @@ const AppointmentList = () => {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <div className="relative hidden items-center md:flex">
               <span className="pointer-events-none absolute left-3 text-slate-400">
                 <Search className="h-5 w-5 text-gray-500" />
               </span>
-
               <input
                 className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm placeholder:text-slate-400"
                 placeholder="Search appointments..."
               />
             </div>
           </div>
-
-        <CenterNavbar/>
+          <CenterNavbar />
         </header>
 
         {/* Main content area */}
@@ -196,29 +240,33 @@ const AppointmentList = () => {
                 </thead>
 
                 <tbody>
-                  {patients.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-3">
-                        <img
-                          src={p.photo}
-                          alt={p.name}
-                          className="h-9 w-9 rounded-full object-cover shadow-sm"
-                        />
-                      </td>
-                      <td className="px-6 py-3 font-medium">{p.name}</td>
-                      <td className="px-6 py-3 text-slate-500">{p.mobile}</td>
-                      <td className="px-6 py-3 text-slate-500">{p.email}</td>
-                      <td className="px-6 py-3 font-semibold text-slate-800">
-                        ₹{p.amount.toLocaleString("en-IN")}
-                      </td>
-                      <td className="px-6 py-3">
-                        <PaymentBadge paid={p.paid} />
+                  {patients.length > 0 ? (
+                    patients.map((p, index) => (
+                      <tr
+                        key={p._id || index}
+                        className="rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-50"
+                      >
+                        <td className="px-6 py-3">
+                          <AvatarWithInitials name={p.PatientName} size={9} />
+                        </td>
+                        <td className="px-6 py-3 font-medium">{p.PatientName}</td>
+                        <td className="px-6 py-3 text-slate-500">{p.PatientPhone}</td>
+                        <td className="px-6 py-3 text-slate-500">{p.PatientEmail}</td>
+                        <td className="px-6 py-3 font-semibold text-slate-800">
+                          ₹{p.Amount ? p.Amount.toLocaleString("en-IN") : "0"}
+                        </td>
+                        <td className="px-6 py-3">
+                          <PaymentBadge paid={p.PaymentStatus} />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
+                        No appointments found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

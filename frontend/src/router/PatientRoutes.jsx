@@ -12,6 +12,7 @@ import FeedbackPage from "../pages/patient/FeedbackPage";
 import NotificationsPage from "../pages/patient/NotificationsPage";
 import MyProfilePage from "../pages/patient/MyProfilePage";
 import SettingsPage from "../pages/patient/SettingsPage";
+import AppointmentDetails from "../pages/patient/AppointmentDetail";
 
 function PatientRoutes() {
   return (
@@ -29,6 +30,8 @@ function PatientRoutes() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="my-profile" element={<MyProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="appointment-details" element={<AppointmentDetails />} />
+        
         {/* <Route path=""/> */}
       </Routes>
     </PatientLayout>
