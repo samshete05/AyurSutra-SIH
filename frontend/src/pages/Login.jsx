@@ -120,7 +120,7 @@ const Login = () => {
 
         {/* ROLE TABS */}
         <div className="mt-6">
-          <div className="grid grid-cols-2 rounded-lg border border-gray-200 overflow-hidden">
+          <div className="grid grid-cols-3 rounded-lg border border-gray-200 overflow-hidden">
             <button
               type="button"
               onClick={() => handleRoleChange("patient")}
@@ -145,7 +145,7 @@ const Login = () => {
               Center Head
             </button>
 
-            {/* <button
+            <button
               type="button"
               onClick={() => handleRoleChange("doctor")}
               className={`py-2 text-sm font-medium transition ${
@@ -155,7 +155,7 @@ const Login = () => {
               }`}
             >
               Doctor
-            </button> */}
+            </button>
           </div>
         </div>
 
