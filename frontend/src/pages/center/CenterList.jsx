@@ -16,17 +16,22 @@ const isCenterOpenNow = (center, currentMinutes) => {
 };
 
 const ArrowSVG = (
-  <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4"
-    viewBox="0 0 20 20" fill="none">
-    <path d="M6 8l4 4 4-4"
-      stroke="#334E3A" strokeWidth="1.5"
-      strokeLinecap="round" strokeLinejoin="round"
+  <svg
+    className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4"
+    viewBox="0 0 20 20"
+    fill="none"
+  >
+    <path
+      d="M6 8l4 4 4-4"
+      stroke="#334E3A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
 
 export default function CenterList() {
-
   /* ---------------- STATE ---------------- */
   const [centers, setCenters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +45,20 @@ export default function CenterList() {
   const [hasCustomerNumber, setHasCustomerNumber] = useState("all");
   const [minOpening, setMinOpening] = useState("all");
   const [sortBy, setSortBy] = useState("relevance");
+
+  /* ---------------- QUICK TOP CITIES ---------------- */
+  const topCities = [
+    "Bengaluru",
+    "Hyderabad",
+    "Nagpur",
+    "Dehradun",
+    "Mumbai",
+    "Delhi",
+    "Chennai",
+    "Pune",
+    "Kolkata",
+    "Ahmedabad",
+  ];
 
   /* ---------------- FETCH BACKEND DATA ---------------- */
   useEffect(() => {
@@ -55,7 +74,6 @@ export default function CenterList() {
         } else {
           setError("Failed to load centers");
         }
-
       } catch (err) {
         console.error(err);
         setError("Failed to load centers");
@@ -67,14 +85,14 @@ export default function CenterList() {
     fetchCenters();
   }, []);
 
-  /* ---------------- BUILD OPTIONS (must be BEFORE return) ---------------- */
-  const uniqueCities = [...new Set(centers.map(c => c.city).filter(Boolean))];
+  /* ---------------- OPTIONS ---------------- */
+  const uniqueCities = [...new Set(centers.map((c) => c.city).filter(Boolean))];
 
   const openingOptions = [
-    ...new Set(centers.map(c => c.openingTime).filter(Boolean))
+    ...new Set(centers.map((c) => c.openingTime).filter(Boolean)),
   ].sort();
 
-  /* ---------------- FILTER + SORT LOGIC ---------------- */
+  /* ---------------- FILTER + SORT ---------------- */
   const filteredCenters = useMemo(() => {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -103,8 +121,7 @@ export default function CenterList() {
       if (minOpening !== "all" && toMinutes(center.openingTime) < toMinutes(minOpening))
         return false;
 
-      if (openNowOnly && !isCenterOpenNow(center, currentMinutes))
-        return false;
+      if (openNowOnly && !isCenterOpenNow(center, currentMinutes)) return false;
 
       return true;
     });
@@ -112,11 +129,9 @@ export default function CenterList() {
     if (sortBy === "name") {
       list.sort((a, b) => a.CenterName.localeCompare(b.CenterName));
     } else if (sortBy === "openingTime") {
-      list.sort((a, b) =>
-        toMinutes(a.openingTime) - toMinutes(b.openingTime)
-      );
+      list.sort((a, b) => toMinutes(a.openingTime) - toMinutes(b.openingTime));
     } else if (sortBy === "city") {
-      list.sort((a, b) => a.city.localeCompare(b.city));
+      list.sort((a, b) => (a.city || "").localeCompare(b.city || ""));
     }
 
     return list;
@@ -144,20 +159,18 @@ export default function CenterList() {
     setSortBy("relevance");
   };
 
-  /* ---------------- UI RETURN (SAFE AFTER ALL HOOKS) ---------------- */
-  if (loading)
-    return <p className="text-center py-20">Loading centers...</p>;
+  /* ---------------- UI RETURN ---------------- */
+  if (loading) return <p className="text-center py-20">Loading centers...</p>;
 
-  if (error)
-    return <p className="text-center py-20 text-red-600">{error}</p>;
+  if (error) return <p className="text-center py-20 text-red-600">{error}</p>;
 
   return (
     <main className="min-h-screen bg-[#F5F7F6] pb-16">
-      {/* HEADER */}
       <section className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-6">
-
-          <h1 className="text-3xl font-bold text-[#1E4B3C]">All Panchakarma Centers</h1>
+          <h1 className="text-3xl font-bold text-[#1E4B3C]">
+            All Panchakarma Centers
+          </h1>
 
           <div className="mt-2 text-sm text-gray-700">
             Results: <b>{filteredCenters.length}</b>
@@ -173,11 +186,12 @@ export default function CenterList() {
                 onChange={(e) => setSearch(e.target.value)}
               />
 
-              {/* CITY FILTERS */}
               <button
                 onClick={() => setCityFilter("all")}
                 className={`px-3 py-1 rounded-full text-sm ${
-                  cityFilter === "all" ? "bg-green-700 text-white" : "bg-white border"
+                  cityFilter === "all"
+                    ? "bg-[#1E4B3C] text-white"
+                    : "bg-white border"
                 }`}
               >
                 All cities
@@ -223,10 +237,45 @@ export default function CenterList() {
             </div>
           </div>
 
+          {/* ⭐ TOP CITIES BADGE FILTERS */}
+          <div className="mt-4 max-w-6xl mx-auto px-1">
+            <div className="flex items-center gap-2 overflow-x-auto py-2">
+
+              {/* ALL BADGE */}
+              <button
+                onClick={() => setCityFilter("all")}
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full font-semibold text-sm transition-all
+                  border shadow-sm
+                  ${
+                    cityFilter === "all"
+                      ? "bg-[#1E4B3C] text-white border-[#1E4B3C]"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  }`}
+              >
+                All
+              </button>
+
+              {/* CITY BADGES */}
+              {topCities.map((city) => (
+                <button
+                  key={city}
+                  onClick={() => setCityFilter(city)}
+                  className={`flex-shrink-0 px-4 py-1.5 rounded-full font-semibold text-sm transition-all
+                    border shadow-sm
+                    ${
+                      cityFilter === city
+                        ? "bg-green-700 text-white border-green-700"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ADVANCED FILTERS */}
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-
-            {/* OPENS BEFORE */}
             <div className="flex items-center gap-2">
               <label className="text-sm w-28">Opens before</label>
               <div className="relative w-full">
@@ -244,7 +293,6 @@ export default function CenterList() {
               </div>
             </div>
 
-            {/* CLOSES BEFORE */}
             <div className="flex items-center gap-2">
               <label className="text-sm w-28">Closes before</label>
               <div className="relative w-full">
@@ -262,7 +310,6 @@ export default function CenterList() {
               </div>
             </div>
 
-            {/* MIN OPEN TIME */}
             <div className="flex items-center gap-2">
               <label className="text-sm w-28">Min open time</label>
               <div className="relative w-full">
@@ -313,30 +360,24 @@ export default function CenterList() {
 
       {/* RESULTS */}
       <section className="max-w-6xl mx-auto px-4 py-6">
-  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-    {filteredCenters.map((center) => (
-      <CenterCard
-        key={center._id}
-        centerId={center._id}
-
-        // ⭐ FIXED FIELD MAPPING
-        name={center.CenterName}
-        city={center.city}
-        address={center.address}
-        image={center.profileImg}
-        customerNumber={center.MobileNo}
-        bookingAiNumber={center.BotNumber}
-
-        // backend has no openingTime → fallback
-        openingTime={center.openingTime || "09:00"}
-        closingTime={center.closingTime || "21:00"}
-
-        slug={center.CenterName?.toLowerCase().replace(/\s+/g, "-")}
-      />
-    ))}
-  </div>
-</section>
-
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {filteredCenters.map((center) => (
+            <CenterCard
+              key={center._id}
+              centerId={center._id}
+              name={center.CenterName}
+              city={center.city}
+              address={center.address}
+              image={center.profileImg}
+              customerNumber={center.MobileNo}
+              bookingAiNumber={center.BotNumber}
+              openingTime={center.openingTime || "09:00"}
+              closingTime={center.closingTime || "21:00"}
+              slug={center.CenterName?.toLowerCase().replace(/\s+/g, "-")}
+            />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

@@ -13,7 +13,7 @@ import { RxTwitterLogo } from "react-icons/rx";
 
 const Footer = () => {
   return (
-    <footer className="bg-emerald-950 text-emerald-50 pt-10 pb-6 mt-10">
+    <footer className="bg-emerald-950 text-emerald-50 pt-10 pb-6">
       {/* Top bar: logos + optional marquee strip */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-emerald-800 pb-6">
