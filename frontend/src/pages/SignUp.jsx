@@ -57,14 +57,17 @@ const SignUp = () => {
                 lattitude:formData.lattitude,
                 longitude:formData.longitude
             },{withCredentials:true})
+
+            console.log("checking otp ",resp);
       
             if(resp.data.message=="Email_Present"){
               alert("Email Already Present");
               return;
             }
-           else if(resp.data.message=='OTP_Send'){
+           else if(resp.data.message=='otp_send'){
              if(selectedUserRole=='centerHead') localStorage.setItem("centerId",resp.data.id);
-              navigate("/otpverification",{state:{email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
+            //  localStorage.setItem("phoneNo",phoneNumber);
+              navigate("/otpverification",{state:{phoneNumber: formData.phoneNumber,email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
            }
             console.log(resp);
   };

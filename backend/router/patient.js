@@ -2,6 +2,7 @@ const express = require("express");
 const patientRouter=express.Router();
 const twilio = require("twilio");
 
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
 
 const z =require('zod');
 const bcrypt=require("bcrypt");
@@ -131,21 +132,23 @@ patientRouter.post("/register", async function(req,res){
         digits:true,upperCaseAlphabets:false,specialChars:false,lowerCaseAlphabets:false
      })
 
-        const response=await OtpModel.create({
-            email:email,
-            otp:otp
-        })
+      const response=await OtpModel.create({
+          phoneNo:phoneNumber,
+            otp:otp,
+            email:email
+      })
 
-        console.log("here!!!",role," ",otp);
-
-   res.json({
-        message:"OTP_Send",
-        email:email,
-        role:registerUser.role,
-        id:registerUser._id
-   })
-
-    if(registerUser!=null) await sendemail(registerUser.email,"Email verification code:",otp);
+  
+      await client.messages.create({
+      body: `Your AyurSutra verification OTP is ${otp}`,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNumber}`,
+    });
+    
+      res.json({
+        message:"otp_send",
+        otp
+      })
 })
 
 
@@ -268,27 +271,54 @@ patientRouter.post("/login", async function (req, res) {
 
 // *************************** VERIFY OTP ********************************
 patientRouter.post("/verifyOTP", async (req, res) => {
-  const { email, otp, password,role } = req.body;
-  
+  const { email, otp, password,role,phoneNo } = req.body;
+  console.log(email," ",otp," ",password," ",phoneNo);
 
-  const user = await patientModel.findOne({ email });
+  
+   let user=null;
+   if(role=='patient') user = await patientModel.findOne({ email });
+   else user = await PanchakarmaCenterModel.findOne({ email });
+
+  console.log("yayaaaaa",user);
   if (!user) {
     return res.json({ message: "User_not_exist" });
   }
 
   const FindOtp = await OtpModel.findOne({
     email: email,
+    phoneNo:phoneNo,  
     otp: otp
   });
+  console.log("yaha parrrr",FindOtp);
 
   if (!FindOtp) {
     return res.json({ message: "INVALID_OTP" });
   }
 
 
-  await patientModel.updateOne({ email }, { verified: true });
 
-  await OtpModel.deleteOne({ _id: FindOtp._id });
+     const record = await OtpModel.findOne({ phoneNo }).sort({ createdAt: -1 });
+
+    if (!record) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired or not found",
+      });
+    }
+
+    if (record.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect_OTP",
+      });
+    }
+
+    await patientModel.updateOne({ email }, { verified: true });
+
+    // OTP matched → delete it
+    await OtpModel.deleteMany({ phoneNo });
+
+  // await OtpModel.deleteOne({ _id: FindOtp._id });
 
   const isMatch = await bcrypt.compare(password, user.password);
 
@@ -1410,10 +1440,13 @@ patientRouter.get("/notifications/unread/count", async function (req, res) {
 });
 
 // *************************** APPOINTMENT OTP ***************************
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
 patientRouter.post("/appointment-otp",async(req,res)=>{
 
     const {phoneNo,email}=req.body;
+
+   
+
+    
    
     console.log("yeah numbe rhain ",phoneNo);
     console.log(email);
@@ -1446,6 +1479,8 @@ patientRouter.post("/verify-appointment-otp", async (req, res) => {
   try {
     const { phoneNo, otp } = req.body;
 
+
+
     console.log(phoneNo," ",otp);
 
     if (!phoneNo || !otp) {
@@ -1454,6 +1489,8 @@ patientRouter.post("/verify-appointment-otp", async (req, res) => {
         message: "Phone and OTP are required",
       });
     }
+
+
 
     const record = await OtpModel.findOne({ phoneNo }).sort({ createdAt: -1 });
 
