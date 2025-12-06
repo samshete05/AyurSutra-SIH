@@ -397,13 +397,14 @@
 // export default Navbar;
 // Navbar.jsx
 
-
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Marquee from "react-fast-marquee"; 
+// Navbar.jsx
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Marquee from "react-fast-marquee";
 import RoutesTester from "./RoutesTester";
 import AdvancedCenterSearch from "./AdvancedCenterSearch";
 import MainNavbar from "./MainNavbar";
+import axios from "axios";
 
 const megaMenuConfig = {
   concern: {
@@ -520,8 +521,7 @@ const megaMenuConfig = {
         title: "7-Day Detox",
         description:
           "Structured short-term detox program combining diet, mild therapies, and guided follow-ups.",
-        imageSrc:
-          "https://i.ytimg.com/vi/iIcCeiAwKp8/hq720.jpg",
+        imageSrc: "https://i.ytimg.com/vi/iIcCeiAwKp8/hq720.jpg",
         imageAlt: "7-day detox program",
       },
       {
@@ -537,7 +537,31 @@ const megaMenuConfig = {
 };
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  // --- auth + user info from localStorage ---
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+  const token = localStorage.getItem("authToken");
+  const userName = localStorage.getItem("name");
+
+  const rawProfileImage = localStorage.getItem("profileImg");
+  const profileImage =
+    rawProfileImage &&
+    rawProfileImage !== "null" &&
+    rawProfileImage !== "undefined" &&
+    rawProfileImage !== ""
+      ? rawProfileImage
+      : null;
+
+  const isLoggedIn = Boolean(token);
+
   const [activeMegaKey, setActiveMegaKey] = useState(null);
+
+  // avatar dropdown + notifications
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleOpen = (key) => {
     setActiveMegaKey(key);
@@ -549,13 +573,83 @@ const Navbar = () => {
 
   const activeMega = activeMegaKey ? megaMenuConfig[activeMegaKey] : null;
 
+  // fetch notifications (same logic as your other file)
+  const fetchNotifications = async () => {
+    if (!token || !role) return;
+    const endpoint =
+      role === "patient"
+        ? "http://localhost:3000/patient/notifications/unread/count"
+        : "http://localhost:3000/PanchKarmaCenter/getCenterNotifications";
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const count = data.unreadCount || 0;
+        setUnreadCount(count);
+        localStorage.setItem("notificationCount", count);
+      }
+    } catch (err) {
+      console.error("Navbar notification fetch error:", err);
+    }
+  };
+
+  useEffect(() => {
+    // initial from localStorage
+    const stored = localStorage.getItem("notificationCount");
+    if (stored) setUnreadCount(parseInt(stored));
+
+    // fetch fresh
+    fetchNotifications();
+
+    // listen to global updates
+    const handler = (e) => setUnreadCount(e.detail.count);
+    window.addEventListener("notificationUpdate", handler);
+
+    return () => window.removeEventListener("notificationUpdate", handler);
+  }, [email, role, token]);
+
+  // close avatar dropdown on outside click
+  useEffect(() => {
+    const clickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", clickOutside);
+    return () => document.removeEventListener("mousedown", clickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:3000/patient/logout");
+    } catch (err) {
+      console.warn(err);
+    }
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  const handleDashboardClick = () => {
+    if (role === "patient") navigate("/patient");
+    else if (role === "centerHead") navigate("/PanchaKarma-Dashboard");
+    else navigate("/");
+  };
+
   return (
     <header className="relative z-40">
-      
       {/* TOP MARQUEE */}
       <div className="bg-[#1E4B3C] text-[11px] md:text-xs text-emerald-50">
         <Marquee pauseOnHover speed={40} gradient={false}>
-          <span className="mx-6">Free scheduling dashboard for new Panchakarma centers.</span>
+          <span className="mx-6">
+            Free scheduling dashboard for new Panchakarma centers.
+          </span>
           <span className="mx-6">Secure digital therapy session records.</span>
           <span className="mx-6">Automated pre & post-therapy reminders.</span>
         </Marquee>
@@ -564,22 +658,34 @@ const Navbar = () => {
       <MainNavbar />
 
       {/* NAVBAR */}
-      <div className="relative bg-white border-b border-emerald-100" onMouseLeave={handleClose}>
-        
+      <div
+        className="relative bg-white border-b border-emerald-100"
+        onMouseLeave={handleClose}
+      >
         <nav className="flex w-full items-center justify-between px-4 py-3 md:px-6 lg:px-10">
-
           {/* LEFT LOGOS */}
-          <Link to="/" className="flex items-center text-gray-400 cursor-pointer">
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png" className="h-7" />
+          <Link
+            to="/"
+            className="flex items-center text-gray-400 cursor-pointer"
+          >
+            <img
+              src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png"
+              className="h-7"
+            />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/All_India_Institute_of_Ayurveda_daadpq.jpg" className="h-7" />
+            <img
+              src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/All_India_Institute_of_Ayurveda_daadpq.jpg"
+              className="h-7"
+            />
             <span className="mx-3 text-gray-300">|</span>
-            <img src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/ministry-of-ayush-logo_nkde9k.png" className="h-7" />
+            <img
+              src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684757/ministry-of-ayush-logo_nkde9k.png"
+              className="h-7"
+            />
           </Link>
 
           {/* CENTER NAV (Desktop) */}
           <div className="hidden lg:flex items-center gap-8 text-sm font-medium">
-
             <button
               type="button"
               onMouseEnter={() => handleOpen("concern")}
@@ -623,35 +729,108 @@ const Navbar = () => {
             >
               Find Center
             </Link>
-
           </div>
 
-          {/* RIGHT SIDE CTA */}
+          {/* RIGHT SIDE: Auth-based */}
           <div className="hidden md:flex items-center gap-3 text-sm">
-            <Link to="/login" className="text-emerald-900 hover:text-[#1E4B3C]">
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="rounded-full bg-[#1E4B3C] px-4 py-2 text-white font-semibold hover:bg-emerald-800"
-            >
-              Get Started
-            </Link>
-          </div>
+            {/* Not logged in: Login + Get Started */}
+            {!isLoggedIn && (
+              <>
+                <Link
+                  to="/login"
+                  className="text-emerald-900 hover:text-[#1E4B3C]"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="rounded-full bg-[#1E4B3C] px-4 py-2 text-white font-semibold hover:bg-emerald-800"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
 
+            {/* Logged in: Avatar + Name + Notification badge + Dropdown */}
+            {isLoggedIn && (
+              <div className="flex items-center gap-3">
+                {userName && (
+                  <span className="hidden lg:block text-emerald-900 font-medium max-w-[140px] truncate">
+                    {userName}
+                  </span>
+                )}
+
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="relative cursor-pointer h-10 w-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center hover:bg-emerald-200"
+                  >
+                    <div className="h-full w-full rounded-full overflow-hidden">
+                      {profileImage ? (
+                        <img
+                          src={profileImage}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <svg
+                          className="w-6 h-6 text-[#1E4B3C]"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 12a5 5 0 100-10 5 5 0 000 10z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 20a8 8 0 0116 0"
+                          />
+                        </svg>
+                      )}
+                    </div>
+
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl border border-emerald-100 py-2 z-50">
+                      <button
+                        className="w-full text-left px-4 py-2 hover:bg-emerald-50 text-emerald-900 cursor-pointer"
+                        onClick={handleDashboardClick}
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        className="w-full text-left px-4 py-2 hover:bg-emerald-50 text-red-600 cursor-pointer"
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* MEGA MENU SECTION */}
         {activeMega && (
           <div className="hidden lg:block absolute left-0 right-0 bg-white shadow-[0_12px_30px_rgba(15,118,110,0.12)] border-t border-emerald-100">
             <div className="mx-auto max-w-6xl px-8 py-8 h-[50vh] overflow-y-auto">
-              
               <h3 className="text-sm font-semibold text-[#1E4B3C] mb-5">
                 {activeMega.title}
               </h3>
 
               <div className="grid gap-8 lg:grid-cols-4 xl:grid-cols-5 text-sm">
-
                 {/* Columns */}
                 <div className="lg:col-span-3 xl:col-span-3">
                   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-8">
@@ -663,7 +842,10 @@ const Navbar = () => {
                         <ul className="space-y-1 text-xs text-gray-600">
                           {column.items.map((item) => (
                             <li key={item}>
-                              <button type="button" className="hover:text-[#1E4B3C]">
+                              <button
+                                type="button"
+                                className="hover:text-[#1E4B3C]"
+                              >
                                 {item}
                               </button>
                             </li>
@@ -681,7 +863,10 @@ const Navbar = () => {
                   </p>
 
                   {activeMega.highlights?.slice(0, 3).map((highlight) => (
-                    <div key={highlight.title} className="rounded-2xl bg-white border border-emerald-100 shadow-sm overflow-hidden">
+                    <div
+                      key={highlight.title}
+                      className="rounded-2xl bg-white border border-emerald-100 shadow-sm overflow-hidden"
+                    >
                       <div className="h-20 w-full overflow-hidden">
                         <img
                           src={highlight.imageSrc}
@@ -690,22 +875,20 @@ const Navbar = () => {
                         />
                       </div>
                       <div className="p-3">
-                        <h4 className="text-xs font-semibold text-[#1E4B3C]">{highlight.title}</h4>
+                        <h4 className="text-xs font-semibold text-[#1E4B3C]">
+                          {highlight.title}
+                        </h4>
                         <p className="mt-1 text-[11px] text-gray-600">
                           {highlight.description}
                         </p>
                       </div>
                     </div>
                   ))}
-
                 </div>
-
               </div>
-
             </div>
           </div>
         )}
-
       </div>
     </header>
   );
