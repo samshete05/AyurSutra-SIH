@@ -272,7 +272,7 @@ patientRouter.post("/login", async function (req, res) {
 // *************************** VERIFY OTP ********************************
 patientRouter.post("/verifyOTP", async (req, res) => {
   const { email, otp, password,role,phoneNo } = req.body;
-  console.log(email," ",otp," ",password," ",phoneNo);
+  console.log(email," ",otp," ",password," ",phoneNo, role);
 
   
    let user=null;

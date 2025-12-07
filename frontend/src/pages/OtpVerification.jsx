@@ -71,7 +71,8 @@ const OtpVerification = () => {
           otp:otpCode,
           email:email,
           password:password,
-          phoneNo:phoneNumber
+          phoneNo:phoneNumber,
+          role:selectedRole
        }, { withCredentials: true })
        console.log(resp);
        if(resp.data.message=='logedin'){
