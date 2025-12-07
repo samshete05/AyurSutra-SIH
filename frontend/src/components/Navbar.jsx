@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Bell, UserCircle2, LogOut, User, ChevronDown } from "lucide-react";
 import Marquee from "react-fast-marquee";
 import MainNavbar from "./MainNavbar";
 import axios from "axios";
@@ -85,6 +86,7 @@ const Navbar = () => {
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("authToken");
   const userName = localStorage.getItem("name");
+  // console.log(localStorage)
 
   const rawProfileImage = localStorage.getItem("profileImg");
   const profileImage =
@@ -215,10 +217,12 @@ const Navbar = () => {
 
             {!isLoggedIn && (
               <>
-                <Link to="/login">Login</Link>
+                <Link to="/login" className="text-slate-700 hover:text-emerald-700">
+                  Login
+                </Link>
                 <Link
                   to="/signup"
-                  className="bg-[#1E4B3C] px-4 py-2 rounded-full text-white font-semibold hover:bg-emerald-800"
+                  className="bg-[#1E4B3C] px-4 py-2 rounded-full text-white font-semibold hover:bg-emerald-800 transition-colors"
                 >
                   Get Started
                 </Link>
@@ -227,57 +231,101 @@ const Navbar = () => {
 
             {isLoggedIn && (
               <div className="flex items-center gap-3">
-
+              
                 {userName && (
-                  <span className="hidden lg:block max-w-[140px] truncate text-emerald-900 font-medium">
+                  <span className="hidden lg:block max-w-[150px] truncate text-slate-900 font-medium">
                     {userName}
                   </span>
                 )}
 
-                {/* Profile */}
+                {/* PROFILE DROPDOWN (UPDATED UI) */}
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="h-10 cursor-pointer flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-200 hover:bg-emerald-50"
+                    className="flex cursor-pointer items-center gap-3 px-3 py-2"
                   >
-                    {!profileImage && (
-                      <>
-                        <svg className="w-5 h-5 text-[#1E4B3C]" fill="none" stroke="currentColor" strokeWidth="2"
-                            viewBox="0 0 24 24">
-                          <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
-                          <path d="M4 20a8 8 0 0116 0" />
-                        </svg>
-                        <p className="text-xs text-emerald-900 max-w-[120px] truncate">{email}</p>
-                      </>
-                    )}
+                    {/* TEXT */}
+                    <div className="text-right hidden sm:block">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {userName || "User"}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {role || "Account"}
+                      </p>
+                    </div>
+              
+                    {/* PROFILE IMAGE OR ICON */}
+                    <div className="relative">
+                      {profileImage ? (
+                        <img
+                          src={profileImage}
+                          alt="Profile"
+                          className="h-9 w-9 rounded-full object-cover border border-slate-300"
+                        />
+                      ) : (
+                        <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <UserCircle2 size={24} className="text-emerald-700" />
+                        </div>
+                      )}
 
-                    {profileImage && (
-                      <img src={profileImage} alt="Profile" className="h-8 w-8 rounded-full object-cover" />
-                    )}
-
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
+                      {/* NOTIFICATION BADGE */}
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* CHEVRON */}
+                    <svg
+                      className={`w-4 h-4 text-slate-700 transition-transform ${
+                        profileOpen ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
                   </button>
-
+                    
+                  {/* DROPDOWN MENU */}
                   {profileOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-emerald-100 rounded-xl shadow-lg py-2 z-50">
-                      <button onClick={HandleDashboardClick} className="w-full cursor-pointer px-4 py-2 text-left hover:bg-emerald-50">
-                        Dashboard
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50 animate-fadeIn">
+                      <button
+                        onClick={HandleDashboardClick}
+                        className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804" />
+                          <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" />
+                        </svg>
+                        <span className="font-medium">Dashboard</span>
                       </button>
-                      <button onClick={handleLogout} className="w-full cursor-pointer px-4 py-2 text-left hover:bg-emerald-50 text-red-600">
-                        Logout
+                  
+                      <div className="h-px bg-slate-200 my-1"></div>
+                  
+                      <button
+                        onClick={handleLogout}
+                        className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={18} />
+                        <span className="font-medium">Logout</span>
                       </button>
                     </div>
                   )}
-
                 </div>
               </div>
             )}
-
           </div>
+
         </nav>
 
         {/* ================= MEGA MENU (simple hover version) ================= */}
