@@ -97,10 +97,10 @@ const OtpVerification = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#1E4B3C] to-[#256f5a] px-8 pt-7 pb-4 text-center text-white">
           <h1 className="text-2xl font-extrabold tracking-wide">
-            Email Verification
+            Mobile Number Verification
           </h1>
           <p className="mt-1 text-xs text-emerald-100">
-            Enter the 6‑digit code sent to your registered email address.
+            Enter the 6‑digit code sent to your registered Mobile Number.
           </p>
         </div>
 
@@ -111,7 +111,7 @@ const OtpVerification = () => {
         >
           <div className="text-center text-xs text-gray-600">
             <p>
-              We have sent a one‑time password (OTP) to your email. Please do
+              We have sent a one‑time password (OTP) to your number. Please do
               not share this code with anyone.
             </p>
           </div>
@@ -154,12 +154,12 @@ const OtpVerification = () => {
             type="submit"
             className="w-full cursor-pointer rounded-full bg-[#1E4B3C] py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition-colors"
           >
-            Verify Email
+            Verify Number
           </button>
 
           {/* Back to login */}
           <p className="pt-1 text-center text-[11px] md:text-xs text-gray-600">
-            Entered wrong email?{" "}
+            Entered wrong number?{" "}
             <a
               href="/login"
               className="font-semibold text-[#1E4B3C] hover:underline"
