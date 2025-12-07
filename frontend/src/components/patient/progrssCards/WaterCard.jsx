@@ -1,16 +1,17 @@
 import React, { useState } from "react";
+import { Droplets } from "lucide-react";
 
 const themeColor = "#1e4b3c";
 
 function WaterCard({ data, refresh }) {
   const [glasses, setGlasses] = useState(data?.glasses || 0);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleUpdate = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("authToken");
+  const handleSave = async () => {
     try {
-      const res = await fetch("http://localhost:3000/patient/progress/updateWater", {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      await fetch("http://localhost:3000/patient/progress/updateWater", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -18,84 +19,100 @@ function WaterCard({ data, refresh }) {
         },
         body: JSON.stringify({ glasses }),
       });
-      const result = await res.json();
-      console.log(result);
       refresh();
     } catch (err) {
       console.error("Water update failed:", err);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const progress = Math.min((glasses / (data?.target || 8)) * 100, 100);
+  const percentage =
+    data?.target && data.target > 0
+      ? Math.min(100, Math.round((glasses / data.target) * 100))
+      : 0;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-green-100 overflow-hidden group">
-      {/* Card Header with Icon */}
-      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 border-b border-blue-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
-              💧
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Hydration</h3>
-              <p className="text-xs text-gray-500">Stay refreshed</p>
-            </div>
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+            <Droplets size={20} color={themeColor} />
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold" style={{ color: themeColor }}>
-              {glasses}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">
+              Water Intake
+            </h3>
+            <p className="text-xs text-gray-500">
+              Track your daily hydration goal
             </p>
-            <p className="text-xs text-gray-500">of {data?.target || 8} glasses</p>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="relative">
-          <div className="w-full h-3 bg-white rounded-full overflow-hidden shadow-inner">
-            <div
-              className="h-full bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-600 mt-2 text-center">
-            {Math.round(progress)}% Complete
-          </p>
-        </div>
+        <img
+          src="https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=300&q=80"
+          alt="Water"
+          className="w-16 h-12 rounded-xl object-cover hidden sm:block"
+        />
       </div>
 
-      {/* Card Body */}
-      <div className="p-6">
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <button
-            onClick={() => setGlasses(Math.max(0, glasses - 1))}
-            className="w-12 h-12 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xl transition-colors duration-200 flex items-center justify-center shadow-sm"
-          >
-            −
-          </button>
-          <div className="px-6 py-3 bg-green-50 rounded-xl border-2 border-green-200">
-            <p className="text-3xl font-bold text-center" style={{ color: themeColor }}>
-              {glasses}
+      {/* Body */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Today's progress</p>
+            <p className="text-xl font-semibold text-gray-800">
+              {glasses} / {data?.target || 8} glasses
             </p>
           </div>
-          <button
-            onClick={() => setGlasses(glasses + 1)}
-            className="w-12 h-12 rounded-xl text-white font-bold text-xl transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-            style={{ backgroundColor: themeColor }}
-          >
-            +
-          </button>
+
+          <div className="text-right">
+            <p
+              className="text-sm font-medium"
+              style={{ color: themeColor }}
+            >
+              {percentage}%
+            </p>
+            <p className="text-xs text-gray-500">of your target</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            min="0"
+            max="40"
+            value={glasses}
+            onChange={(e) => setGlasses(Number(e.target.value))}
+            className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[rgba(30,75,60,0.5)]"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setGlasses((g) => Math.max(0, g - 1))}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              - 1
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlasses((g) => g + 1)}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              + 1
+            </button>
+          </div>
         </div>
 
         <button
-          onClick={handleUpdate}
-          disabled={loading}
-          className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white w-full"
           style={{ backgroundColor: themeColor }}
         >
-          {loading ? "Updating..." : "Update Progress"}
+          {saving ? "Saving..." : "Save Water Intake"}
         </button>
       </div>
     </div>

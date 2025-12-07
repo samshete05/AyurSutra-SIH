@@ -1,34 +1,33 @@
 import React, { useState } from "react";
+import { Smile } from "lucide-react";
 
 const themeColor = "#1e4b3c";
 
-const moods = [
-  { id: "very_sad", label: "😢", name: "Very Sad", color: "#ef4444" },
-  { id: "sad", label: "😟", name: "Sad", color: "#f97316" },
-  { id: "neutral", label: "😐", name: "Neutral", color: "#eab308" },
-  { id: "happy", label: "🙂", name: "Happy", color: "#84cc16" },
-  { id: "very_happy", label: "😁", name: "Very Happy", color: "#22c55e" },
+const moodOptions = [
+  { id: "very_sad", label: "Very low" },
+  { id: "sad", label: "Low" },
+  { id: "neutral", label: "Neutral" },
+  { id: "happy", label: "Positive" },
+  { id: "very_happy", label: "Very positive" },
 ];
 
 function MoodCard({ data, refresh }) {
-  const [selectedMood, setSelectedMood] = useState(data?.mood || "neutral");
-  const [stress, setStress] = useState(data?.stressLevel || 0);
+  const [mood, setMood] = useState(data?.mood || "neutral");
+  const [stressLevel, setStressLevel] = useState(data?.stressLevel || 0);
   const [saving, setSaving] = useState(false);
 
-  const handleUpdate = async () => {
-    setSaving(true);
-    const token = localStorage.getItem("authToken");
+  const handleSave = async () => {
     try {
-      const res = await fetch("http://localhost:3000/patient/progress/updateMood", {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      await fetch("http://localhost:3000/patient/progress/updateMood", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ mood: selectedMood, stressLevel: stress }),
+        body: JSON.stringify({ mood, stressLevel }),
       });
-      const result = await res.json();
-      console.log("Mood Update Response:", result);
       refresh();
     } catch (err) {
       console.error("Mood update failed:", err);
@@ -37,95 +36,76 @@ function MoodCard({ data, refresh }) {
     }
   };
 
-  const currentMood = moods.find((m) => m.id === selectedMood);
-
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-green-100 overflow-hidden group">
-      {/* Card Header */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 border-b border-purple-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
-              {currentMood.label}
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Mood Check</h3>
-              <p className="text-xs text-gray-500">How are you feeling?</p>
-            </div>
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+            <Smile size={20} color={themeColor} />
           </div>
-          <div
-            className="px-3 py-1 rounded-lg text-xs font-semibold text-white"
-            style={{ backgroundColor: currentMood.color }}
-          >
-            {currentMood.name}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Mood</h3>
+            <p className="text-xs text-gray-500">
+              How are you feeling today?
+            </p>
           </div>
         </div>
+
+        <img
+          src="https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=300&q=80"
+          alt="Calm"
+          className="w-16 h-12 rounded-xl object-cover hidden sm:block"
+        />
       </div>
 
-      {/* Card Body */}
-      <div className="p-6">
-        {/* Mood Selector */}
-        <div className="mb-6">
-          <p className="text-sm font-medium text-gray-700 mb-3">Select Your Mood</p>
-          <div className="flex justify-between gap-2">
-            {moods.map((mood) => (
+      {/* Body */}
+      <div className="p-6 space-y-4">
+        <div>
+          <p className="text-sm text-gray-600 mb-1">Emotional state</p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {moodOptions.map((option) => (
               <button
-                key={mood.id}
-                onClick={() => setSelectedMood(mood.id)}
-                className={`flex-1 p-3 rounded-xl text-3xl transition-all duration-300 ${
-                  selectedMood === mood.id
-                    ? "bg-green-100 border-2 scale-110 shadow-md"
-                    : "bg-gray-50 border-2 border-transparent hover:bg-gray-100"
+                key={option.id}
+                type="button"
+                onClick={() => setMood(option.id)}
+                className={`text-xs px-3 py-2 rounded-lg border text-center ${
+                  mood === option.id
+                    ? "text-white"
+                    : "text-gray-700 bg-white"
                 }`}
                 style={
-                  selectedMood === mood.id
-                    ? { borderColor: themeColor }
-                    : {}
+                  mood === option.id
+                    ? { backgroundColor: themeColor, borderColor: themeColor }
+                    : { borderColor: "#e5e7eb" }
                 }
               >
-                {mood.label}
+                {option.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Stress Level Slider */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm font-medium text-gray-700">Stress Level</p>
-            <span
-              className="text-lg font-bold px-3 py-1 rounded-lg"
-              style={{
-                backgroundColor: `rgba(30, 75, 60, ${stress / 10})`,
-                color: stress > 5 ? "white" : themeColor,
-              }}
-            >
-              {stress}/10
-            </span>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-sm text-gray-600">Stress level</p>
+            <span className="text-xs text-gray-500">{stressLevel}/10</span>
           </div>
           <input
             type="range"
             min="0"
             max="10"
-            value={stress}
-            onChange={(e) => setStress(Number(e.target.value))}
-            className="w-full h-3 rounded-lg appearance-none cursor-pointer"
-            style={{
-              background: `linear-gradient(to right, ${themeColor} 0%, ${themeColor} ${
-                stress * 10
-              }%, #e5e7eb ${stress * 10}%, #e5e7eb 100%)`,
-            }}
+            value={stressLevel}
+            onChange={(e) => setStressLevel(Number(e.target.value))}
+            className="w-full cursor-pointer accent-[rgba(30,75,60,0.8)]"
           />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Calm</span>
-            <span>Stressed</span>
-          </div>
         </div>
 
         <button
-          onClick={handleUpdate}
+          type="button"
+          onClick={handleSave}
           disabled={saving}
-          className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50"
+          className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white w-full"
           style={{ backgroundColor: themeColor }}
         >
           {saving ? "Saving..." : "Save Mood"}
