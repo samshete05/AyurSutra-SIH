@@ -47,6 +47,7 @@ const Step1_DateAndSlot = ({ bookingData, handleDataUpdate, handleNext, mergedSl
       alert("Please select date and slot");
       return;
     }
+    console.log("this date i selected!!!",selectedDate);
     handleDataUpdate({ selectedDate, selectedSlot });
     handleNext();
   };

@@ -14,6 +14,7 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
 
 
   const handleSubmit=async()=>{
+    console.log("final data",bookingData);
         try {
           const resp = await axios.post("http://localhost:3000/patient/bookGeneralAppointment", {
             selectedDate: bookingData.selectedDate,
@@ -28,7 +29,9 @@ const Step5_Confirmation = ({ bookingData, centerData, therapyData }) => {
             isPhoneVerified: bookingData.isPhoneVerified || false,
             centerId: centerId,
             tokenAmount: "100",
-            profileImg:profileImg
+            profileImg:profileImg,
+            date:bookingData.selectedDate,
+            slot:bookingData.selectedSlot
           });
       
           if (resp.data.success) {

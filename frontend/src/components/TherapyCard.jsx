@@ -76,7 +76,7 @@ const TherapyCard = ({
         <div className="mt-auto">
           <button
             onClick={handleBookClick}
-            className="w-full inline-flex items-center justify-center rounded-full bg-[#1E4B3C] px-6 py-3 my-2 text-xs md:text-sm font-semibold text-white hover:bg-[#173a2f] transition-colors"
+            className="w-full cursor-pointer inline-flex items-center justify-center rounded-full bg-[#1E4B3C] px-6 py-3 my-2 text-xs md:text-sm font-semibold text-white hover:bg-[#173a2f] transition-colors"
           >
             Book Session
           </button>

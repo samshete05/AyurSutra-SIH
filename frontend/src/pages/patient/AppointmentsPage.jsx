@@ -322,7 +322,8 @@ const Appointments = () => {
                         </button>
                       )}
 
-                      <button className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition">
+
+                      <button onClick={()=>navigate("/patient/appointment-details",{state:{Alldata:apt}})} className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition">
                         Details <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
