@@ -14,6 +14,8 @@ const OtpVerification = () => {
    const email = location.state?.email;
    const password = location.state?.password;
    const selectedRole=location.state?.selectedRole;
+   const phoneNumber=location.state?.phoneNumber;
+  //  const phoneNumber=localStorage.getItem()
 
    console.log("role is ss",selectedRole)
    
@@ -68,7 +70,8 @@ const OtpVerification = () => {
        const resp=await axios.post("http://localhost:3000/patient/verifyOTP",{
           otp:otpCode,
           email:email,
-          password:password
+          password:password,
+          phoneNo:phoneNumber
        }, { withCredentials: true })
        console.log(resp);
        if(resp.data.message=='logedin'){

@@ -68,6 +68,7 @@ export default function CenterList() {
           "http://localhost:3000/PanchKarmaCenter/allcenterList",
           { withCredentials: true }
         );
+        console.log("yeah hain data",res);
 
         if (res.data.success) {
           setCenters(res.data.centers);
@@ -373,6 +374,10 @@ export default function CenterList() {
               bookingAiNumber={center.BotNumber}
               openingTime={center.openingTime || "09:00"}
               closingTime={center.closingTime || "21:00"}
+              mainAddress={center.mainAddress}
+              offTime={center.offTime}
+              onTime={center.onTime}
+              BotNumber={center.BotNumber}
               slug={center.CenterName?.toLowerCase().replace(/\s+/g, "-")}
             />
           ))}

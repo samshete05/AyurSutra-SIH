@@ -20,8 +20,13 @@ const CenterCard = ({
   customerNumber,
   openingTime,
   closingTime,
-  centerId
+  centerId,
+  mainAddress,
+  offTime,
+  onTime
 }) => {
+
+
 
   // If slug missing, create one from name
   const finalSlug = slug || makeSlug(name || "center");
@@ -59,7 +64,7 @@ const CenterCard = ({
           {/* Address */}
           <div className="flex items-start gap-2 text-xs text-[#1E4B3C]/75">
             <Home className="h-4 w-4 mt-[2px]" />
-            <span>{address}</span>
+            <span>{mainAddress}</span>
           </div>
 
           {/* Phone numbers */}
@@ -68,16 +73,16 @@ const CenterCard = ({
             <div className="flex items-start gap-2">
               <Bot className="h-4 w-4 mt-[2px] text-[#1E4B3C]" />
               <div>
-                <span className="text-[11px] font-semibold text-[#1E4B3C]/90">AI Agent</span>
-                <span>{bookingAiNumber || "Not available"}</span>
+                <span className="text-[11px] font-semibold text-[#1E4B3C]/90">AI Agent : </span>
+                <span className="text-[#1E4B3C]">{bookingAiNumber || "Not available"}</span>
               </div>
             </div>
 
             <div className="flex items-start gap-2">
               <Phone className="h-4 w-4 mt-[2px] text-[#1E4B3C]" />
               <div>
-                <span className="text-[11px] font-semibold text-[#1E4B3C]/90">Customer</span>
-                <span>{customerNumber || "Not available"}</span>
+                <span className="text-[11px] font-semibold text-[#1E4B3C]/90">Customer: </span>
+                <span className="text-[#1E4B3C]">{customerNumber || "Not available"}</span>
               </div>
             </div>
 
@@ -87,7 +92,7 @@ const CenterCard = ({
           <div className="flex items-center gap-2 text-xs text-[#1E4B3C]/95">
             <Clock className="h-4 w-4" />
             <span className="font-semibold">Timings:</span>
-            <span>{openingTime} – {closingTime}</span>
+            <span>{onTime} – {offTime}</span>
           </div>
 
           {/* Footer */}
