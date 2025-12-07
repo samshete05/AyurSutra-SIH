@@ -71,6 +71,7 @@ const OtpVerification = () => {
           otp:otpCode,
           email:email,
           password:password,
+          role:selectedRole,
           phoneNo:phoneNumber
        }, { withCredentials: true })
        console.log(resp);

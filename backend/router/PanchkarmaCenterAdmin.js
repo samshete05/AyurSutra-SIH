@@ -516,6 +516,7 @@ PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
   // console.log("hitting profile route");
   try {
     const { centerId } = req.body;
+    console.log("this is cntr id ",centerId);
 
     // Validation
     if (!centerId) {

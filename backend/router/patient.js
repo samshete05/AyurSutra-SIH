@@ -148,7 +148,8 @@ patientRouter.post("/register", async function(req,res){
     
       res.json({
         message:"otp_send",
-        otp
+        otp,
+        registerUser
       })
 })
 
@@ -275,8 +276,8 @@ patientRouter.post("/verifyOTP", async (req, res) => {
   const { email, otp, password,role,phoneNo } = req.body;
   console.log(email," ",otp," ",password," ",phoneNo);
 
-  
-   let user=null;
+    console.log("role is",role);
+   let user;
    if(role=='patient') user = await patientModel.findOne({ email });
    else user = await PanchakarmaCenterModel.findOne({ email });
 
