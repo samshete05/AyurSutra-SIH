@@ -17,11 +17,11 @@ import {
 
 const navItems = [
   { label: "Dashboard", to: "/patient", exact: true, icon: LayoutDashboard },
-  { label: "Appointments", to: "/patient/appointments", badge: 2, icon: CalendarClock },
+  { label: "Appointments", to: "/patient/appointments", icon: CalendarClock },
   { label: "Find Centers", to: "/patient/find-centers", icon: MapPin},
   { label: "Telemedicines", to: "/patient/telemedicine", icon: Video },
   { label: "AI Recommendation", to: "/patient/ai-recommendation", badge: "New", icon: Brain },
-  { label: "My Treatments", to: "/patient/my-treatments", icon: Pill },
+  // { label: "My Treatments", to: "/patient/my-treatments", icon: Pill },
   { label: "Progress", to: "/patient/progress", icon: BarChart2 },
   { label: "Feedback", to: "/patient/feedback", icon: MessageSquare },
 //   { label: "Notification", to: "/patient/notifications", badge: 3, icon: Bell },
