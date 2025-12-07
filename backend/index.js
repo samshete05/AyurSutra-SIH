@@ -11,7 +11,10 @@ connectDB(); // connect first
 
 const { patientRouter } = require("./router/patient");
 const { PanchakarmaCenterRouter } = require("./router/PanchkarmaCenterAdmin");
-const progressRouter = require("./router/progress"); 
+const progressRouter = require("./router/progress");
+
+
+const paymentRoutes = require("./router/paymentRoutes");
 
 const app = express();
 
@@ -33,6 +36,8 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/patient", patientRouter);
 app.use("/patient", progressRouter);
 app.use("/PanchKarmaCenter", PanchakarmaCenterRouter);
+
+app.use("/payments", paymentRoutes);
 
 app.listen(3000, () => {
   console.log("server started!!!");

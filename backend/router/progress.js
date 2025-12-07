@@ -4,36 +4,65 @@ const jwt = require("jsonwebtoken");
 const JWT_KEY = process.env.JWT_KEY;
 const PatientProgress = require("../models/PatientProgress.model");
 
+function createDefaultProgress(patientId, today) {
+  return new PatientProgress({
+    patientId,
+    date: today,
+    water: { glasses: 0, target: 8, completed: false },
+    mood: { mood: "neutral", stressLevel: 0, completed: false },
+    symptom: { severity: 0, notes: "", completed: false },
+    sleep: { hours: 0, quality: 3, completed: false },
+    activity: {
+      steps: 0,
+      exerciseMinutes: 0,
+      activityLevel: "sedentary",
+      completed: false,
+    },
+    medication: { taken: false, missedDoses: 0, completed: false },
+  });
+}
 
-// **************************** PROGRESS TODAY ****************************
-progressRouter.get("/progress/today", async function (req, res) {
+// -----------------------------------------------
+// Helper: Ensure nested fields always exist
+// -----------------------------------------------
+function ensureSubfields(progress) {
+  progress.water ||= { glasses: 0, target: 8, completed: false };
+  progress.mood ||= { mood: "neutral", stressLevel: 0, completed: false };
+  progress.symptom ||= { severity: 0, notes: "", completed: false };
+  progress.sleep ||= { hours: 0, quality: 3, completed: false };
+  progress.activity ||= {
+    steps: 0,
+    exerciseMinutes: 0,
+    activityLevel: "sedentary",
+    completed: false,
+  };
+  progress.medication ||= {
+    taken: false,
+    missedDoses: 0,
+    completed: false,
+  };
+}
+
+// ********************** GET TODAY PROGRESS **********************
+progressRouter.get("/progress/today", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
     const patientId = decoded.id;
 
-    // Normalize today's date (00:00:00)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress = await PatientProgress.findOne({ patientId, date: today });
 
-    // If no entry, return null (frontend shows empty state)
     if (!progress) {
-      return res.json({
-        message: "No_Progress_Found",
-        today: null,
-      });
+      return res.json({ message: "No_Progress_Found", today: null });
     }
 
-    // Calculate completion %
+    ensureSubfields(progress);
+
     const tasks = [
       progress.water.completed,
       progress.mood.completed,
@@ -58,246 +87,166 @@ progressRouter.get("/progress/today", async function (req, res) {
     });
   } catch (err) {
     console.error("Error fetching today progress:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE WATER INTAKE ********************************
-progressRouter.put("/progress/updateWater", async function(req, res) {
+// ********************** UPDATE WATER **********************
+progressRouter.put("/progress/updateWater", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { glasses } = req.body;
-
-    if (glasses === undefined) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Auto-create today's progress document if not present
-    let progress = await PatientProgress.findOne({ patientId, date: today });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update water
+    const { glasses } = req.body;
+    if (glasses === undefined)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.water.glasses = glasses;
     progress.water.completed = glasses >= progress.water.target;
 
     await progress.save();
 
-    return res.json({
-      message: "Water_Updated",
-      water: progress.water,
-    });
-
+    res.json({ message: "Water_Updated", water: progress.water });
   } catch (err) {
     console.error("Error updating water:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE MOOD ********************************
-progressRouter.put("/progress/updateMood", async function (req, res) {
+// ********************** UPDATE MOOD **********************
+progressRouter.put("/progress/updateMood", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { mood, stressLevel } = req.body;
-
-    if (!mood || stressLevel === undefined) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    // Auto-create if not found
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update mood
+    const { mood, stressLevel } = req.body;
+    if (!mood || stressLevel === undefined)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.mood.mood = mood;
     progress.mood.stressLevel = stressLevel;
     progress.mood.completed = true;
 
     await progress.save();
 
-    return res.json({
-      message: "Mood_Updated",
-      mood: progress.mood,
-    });
+    res.json({ message: "Mood_Updated", mood: progress.mood });
   } catch (err) {
     console.error("Error updating mood:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE SYMPTOM ********************************
-progressRouter.put("/progress/updateSymptom", async function (req, res) {
+// ********************** UPDATE SYMPTOM **********************
+progressRouter.put("/progress/updateSymptom", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { severity, notes } = req.body;
-
-    if (severity === undefined) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    // Auto-create document if needed
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update symptom
+    const { severity, notes } = req.body;
+    if (severity === undefined)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.symptom.severity = severity;
     progress.symptom.notes = notes || "";
     progress.symptom.completed = true;
 
     await progress.save();
 
-    return res.json({
-      message: "Symptom_Updated",
-      symptom: progress.symptom,
-    });
+    res.json({ message: "Symptom_Updated", symptom: progress.symptom });
   } catch (err) {
     console.error("Error updating symptom:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE SLEEP ********************************
-progressRouter.put("/progress/updateSleep", async function (req, res) {
+// ********************** UPDATE SLEEP **********************
+progressRouter.put("/progress/updateSleep", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { hours, quality } = req.body;
-
-    if (hours === undefined || quality === undefined) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    // Create if missing
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update sleep fields
+    const { hours, quality } = req.body;
+    if (hours === undefined || quality === undefined)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.sleep.hours = hours;
     progress.sleep.quality = quality;
     progress.sleep.completed = true;
 
     await progress.save();
 
-    return res.json({
-      message: "Sleep_Updated",
-      sleep: progress.sleep,
-    });
+    res.json({ message: "Sleep_Updated", sleep: progress.sleep });
   } catch (err) {
     console.error("Error updating sleep:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE ACTIVITY ********************************
-progressRouter.put("/progress/updateActivity", async function (req, res) {
+// ********************** UPDATE ACTIVITY **********************
+progressRouter.put("/progress/updateActivity", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { steps, exerciseMinutes, activityLevel } = req.body;
-
-    if (steps === undefined || exerciseMinutes === undefined || !activityLevel) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    // Auto-create if not found
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update activity fields
+    const { steps, exerciseMinutes, activityLevel } = req.body;
+    if (steps === undefined || exerciseMinutes === undefined || !activityLevel)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.activity.steps = steps;
     progress.activity.exerciseMinutes = exerciseMinutes;
     progress.activity.activityLevel = activityLevel;
@@ -305,67 +254,48 @@ progressRouter.put("/progress/updateActivity", async function (req, res) {
 
     await progress.save();
 
-    return res.json({
-      message: "Activity_Updated",
-      activity: progress.activity,
-    });
+    res.json({ message: "Activity_Updated", activity: progress.activity });
   } catch (err) {
     console.error("Error updating activity:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
 
-// *************************** UPDATE MEDICATION ********************************
-progressRouter.put("/progress/updateMedication", async function (req, res) {
+// ********************** UPDATE MEDICATION **********************
+progressRouter.put("/progress/updateMedication", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
 
-    const { taken, missedDoses } = req.body;
-
-    if (taken === undefined) {
-      return res.status(422).json({ message: "Invalid_Input" });
-    }
-
-    // Normalize today's date
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let progress = await PatientProgress.findOne({
-      patientId,
-      date: today,
-    });
+    let progress =
+      (await PatientProgress.findOne({ patientId: decoded.id, date: today })) ||
+      createDefaultProgress(decoded.id, today);
 
-    // Auto-create if not found
-    if (!progress) {
-      progress = new PatientProgress({
-        patientId,
-        date: today,
-      });
-    }
+    ensureSubfields(progress);
 
-    // Update medication fields
+    const { taken, missedDoses } = req.body;
+    if (taken === undefined)
+      return res.status(422).json({ message: "Invalid_Input" });
+
     progress.medication.taken = taken;
     progress.medication.missedDoses = missedDoses || 0;
     progress.medication.completed = taken === true;
 
     await progress.save();
 
-    return res.json({
+    res.json({
       message: "Medication_Updated",
       medication: progress.medication,
     });
-
   } catch (err) {
     console.error("Error updating medication:", err);
-    return res.status(500).json({ message: "Server_Error" });
+    res.status(500).json({ message: "Server_Error" });
   }
 });
-
 
 module.exports = progressRouter;

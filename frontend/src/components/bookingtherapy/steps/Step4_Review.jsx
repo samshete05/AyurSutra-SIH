@@ -198,3 +198,4 @@ const Step4_Review = ({ bookingData, mergedSlots, therapyData, centerData, setBo
 };
 
 export default Step4_Review;
+

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Moon } from "lucide-react";
 
 const themeColor = "#1e4b3c";
 
@@ -7,11 +8,11 @@ function SleepCard({ data, refresh }) {
   const [quality, setQuality] = useState(data?.quality || 3);
   const [saving, setSaving] = useState(false);
 
-  const handleUpdate = async () => {
-    setSaving(true);
-    const token = localStorage.getItem("authToken");
+  const handleSave = async () => {
     try {
-      const res = await fetch("http://localhost:3000/patient/progress/updateSleep", {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      await fetch("http://localhost:3000/patient/progress/updateSleep", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -19,8 +20,6 @@ function SleepCard({ data, refresh }) {
         },
         body: JSON.stringify({ hours, quality }),
       });
-      const result = await res.json();
-      console.log("Sleep Update:", result);
       refresh();
     } catch (err) {
       console.error("Sleep update failed:", err);
@@ -29,97 +28,65 @@ function SleepCard({ data, refresh }) {
     }
   };
 
-  const qualityLabels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
-  const qualityColors = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
-
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-green-100 overflow-hidden group">
-      {/* Card Header */}
-      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 border-b border-indigo-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
-              😴
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Sleep Quality</h3>
-              <p className="text-xs text-gray-500">Rest & recovery</p>
-            </div>
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+            <Moon size={20} color={themeColor} />
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold" style={{ color: themeColor }}>
-              {hours}h
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Sleep</h3>
+            <p className="text-xs text-gray-500">
+              Track your daily sleep duration and quality
             </p>
-            <p className="text-xs text-gray-500">Tonight</p>
           </div>
         </div>
+
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB2PgKISOYQrgK487wROBcaYwv7aQOOnGbuA&s"
+          alt="Sleep"
+          className="w-16 h-12 rounded-xl object-cover hidden sm:block"
+        />
       </div>
 
-      {/* Card Body */}
-      <div className="p-6">
-        {/* Hours Input */}
-        <div className="mb-6">
-          <p className="text-sm font-medium text-gray-700 mb-3">Sleep Duration</p>
-          <div className="flex items-center justify-center gap-4">
-            <button
-              onClick={() => setHours(Math.max(0, hours - 0.5))}
-              className="w-12 h-12 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xl transition-colors duration-200 flex items-center justify-center shadow-sm"
-            >
-              −
-            </button>
-            <div className="px-6 py-3 bg-indigo-50 rounded-xl border-2 border-indigo-200 min-w-[100px]">
-              <p className="text-3xl font-bold text-center" style={{ color: themeColor }}>
-                {hours}h
-              </p>
-            </div>
-            <button
-              onClick={() => setHours(hours + 0.5)}
-              className="w-12 h-12 rounded-xl text-white font-bold text-xl transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-              style={{ backgroundColor: themeColor }}
-            >
-              +
-            </button>
+      {/* Body */}
+      <div className="p-6 space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Hours slept</p>
+            <input
+              type="number"
+              min="0"
+              max="24"
+              value={hours}
+              onChange={(e) => setHours(Number(e.target.value))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[rgba(30,75,60,0.5)]"
+            />
           </div>
-        </div>
 
-        {/* Quality Stars */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-3">
-            <p className="text-sm font-medium text-gray-700">Sleep Quality</p>
-            <span
-              className="text-xs font-semibold px-3 py-1 rounded-lg text-white"
-              style={{ backgroundColor: qualityColors[quality - 1] }}
-            >
-              {qualityLabels[quality - 1]}
-            </span>
-          </div>
-          <div className="flex justify-between gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setQuality(star)}
-                className={`flex-1 p-3 rounded-xl text-2xl transition-all duration-300 ${
-                  quality >= star
-                    ? "scale-110 shadow-md"
-                    : "opacity-40 hover:opacity-70"
-                }`}
-                style={{
-                  backgroundColor: quality >= star ? qualityColors[star - 1] + "20" : "#f3f4f6",
-                }}
-              >
-                ⭐
-              </button>
-            ))}
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Sleep quality (1–5)</p>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={quality}
+              onChange={(e) => setQuality(Number(e.target.value))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[rgba(30,75,60,0.5)]"
+            />
           </div>
         </div>
 
         <button
-          onClick={handleUpdate}
+          type="button"
+          onClick={handleSave}
           disabled={saving}
-          className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50"
+          className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white w-full"
           style={{ backgroundColor: themeColor }}
         >
-          {saving ? "Saving..." : "Log Sleep"}
+          {saving ? "Saving..." : "Save Sleep"}
         </button>
       </div>
     </div>
