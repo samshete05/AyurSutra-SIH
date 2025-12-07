@@ -1,17 +1,17 @@
 import React, { useState } from "react";
+import { Droplets } from "lucide-react";
 
 const themeColor = "#1e4b3c";
 
 function WaterCard({ data, refresh }) {
   const [glasses, setGlasses] = useState(data?.glasses || 0);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleUpdate = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("authToken");
-
+  const handleSave = async () => {
     try {
-      const res = await fetch("http://localhost:3000/patient/progress/updateWater", {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      await fetch("http://localhost:3000/patient/progress/updateWater", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -19,59 +19,100 @@ function WaterCard({ data, refresh }) {
         },
         body: JSON.stringify({ glasses }),
       });
-
-      const result = await res.json();
-      console.log(result);
-
-      refresh(); // reload page data
+      refresh();
     } catch (err) {
       console.error("Water update failed:", err);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const percentage =
+    data?.target && data.target > 0
+      ? Math.min(100, Math.round((glasses / data.target) * 100))
+      : 0;
+
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md border">
-      <div className="flex justify-between">
-        <h3 className="font-semibold">Drink Water</h3>
-        {data?.completed ? (
-          <span className="text-green-600 font-semibold text-sm">Completed</span>
-        ) : (
-          <span className="text-gray-500 text-sm">Pending</span>
-        )}
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+            <Droplets size={20} color={themeColor} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">
+              Water Intake
+            </h3>
+            <p className="text-xs text-gray-500">
+              Track your daily hydration goal
+            </p>
+          </div>
+        </div>
+
+        <img
+          src="https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=300&q=80"
+          alt="Water"
+          className="w-16 h-12 rounded-xl object-cover hidden sm:block"
+        />
       </div>
 
-      <p className="text-gray-600 text-sm mt-1">
-        Goal: {data?.target} glasses
-      </p>
+      {/* Body */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Today's progress</p>
+            <p className="text-xl font-semibold text-gray-800">
+              {glasses} / {data?.target || 8} glasses
+            </p>
+          </div>
 
-      <div className="flex items-center mt-3 gap-3">
+          <div className="text-right">
+            <p
+              className="text-sm font-medium"
+              style={{ color: themeColor }}
+            >
+              {percentage}%
+            </p>
+            <p className="text-xs text-gray-500">of your target</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            min="0"
+            max="40"
+            value={glasses}
+            onChange={(e) => setGlasses(Number(e.target.value))}
+            className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[rgba(30,75,60,0.5)]"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setGlasses((g) => Math.max(0, g - 1))}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              - 1
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlasses((g) => g + 1)}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              + 1
+            </button>
+          </div>
+        </div>
+
         <button
-          className="px-3 py-1 rounded-lg text-white"
-          style={{ backgroundColor: themeColor }}
-          onClick={() => glasses > 0 && setGlasses(glasses - 1)}
-        >
-          -
-        </button>
-
-        <span className="font-bold text-lg">{glasses}</span>
-
-        <button
-          className="px-3 py-1 rounded-lg text-white"
-          style={{ backgroundColor: themeColor }}
-          onClick={() => setGlasses(glasses + 1)}
-        >
-          +
-        </button>
-
-        <button
-          onClick={handleUpdate}
-          disabled={loading}
-          className="ml-auto px-5 py-2 rounded-lg text-white font-semibold"
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white w-full"
           style={{ backgroundColor: themeColor }}
         >
-          {loading ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Water Intake"}
         </button>
       </div>
     </div>

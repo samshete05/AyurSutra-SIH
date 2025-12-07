@@ -1,40 +1,33 @@
 import React, { useState } from "react";
+import { Smile } from "lucide-react";
 
 const themeColor = "#1e4b3c";
 
-const moods = [
-  { id: "very_sad", label: "😢" },
-  { id: "sad", label: "😟" },
-  { id: "neutral", label: "😐" },
-  { id: "happy", label: "🙂" },
-  { id: "very_happy", label: "😁" },
+const moodOptions = [
+  { id: "very_sad", label: "Very low" },
+  { id: "sad", label: "Low" },
+  { id: "neutral", label: "Neutral" },
+  { id: "happy", label: "Positive" },
+  { id: "very_happy", label: "Very positive" },
 ];
 
 function MoodCard({ data, refresh }) {
-  const [selectedMood, setSelectedMood] = useState(data?.mood || "neutral");
-  const [stress, setStress] = useState(data?.stressLevel || 0);
+  const [mood, setMood] = useState(data?.mood || "neutral");
+  const [stressLevel, setStressLevel] = useState(data?.stressLevel || 0);
   const [saving, setSaving] = useState(false);
 
-  const handleUpdate = async () => {
-    setSaving(true);
-    const token = localStorage.getItem("authToken");
-
+  const handleSave = async () => {
     try {
-      const res = await fetch("http://localhost:3000/patient/progress/updateMood", {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      await fetch("http://localhost:3000/patient/progress/updateMood", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          mood: selectedMood,
-          stressLevel: stress,
-        }),
+        body: JSON.stringify({ mood, stressLevel }),
       });
-
-      const result = await res.json();
-      console.log("Mood Update Response:", result);
-
       refresh();
     } catch (err) {
       console.error("Mood update failed:", err);
@@ -44,54 +37,80 @@ function MoodCard({ data, refresh }) {
   };
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md border">
-      <div className="flex justify-between">
-        <h3 className="font-semibold">Mood & Stress</h3>
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+            <Smile size={20} color={themeColor} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Mood</h3>
+            <p className="text-xs text-gray-500">
+              How are you feeling today?
+            </p>
+          </div>
+        </div>
 
-        {data?.completed ? (
-          <span className="text-green-600 text-sm font-semibold">Completed</span>
-        ) : (
-          <span className="text-gray-500 text-sm">Pending</span>
-        )}
-      </div>
-
-      {/* MOOD SELECTOR */}
-      <div className="flex justify-between mt-4">
-        {moods.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => setSelectedMood(m.id)}
-            className={`text-3xl transition ${
-              selectedMood === m.id ? "scale-110" : "opacity-50"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {/* STRESS LEVEL SLIDER */}
-      <div className="mt-5">
-        <label className="text-sm font-medium">Stress Level: {stress}/10</label>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          value={stress}
-          onChange={(e) => setStress(Number(e.target.value))}
-          className="w-full mt-2"
+        <img
+          src="https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=300&q=80"
+          alt="Calm"
+          className="w-16 h-12 rounded-xl object-cover hidden sm:block"
         />
       </div>
 
-      {/* SAVE BUTTON */}
-      <button
-        onClick={handleUpdate}
-        disabled={saving}
-        className="mt-4 w-full py-2 rounded-lg text-white font-semibold"
-        style={{ backgroundColor: themeColor }}
-      >
-        {saving ? "Saving..." : "Save Mood"}
-      </button>
+      {/* Body */}
+      <div className="p-6 space-y-4">
+        <div>
+          <p className="text-sm text-gray-600 mb-1">Emotional state</p>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {moodOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setMood(option.id)}
+                className={`text-xs px-3 py-2 rounded-lg border text-center ${
+                  mood === option.id
+                    ? "text-white"
+                    : "text-gray-700 bg-white"
+                }`}
+                style={
+                  mood === option.id
+                    ? { backgroundColor: themeColor, borderColor: themeColor }
+                    : { borderColor: "#e5e7eb" }
+                }
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <p className="text-sm text-gray-600">Stress level</p>
+            <span className="text-xs text-gray-500">{stressLevel}/10</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="10"
+            value={stressLevel}
+            onChange={(e) => setStressLevel(Number(e.target.value))}
+            className="w-full cursor-pointer accent-[rgba(30,75,60,0.8)]"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white w-full"
+          style={{ backgroundColor: themeColor }}
+        >
+          {saving ? "Saving..." : "Save Mood"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -65,7 +65,7 @@ const SignUp = () => {
               return;
             }
            else if(resp.data.message=='otp_send'){
-             if(selectedUserRole=='centerHead') localStorage.setItem("centerId",resp.data.id);
+             if(selectedUserRole=='centerHead') localStorage.setItem("centerId",resp.data.registerUser._id);
             //  localStorage.setItem("phoneNo",phoneNumber);
               navigate("/otpverification",{state:{phoneNumber: formData.phoneNumber,email:formData.emailAddress,password:formData.password,selectedRole:selectedUserRole}})
            }

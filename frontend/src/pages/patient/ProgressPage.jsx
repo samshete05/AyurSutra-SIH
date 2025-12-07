@@ -8,6 +8,15 @@ import SleepCard from "../../components/patient/progrssCards/SleepCard";
 import ActivityCard from "../../components/patient/progrssCards/ActivityCard";
 import MedicationCard from "../../components/patient/progrssCards/MedicationCard";
 
+import {
+  Droplets,
+  Smile,
+  Moon,
+  Activity as StepsIcon,
+  HeartPulse,
+  Pill
+} from "lucide-react";
+
 const themeColor = "#1e4b3c";
 
 function ProgressPage() {
@@ -26,21 +35,19 @@ function ProgressPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/patient/progress/today", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "http://localhost:3000/patient/progress/today",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       const data = await response.json();
-
-      if (response.ok) {
-        setTodayData(data);
-      } else {
-        setTodayData(null);
-      }
+      setTodayData(response.ok ? data : null);
     } catch (err) {
       console.error("Progress fetch error:", err);
       setTodayData(null);
@@ -51,69 +58,182 @@ function ProgressPage() {
 
   if (loading) return <Loader />;
 
-  // ---------------- EMPTY STATE WHEN USER IS NEW ----------------
-  if (!todayData) {
-    return (
-      <div className="p-6 text-center flex flex-col items-center">
-        <h2 className="text-2xl font-bold" style={{ color: themeColor }}>
-          Welcome to Your Daily Progress!
-        </h2>
+  // Calculate completion percentage
+  const calculateProgress = () => {
+    if (!todayData) return 0;
 
-        <p className="text-gray-600 mt-2 max-w-sm">
-          Start completing today’s activities to track your physical and mental well-being.
-        </p>
+    const checks = [
+      todayData.water?.glasses >= todayData.water?.target,
+      !!todayData.mood?.mood,
+      todayData.sleep?.hours > 0,
+      todayData.activity?.steps > 0,
+      todayData.symptom?.severity !== undefined,
+      todayData.medication?.taken
+    ];
 
-        <img
-          src="https://cdni.iconscout.com/illustration/premium/thumb/health-checkup-6026565-4992309.png"
-          className="w-60 mt-6"
-          alt="Empty"
-        />
+    const completed = checks.filter(Boolean).length;
+    return Math.round((completed / checks.length) * 100);
+  };
 
-        <button
-          onClick={fetchToday}
-          className="mt-6 px-6 py-3 rounded-lg text-white font-semibold shadow-md"
-          style={{ backgroundColor: themeColor }}
-        >
-          Start Today
-        </button>
-      </div>
-    );
-  }
-
-  const completion = todayData.completionPercent || 0;
+  const progressPercent = calculateProgress();
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="min-h-screen bg-gray-50 pb-10 rounded-2xl">
 
-      {/* HEADER */}
-      <h1 className="text-2xl font-bold" style={{ color: themeColor }}>
-        Today’s Tasks
-      </h1>
+      {/* ===================== HERO BANNER ===================== */}
+      <div
+        className="relative w-full h-100 bg-cover bg-center rounded-2xl"
+        style={{
+          backgroundImage:
+            "url('/public/progress-banner.jpg')",
+        }}
+      >
+        {/* <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/10"></div> */}
 
-      {/* PROGRESS BAR */}
-      <div>
-        <p className="text-sm font-semibold">Today's Goal</p>
-        <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
-          <div
-            className="h-3 rounded-full"
-            style={{
-              width: `${completion}%`,
-              backgroundColor: themeColor,
-            }}
-          ></div>
+        <div className="relative max-w-7xl mx-auto px-6 py-12 text-white">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                नमस्ते, Welcome Back
+              </h1>
+              <p className="text-sm opacity-80">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                })}
+              </p>
+            </div>
+
+            {/* Progress Ring */}
+            <div className="flex items-center gap-4">
+              <div className="relative w-24 h-24">
+                <svg className="transform -rotate-90 w-full h-full">
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r="40"
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth="8"
+                    fill="none"
+                  />
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r="40"
+                    stroke="green"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 40}`}
+                    strokeDashoffset={`${
+                      2 * Math.PI * 40 * (1 - progressPercent / 100)
+                    }`}
+                    strokeLinecap="round"
+                    className="transition-all duration-700 ease-out"
+                  />
+                </svg>
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl font-bold">{progressPercent}%</span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm">Today's Progress</p>
+                <p className="text-xs opacity-70">
+                  {progressPercent === 100 ? "Completed" : "Keep improving"}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <span className="text-xs text-gray-500">{completion}% Completed</span>
       </div>
 
-      {/* DAILY CARDS */}
-      <div className="space-y-4 pb-10">
-        <WaterCard data={todayData.water} refresh={fetchToday} />
-        <MoodCard data={todayData.mood} refresh={fetchToday} />
-        <SymptomCard data={todayData.symptom} refresh={fetchToday} />
-        <SleepCard data={todayData.sleep} refresh={fetchToday} />
-        <ActivityCard data={todayData.activity} refresh={fetchToday} />
-        <MedicationCard data={todayData.medication} refresh={fetchToday} />
+      {/* ===================== QUICK STATS ===================== */}
+      <div className="max-w-7xl mx-auto px-6 mt-6">
+        <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
+
+            <QuickStat
+              icon={<Droplets size={20} color={themeColor} />}
+              label="Water"
+              value={`${todayData?.water?.glasses || 0} / ${
+                todayData?.water?.target || 8
+              }`}
+            />
+
+            <QuickStat
+              icon={<Smile size={20} color={themeColor} />}
+              label="Mood"
+              value={todayData?.mood?.mood || "Neutral"}
+            />
+
+            <QuickStat
+              icon={<Moon size={20} color={themeColor} />}
+              label="Sleep"
+              value={`${todayData?.sleep?.hours || 0} hrs`}
+            />
+
+            <QuickStat
+              icon={<StepsIcon size={20} color={themeColor} />}
+              label="Steps"
+              value={`${todayData?.activity?.steps || 0}`}
+            />
+
+            <QuickStat
+              icon={<HeartPulse size={20} color={themeColor} />}
+              label="Symptom"
+              value={`Level ${todayData?.symptom?.severity || 0}`}
+            />
+
+            <QuickStat
+              icon={<Pill size={20} color={themeColor} />}
+              label="Medication"
+              value={todayData?.medication?.taken ? "Taken" : "Pending"}
+            />
+
+          </div>
+        </div>
       </div>
+
+      {/* ===================== MAIN CARDS ===================== */}
+      <div className="max-w-7xl mx-auto px-6 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <WaterCard data={todayData?.water} refresh={fetchToday} />
+        <MoodCard data={todayData?.mood} refresh={fetchToday} />
+        <SleepCard data={todayData?.sleep} refresh={fetchToday} />
+        <ActivityCard data={todayData?.activity} refresh={fetchToday} />
+        <SymptomCard data={todayData?.symptom} refresh={fetchToday} />
+        <MedicationCard data={todayData?.medication} refresh={fetchToday} />
+      </div>
+
+      {/* ===================== EMPTY STATE ===================== */}
+      {!todayData && (
+        <div className="max-w-7xl mx-auto px-6 mt-10">
+          <div className="bg-white shadow-sm border border-gray-200 rounded-2xl p-10 text-center">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              Begin Your Wellness Tracking
+            </h3>
+            <p className="text-gray-500 max-w-lg mx-auto">
+              Start logging today’s activities to monitor your Ayurvedic
+              wellness journey.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* COMPONENT: Quick Stat Box */
+function QuickStat({ icon, label, value }) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <div className="w-10 h-10 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center mb-2">
+        {icon}
+      </div>
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-sm font-semibold text-gray-700">{value}</p>
     </div>
   );
 }
