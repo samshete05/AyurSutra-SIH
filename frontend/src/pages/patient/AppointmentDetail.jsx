@@ -30,8 +30,9 @@ const AppointmentDetail = () => {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
-  const [showReschedule, setShowReschedule] = useState(false);
+
   const [showCancel, setShowCancel] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
 
   const allData = location.state?.Alldata || null;
   console.log(allData);
@@ -144,6 +145,107 @@ const AppointmentDetail = () => {
     }
   };
 
+  // ---------------------- MODALS UI ----------------------
+
+  const CloseModal = () => {
+    setShowCancel(false);
+    setShowReschedule(false);
+  };
+
+  // Cancel Modal
+  const CancelModal = () => (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+
+        <div className="flex items-center gap-3">
+          <XCircle className="w-8 h-8 text-red-600" />
+          <h2 className="text-xl font-semibold text-gray-800">Cancel Appointment?</h2>
+        </div>
+
+        <p className="text-gray-600 mt-3">
+          Are you sure you want to cancel this appointment? This action cannot be undone.
+        </p>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={CloseModal}
+            className="px-4 py-2 cursor-pointer rounded-lg border border-gray-300 hover:bg-gray-100"
+          >
+            Close
+          </button>
+
+          <button
+            onClick={handleCancel}
+            disabled={cancelling}
+            className="px-4 py-2 cursor-pointer rounded-lg bg-red-600 text-white hover:bg-red-700 flex items-center gap-2"
+          >
+            {cancelling && <Loader2 className="w-4 cursor-pointer h-4 animate-spin" />}
+            Confirm Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  // Reschedule Modal
+  const RescheduleModal = () => (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+
+        <div className="flex items-center gap-3">
+          <CalendarClock className="w-8 h-8 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-800">Reschedule Appointment</h2>
+        </div>
+
+        <p className="text-gray-600 mt-3">
+          Select a new date and time slot to reschedule your appointment.
+        </p>
+
+        <div className="mt-5">
+          <label className="text-sm font-medium text-gray-700">Select Date</label>
+          <input
+            type="date"
+            className="w-full mt-2 p-3 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+          />
+        </div>
+
+        <div className="mt-5">
+          <label className="text-sm font-medium text-gray-700">Select Slot</label>
+          <div className="grid grid-cols-3 gap-3 mt-2">
+            {["Morning", "Evening", "Full Day"].map((slot) => (
+              <button
+                key={slot}
+                className="p-3 border rounded-lg hover:bg-emerald-100 text-gray-700"
+              >
+                {slot}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={CloseModal}
+            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
+          >
+            Close
+          </button>
+
+          <button
+            onClick={handleReschedule}
+            disabled={rescheduling}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+          >
+            {rescheduling && <Loader2 className="w-4 h-4 animate-spin" />}
+            Confirm Reschedule
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+
   // -------------------------- LOADING --------------------------
   if (loading) {
     return (
@@ -156,7 +258,7 @@ const AppointmentDetail = () => {
     );
   }
 
-  // -------------------------- NULL STATE --------------------------
+  // -------------------------- NULL --------------------------
   if (!appointment) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -176,11 +278,11 @@ const AppointmentDetail = () => {
     );
   }
 
-  // -------------------------- MAIN UI (UNCHANGED) --------------------------
+  // -------------------------- MAIN UI --------------------------
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
-      
+
         {/* HEADER */}
         <div className="mb-6">
           <button
@@ -224,13 +326,13 @@ const AppointmentDetail = () => {
           </div>
         </div>
 
-        {/* Content Grid */}
+        {/* GRID CONTENT */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* LEFT CONTENT */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Center Info */}
+            {/* CENTER INFO */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="bg-emerald-100 p-3 rounded-lg">
@@ -275,17 +377,15 @@ const AppointmentDetail = () => {
               </div>
             </div>
 
-            {/* Appointment Information */}
+            {/* APPOINTMENT INFORMATION */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Appointment Information
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Date & Time */}
+
                 <div className="space-y-4">
-                  
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Date</p>
                     <div className="flex items-center gap-2">
@@ -310,12 +410,9 @@ const AppointmentDetail = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
 
-                {/* Doctor & Payment */}
                 <div className="space-y-4">
-                  
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Doctor</p>
                     <div className="flex items-center gap-2">
@@ -345,11 +442,10 @@ const AppointmentDetail = () => {
                       </span>
                     </div>
                   </div>
-
                 </div>
               </div>
 
-              {/* Token Number */}
+              {/* TOKEN NUMBER */}
               <div className="mt-6 pt-6 border-t">
                 <p className="text-sm text-gray-500 mb-2">Token Number</p>
                 <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
@@ -364,7 +460,7 @@ const AppointmentDetail = () => {
                 </div>
               </div>
 
-              {/* Notes */}
+              {/* NOTES */}
               {appointment.notes && (
                 <div className="mt-6 pt-6 border-t">
                   <p className="text-sm text-gray-500 mb-2">Important Notes</p>
@@ -375,7 +471,7 @@ const AppointmentDetail = () => {
               )}
             </div>
 
-            {/* Services */}
+            {/* SERVICES */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Services Included
@@ -396,14 +492,14 @@ const AppointmentDetail = () => {
           {/* RIGHT SIDEBAR */}
           <div className="space-y-6">
 
-            {/* Patient Information */}
+            {/* PATIENT INFO */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Patient Information
               </h3>
 
               <div className="space-y-4">
-                
+
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
                     <User className="w-6 h-6 text-emerald-600" />
@@ -419,7 +515,9 @@ const AppointmentDetail = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <p className="text-sm text-gray-500">Age</p>
-                    <p className="font-medium">{appointment.patientAge} years</p>
+                    <p className="font-medium">
+                      {appointment.patientAge} years
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Gender</p>
@@ -452,15 +550,10 @@ const AppointmentDetail = () => {
 
                 {appointment.canReschedule && (
                   <button
-                    onClick={handleReschedule}
-                    disabled={rescheduling}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    onClick={() => setShowReschedule(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700"
                   >
-                    {rescheduling ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <CalendarClock className="w-5 h-5" />
-                    )}
+                    <CalendarClock className="w-5 h-5" />
                     Reschedule Appointment
                   </button>
                 )}
@@ -482,7 +575,7 @@ const AppointmentDetail = () => {
               </div>
             </div>
 
-            {/* Support */}
+            {/* SUPPORT BOX */}
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-emerald-600 mt-1" />
@@ -499,60 +592,28 @@ const AppointmentDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* ---------------- BOTTOM CANCEL/RESCHEDULE BUTTONS ---------------- */}
+        <div className="h-24 gap-4 flex bg-white rounded-xl shadow-sm p-6 mt-8">
+          <button
+            onClick={() => setShowCancel(true)}
+            className="w-68 cursor-pointer bg-red-600 text-white flex items-center justify-center gap-2 py-3 px-4 rounded-lg hover:bg-red-700"
+          >
+            Cancel Appointment
+          </button>
+
+          <button
+            onClick={() => setShowReschedule(true)}
+            className="w-68 cursor-pointer bg-blue-600 text-white flex items-center justify-center gap-2 py-3 px-4 rounded-lg hover:bg-blue-700"
+          >
+            Reschedule Appointment
+          </button>
+        </div>
       </div>
 
-
-      {/* ---------------- RESCHEDULE MODAL ---------------- */}
-   {showReschedule && ( <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"> <div className="bg-white rounded-xl max-w-md w-full p-6"> <h3 className="text-xl font-bold text-gray-900 mb-4">Reschedule Appointment</h3> <div className="space-y-4"> <div> <label className="block text-sm font-medium text-gray-700 mb-2"> New Date </label> <input type="date" min={new Date().toISOString().split('T')[0]} className="w-full p-3 border border-gray-300 rounded-lg" /> </div> <div> <label className="block text-sm font-medium text-gray-700 mb-2"> New Time Slot </label> <select className="w-full p-3 border border-gray-300 rounded-lg"> <option value="">Select slot</option> <option value="morning">Morning (9 AM - 12 PM)</option> <option value="evening">Evening (4 PM - 7 PM)</option> </select> </div> </div> <div className="flex gap-3 mt-6"> <button onClick={() => setShowReschedule(false)} className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50" > Cancel </button> <button onClick={handleReschedule} disabled={rescheduling} className="flex-1 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50" > {rescheduling ? "Processing..." : "Confirm Reschedule"} </button> </div> </div> </div> )}
-
-      {/* ---------------- CANCEL MODAL ---------------- */}
-      {showCancel && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Cancel Appointment?
-              </h3>
-              <p className="text-gray-600">
-                Are you sure you want to cancel this appointment? This action
-                cannot be undone.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Reason for cancellation
-              </label>
-              <select className="w-full p-3 border border-gray-300 rounded-lg">
-                <option value="">Select reason</option>
-                <option value="schedule">Schedule conflict</option>
-                <option value="emergency">Personal emergency</option>
-                <option value="other">Other reason</option>
-              </select>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowCancel(false)}
-                className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-              >
-                Go Back
-              </button>
-
-              <button
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-              >
-                {cancelling ? "Cancelling..." : "Cancel Appointment"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ------- MODALS RENDER ------- */}
+      {showCancel && <CancelModal />}
+      {showReschedule && <RescheduleModal />}
 
     </div>
   );
