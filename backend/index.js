@@ -38,7 +38,7 @@ app.use("/patient", progressRouter);
 app.use("/PanchKarmaCenter", PanchakarmaCenterRouter);
 
 app.use("/payments", paymentRoutes);
-
+  
 app.listen(3000, () => {
   console.log("server started!!!");
 });

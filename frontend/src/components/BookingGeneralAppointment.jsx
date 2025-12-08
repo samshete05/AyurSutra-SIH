@@ -782,16 +782,89 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
       return date.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     };
 
-    const handleConfirmPayment = () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        const tokenNumber = `T-${String(Math.floor(Math.random() * 999) + 1).padStart(3, "0")}`;
-        const bookingId = `BKG${Date.now().toString().slice(-6)}`;
-        handleDataUpdate({ tokenNumber, bookingId });
-        setIsLoading(false);
-        handleNext();
-      }, 1500);
+    // const handleConfirmPayment = () => {
+    //   setIsLoading(true);
+    //   setTimeout(() => {
+    //     const tokenNumber = `T-${String(Math.floor(Math.random() * 999) + 1).padStart(3, "0")}`;
+    //     const bookingId = `BKG${Date.now().toString().slice(-6)}`;
+    //     handleDataUpdate({ tokenNumber, bookingId });
+    //     setIsLoading(false);
+    //     handleNext();
+    //   }, 1500);
+    // };
+
+
+    const handleConfirmPayment = async () => {
+  try {
+    setIsLoading(true);
+
+    // 1️⃣ Create Razorpay Order From Backend
+    const orderResponse = await axios.post(
+      `${import.meta.env.VITE_API_URL}/payments/create-order`,
+      { amount: slotInfo.amount }
+    );
+
+    const { id: order_id, amount } = orderResponse.data;
+
+    // 2️⃣ Razorpay Payment Options
+    const options = {
+      key: "rzp_test_MwLIBIpHubJKtL",
+      amount,
+      currency: "INR",
+      name: centerData?.name || "AyurSutra Clinic",
+      description: "Appointment Token Payment",
+      order_id,
+
+      handler: async function (response) {
+        // 3️⃣ Verify Payment Signature
+        const verifyRes = await axios.post(
+          `${import.meta.env.VITE_API_URL}/payments/verify`,
+          {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          }
+        );
+
+        if (verifyRes.data.status === "success") {
+          // 4️⃣ Generate Token + Booking ID → Move to Step 5
+          const tokenNumber = `T-${String(
+            Math.floor(Math.random() * 999) + 1
+          ).padStart(3, "0")}`;
+
+          const bookingId = `BKG${Date.now().toString().slice(-6)}`;
+
+          handleDataUpdate({ tokenNumber, bookingId });
+          setIsLoading(false);
+          handleNext();
+        } else {
+          alert("Payment verification failed.");
+          setIsLoading(false);
+        }
+      },
+
+      prefill: {
+        name: bookingData.patientName,
+        contact: bookingData.patientPhone,
+      },
+
+      theme: {
+        color: "#1E4B3C",
+      },
     };
+
+    // 5️⃣ Open Razorpay
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+    setIsLoading(false);
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed to start.");
+    setIsLoading(false);
+  }
+};
+
 
     return (
       <div className="space-y-6 max-w-3xl mx-auto">
