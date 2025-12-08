@@ -929,82 +929,35 @@ patientRouter.post("/cancelAppointment", async function(req, res) {
 
 // *************************** RESCHEDULE APPOINTMENT (Optional) ********************************
 patientRouter.post("/rescheduleAppointment", async function(req, res) {
-  const requiredData = z.object({
-    bookingId: z.string().min(1),
-    newDate: z.string(),
-    newSlot: z.enum(['morning', 'evening']),
-    reason: z.string().optional()
-  });
-
-  const checkData = requiredData.safeParse(req.body);
-  if (!checkData.success) {
-    res.status(422).json({ 
-      message: "Invalid_Input",
-      errors: checkData.error.errors 
-    });
-    return;
-  }
-
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_KEY);
-    const patientId = decoded.id;
-    const { bookingId, newDate, newSlot, reason } = checkData.data;
-
-    const appointment = await PatientAppointment.findOne({ 
-      bookingId,
-      patientId 
-    });
-
-    if (!appointment) {
-      res.status(404).json({ message: "Appointment_Not_Found" });
-      return;
-    }
-
-    // Check if rescheduling is allowed
-    if (!['scheduled', 'confirmed'].includes(appointment.status)) {
-      res.status(400).json({ message: "Rescheduling_Not_Allowed" });
-      return;
-    }
-
-    // Check new slot availability
-    const newAppointmentDate = new Date(newDate);
-    const existingCount = await PatientAppointment.countDocuments({
-      centerId: appointment.centerId,
-      appointmentDate: {
-        $gte: new Date(newAppointmentDate.setHours(0, 0, 0, 0)),
-        $lt: new Date(newAppointmentDate.setHours(23, 59, 59, 999))
-      },
-      appointmentSlot: newSlot,
-      status: { $in: ['scheduled', 'confirmed', 'checked-in'] }
-    });
-
-    if (existingCount >= 30) {
-      res.status(400).json({ message: "New_Slot_Full" });
-      return;
-    }
-
-    // Update appointment
-    appointment.appointmentDate = new Date(newDate);
-    appointment.appointmentSlot = newSlot;
-    appointment.notes = (appointment.notes || '') + `\nRescheduled: ${reason || 'No reason provided'}`;
+      
+   const {appointmentId,newdate,newslot,phoneNo}=req.body;
     
-    await appointment.save();
+   console.log(appointmentId," ",newdate," ",newslot);
 
-    res.json({
-      message: "Appointment_Rescheduled_Successfully",
-      appointment
+   const updateApt=await CenterAppointmentModel.updateOne({
+    _id:appointmentId
+   },{
+    appointmentDate:newdate,
+    appointmentSlot:newslot
+   })
+
+    // const {phoneNo}=req.body;
+   
+// console.log("yeah numbe pre notify ",phoneNo);
+
+  
+      await client.messages.create({
+      body: `Your Appointment has been Rescheduled to Date${newdate} visit your Dasboard for more updates` ,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNo}`,
     });
 
-  } catch (err) {
-    console.error("Error rescheduling appointment:", err);
-    res.status(500).json({ message: "Server_Error" });
-  }
+  //  console.log("chek karte hain!!",updateApt);
+
+   res.json({
+    message:"changed"
+   })
+  
 });
 
 // *************************** GET PATIENT PROFILE ********************************

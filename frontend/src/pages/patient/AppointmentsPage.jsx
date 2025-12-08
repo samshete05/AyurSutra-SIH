@@ -145,10 +145,6 @@ const Appointments = () => {
     switch (filter) {
       case "upcoming":
         return appointments.filter((apt) => apt.isUpcoming);
-      case "completed":
-        return appointments.filter((apt) => apt.status === "completed");
-      case "cancelled":
-        return appointments.filter((apt) => apt.status === "cancelled");
       default:
         return appointments;
     }
@@ -180,9 +176,6 @@ const Appointments = () => {
         <div className="flex gap-2 mb-6">
           {[
             { key: "all", label: "All", icon: CalendarDays },
-            { key: "upcoming", label: "Upcoming", icon: CalendarCheck },
-            { key: "completed", label: "Completed", icon: CheckCircle },
-            { key: "cancelled", label: "Cancelled", icon: CalendarX2 },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
