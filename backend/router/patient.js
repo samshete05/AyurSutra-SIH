@@ -1836,6 +1836,7 @@ patientRouter.post("/therapy/:therapyId/feedback", async (req, res) => {
 
 patientRouter.post("/pre-notification",async(req,res)=>{
     
+  console.log("hitting pre notification routes");
    const {phoneNo}=req.body;
    
     console.log("yeah numbe pre notify ",phoneNo);
@@ -1849,26 +1850,23 @@ patientRouter.post("/pre-notification",async(req,res)=>{
     });
     
 
-    await client.messages.create({
-     body: `Consultation with an Ayurvedic Practitioner\n
-         Health Evaluation\n
-         Pre-Therapy Preparation (Snehana and Swedana)\n
-         Dietary Changes\n
-         Rest and Mental Preparation\n
-         Avoidance of Heavy Activities`,
+   await client.messages.create({
+  body: 
+`Your Panchakarma Session is Scheduled!
+Please follow these pre-therapy steps:
+Please arrive 15 min early, eat light food, avoid heavy exercise, wear loose clothes and stay hydrated.
+See you soon!
+
+`,
   from: process.env.TWILIO_NUMBER,
   to: `+91${phoneNo}`,
 });
-
     
       res.json({
         message:"message_send",
-        otp
       })
-  
-
+      
 })
-
 module.exports={
    patientRouter:patientRouter
 }

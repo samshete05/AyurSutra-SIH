@@ -446,20 +446,19 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
 
 
 PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
-  // console.log("hitting get data routes");
+     console.log("hitting get data routes");
 
-  const {centerId}=req.body;
-  console.log("hitting the routes",centerId);
+  const {email}=req.body;
 
   const PanchakarmaCenter=await PanchakarmaCenterModel.findOne({
-    _id:centerId
+    email:email
   });
 
   const getAllTherapy=await TherapyModel.find({
     centerId:PanchakarmaCenter._id
   })
     
-  // console.log("mil gaya data!!!",getAllTherapy);
+  console.log("mil gaya data!!!",getAllTherapy);
 
   res.json({
     getAllTherapy
@@ -468,9 +467,10 @@ PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
 })
 
 
+
 PanchakarmaCenterRouter.post("/get-doctors",async(req,res)=>{
   
-  // console.log("hitting get doctor routes");
+   console.log("hitting get doctor routes");
 
   const {email}=req.body;
 
@@ -482,7 +482,7 @@ PanchakarmaCenterRouter.post("/get-doctors",async(req,res)=>{
     centerId:PanchakarmaCenter._id
   })
     
-  // console.log("mil gaya data!!!",getAllDr);
+  console.log("mil gaya data!!!",getAllDr);
 
   res.json({
     getAllDr
@@ -504,12 +504,15 @@ PanchakarmaCenterRouter.post("/get-therapists",async(req,res)=>{
     centerId:PanchakarmaCenter._id
   })
     
-  // console.log("mil gaya data!!!",getAllTherapist);
+  console.log("mil gaya data!!!",getAllTherapist);
 
   res.json({
     getAllTherapist
   })  
+
+
 })
+
 
 // *************************** GET CENTER PROFILE ********************************
 PanchakarmaCenterRouter.post("/getCenterProfile", async function (req, res) {
