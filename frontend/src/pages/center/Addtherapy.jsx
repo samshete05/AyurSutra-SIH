@@ -22,6 +22,7 @@ const AddTherapy = () => {
   const [form, setForm] = useState(initialForm);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const Adminemail = localStorage.getItem("email");
@@ -34,35 +35,46 @@ const AddTherapy = () => {
   // IMAGE SELECT
   const handleImageChange = (e) => {
     const f = e.target.files[0];
+    if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    const fd = new FormData();
-    fd.append("name", form.name);
-    fd.append("duration", form.duration);
-    fd.append("price", form.price);
-    fd.append("category", form.category);
-    fd.append("maxPatientsPerDay", form.maxPatients);
-    fd.append("description", form.description);
-    fd.append("Adminemail", Adminemail);
+    setIsSubmitting(true);
 
-    if (file) fd.append("therapyImage", file);
+    try {
+      const fd = new FormData();
+      fd.append("name", form.name);
+      fd.append("duration", form.duration);
+      fd.append("price", form.price);
+      fd.append("category", form.category);
+      fd.append("maxPatientsPerDay", form.maxPatients);
+      fd.append("description", form.description);
+      fd.append("Adminemail", Adminemail);
 
-    const resp = await axios.post(
-      "http://localhost:3000/PanchKarmaCenter/addTherapy",
-      fd,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+      if (file) fd.append("therapyImage", file);
 
-    if (resp.data.message === "therapy_added_success") {
-      alert("Therapy Added Successfully!!!");
-      window.location.reload();
-    } else {
-      alert("Something went wrong!!");
+      const resp = await axios.post(
+        "http://localhost:3000/PanchKarmaCenter/addTherapy",
+        fd,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.message === "therapy_added_success") {
+        alert("Therapy Added Successfully!!!");
+        window.location.reload();
+      } else {
+        alert("Something went wrong!!");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong while adding therapy!");
+      setIsSubmitting(false);
     }
   };
 
@@ -73,7 +85,6 @@ const AddTherapy = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
-
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
         <Logo />
@@ -82,7 +93,6 @@ const AddTherapy = () => {
 
       {/* Right side */}
       <div className="flex min-h-screen flex-1 flex-col">
-
         {/* Top bar */}
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
           <div className="flex items-center gap-3">
@@ -102,7 +112,7 @@ const AddTherapy = () => {
             </div>
           </div>
 
-         <CenterNavbar/>
+          <CenterNavbar />
         </header>
 
         {/* Content */}
@@ -125,10 +135,8 @@ const AddTherapy = () => {
 
           {/* Form card */}
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-
             <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* IMAGE UPLOAD (NO PAGE BORDER CHANGE) */}
+              {/* IMAGE UPLOAD */}
               <div>
                 <label className={labelCls}>Therapy Image</label>
 
@@ -138,15 +146,22 @@ const AddTherapy = () => {
                 >
                   <div className="h-24 w-24 rounded-xl overflow-hidden border bg-white shadow-sm flex items-center justify-center">
                     {preview ? (
-                      <img src={preview} className="h-full w-full object-cover" />
+                      <img
+                        src={preview}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <span className="text-xs text-slate-400">No Image</span>
                     )}
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-slate-700">Upload Therapy Banner</p>
-                    <p className="text-xs text-slate-500 mb-2">PNG / JPG up to 5MB</p>
+                    <p className="text-sm font-medium text-slate-700">
+                      Upload Therapy Banner
+                    </p>
+                    <p className="text-xs text-slate-500 mb-2">
+                      PNG / JPG up to 5MB
+                    </p>
 
                     <button
                       type="button"
@@ -270,20 +285,34 @@ const AddTherapy = () => {
                     setPreview(null);
                     setFile(null);
                   }}
-                  className="rounded-full border border-slate-200 px-4 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+                  disabled={isSubmitting}
+                  className={`rounded-full border border-slate-200 px-4 py-1.5 text-xs text-slate-600 hover:bg-slate-50 ${
+                    isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 >
                   Clear
                 </button>
 
                 <button
                   type="submit"
-                  className="rounded-full bg-[#1E4B3C] px-6 py-2 text-xs font-semibold text-white shadow-sm"
+                  disabled={isSubmitting}
+                  className={`rounded-full bg-[#1E4B3C] px-6 py-2 text-xs font-semibold text-white shadow-sm flex items-center justify-center ${
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  <PlusCircle className="h-4 w-4 inline mr-1" />
-                  Add Therapy
+                  {isSubmitting ? (
+                    <>
+                      <span className="mr-2 inline-block h-4 w-4 rounded-full border-2 border-white/70 border-t-transparent animate-spin" />
+                      Adding Therapy...
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="h-4 w-4 inline mr-1" />
+                      Add Therapy
+                    </>
+                  )}
                 </button>
               </div>
-
             </form>
           </div>
         </main>

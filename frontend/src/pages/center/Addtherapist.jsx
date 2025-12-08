@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { faBell, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, Loader2 } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
 import axios from "axios";
@@ -26,6 +26,8 @@ const AddTherapist = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,6 +38,7 @@ const AddTherapist = () => {
   // IMAGE SELECT
   const handleImageChange = (e) => {
     const f = e.target.files[0];
+    if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
@@ -43,31 +46,44 @@ const AddTherapist = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const fd = new FormData();
-    fd.append("fullName", form.name);
-    fd.append("phone", form.phone);
-    fd.append("email", form.email);
-    fd.append("specialization", form.specialization);
-    fd.append("experience", form.experience);
-    fd.append("qualification", form.qualification);
-    fd.append("address", form.address);
-    fd.append("centerAdminEmail", email);
+    // agar already submit ho raha hai toh dobara mat karo
+    if (isSubmitting) return;
 
-    if (file) fd.append("therapistImage", file);
+    setIsSubmitting(true);
 
-    const resp = await axios.post(
-      "http://localhost:3000/PanchKarmaCenter/addTherapist",
-      fd,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+    try {
+      const fd = new FormData();
+      fd.append("fullName", form.name);
+      fd.append("phone", form.phone);
+      fd.append("email", form.email);
+      fd.append("specialization", form.specialization);
+      fd.append("experience", form.experience);
+      fd.append("qualification", form.qualification);
+      fd.append("address", form.address);
+      fd.append("centerAdminEmail", email);
 
-    if (resp.data.message === "Therapist_Email_Already_Used") {
-      alert("Therapist already exists!");
-      return;
+      if (file) fd.append("therapistImage", file);
+
+      const resp = await axios.post(
+        "http://localhost:3000/PanchKarmaCenter/addTherapist",
+        fd,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.message === "Therapist_Email_Already_Used") {
+        alert("Therapist already exists!");
+        return;
+      }
+
+      alert("Therapist added successfully!");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while adding therapist. Please try again.");
+    } finally {
+      // reload se pehle bhi safe hai, but good practice:
+      setIsSubmitting(false);
     }
-
-    alert("Therapist added successfully!");
-    window.location.reload();
   };
 
   const labelCls =
@@ -103,7 +119,7 @@ const AddTherapist = () => {
             </div>
           </div>
 
-           <CenterNavbar/>
+          <CenterNavbar />
         </header>
 
         {/* Content */}
@@ -127,27 +143,32 @@ const AddTherapist = () => {
 
           {/* Form Box */}
           <div className="rounded-2xl bg-white p-6 shadow-sm shadow-slate-100">
-
             <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* IMAGE UPLOAD (Same style as other pages) */}
+              {/* IMAGE UPLOAD */}
               <div>
                 <label className={labelCls}>Profile Image</label>
 
                 <div
                   className="flex items-center gap-6 rounded-xl border border-slate-200 bg-slate-50 p-4 cursor-pointer hover:bg-slate-100"
-                  onClick={() => document.getElementById("therapistUpload").click()}
+                  onClick={() =>
+                    document.getElementById("therapistUpload").click()
+                  }
                 >
                   <div className="h-24 w-24 rounded-full overflow-hidden border bg-white shadow-sm flex items-center justify-center">
                     {preview ? (
-                      <img src={preview} className="h-full w-full object-cover" />
+                      <img
+                        src={preview}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <span className="text-xs text-slate-400">No Image</span>
                     )}
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-slate-700">Upload Photo</p>
+                    <p className="text-sm font-medium text-slate-700">
+                      Upload Photo
+                    </p>
                     <p className="text-xs text-slate-500 mb-2">
                       JPG / PNG up to 5MB
                     </p>
@@ -167,7 +188,7 @@ const AddTherapist = () => {
 
                 <input
                   id="therapistUpload"
-                    name="therapistImage" 
+                  name="therapistImage"
                   type="file"
                   accept="image/*"
                   className="hidden"
@@ -277,21 +298,32 @@ const AddTherapist = () => {
                     setFile(null);
                   }}
                   className="rounded-full border px-4 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+                  disabled={isSubmitting}
                 >
                   Clear
                 </button>
 
                 <button
                   type="submit"
-                  className="rounded-full bg-[#1E4B3C] px-6 py-2 text-xs font-semibold text-white shadow-sm"
+                  disabled={isSubmitting}
+                  className={`rounded-full bg-[#1E4B3C] px-6 py-2 text-xs font-semibold text-white shadow-sm flex items-center justify-center ${
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  <UserPlus className="h-4 w-4 inline mr-1" />
-                  Add Therapist
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 inline mr-2 animate-spin" />
+                      Adding Therapist...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 inline mr-2" />
+                      Add Therapist
+                    </>
+                  )}
                 </button>
               </div>
-
             </form>
-
           </div>
         </main>
       </div>

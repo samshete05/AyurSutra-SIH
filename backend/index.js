@@ -11,7 +11,7 @@ connectDB(); // connect first
 
 const { patientRouter } = require("./router/patient");
 const { PanchakarmaCenterRouter } = require("./router/PanchkarmaCenterAdmin");
-const progressRouter = require("./router/progress");
+const progressRouter = require("./router/progress");  
 const doctorDashboardRouter = require("./router/doctordashboard");
 
 

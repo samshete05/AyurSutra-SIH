@@ -1,7 +1,7 @@
 // pages/Center/ViewTherapies.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, DollarSign, CheckCircle2, X } from "lucide-react";
+import { Plus, IndianRupee, CheckCircle2, X } from "lucide-react";
 import CenterLayout from "../../layouts/CenterLayout";
 import axios from "axios";
 
@@ -71,7 +71,7 @@ const ViewTherapies = () => {
                 <p className="text-xs text-slate-600 line-clamp-3">{therapy.description}</p>
                 <div>
                   <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold mb-1">
-                    <DollarSign className="h-4 w-4 text-emerald-500" />
+                    <IndianRupee className="h-4 w-4 text-emerald-500" />
                     Price
                   </div>
                   <div className="text-xl font-black text-emerald-600">{therapy.price}</div>
