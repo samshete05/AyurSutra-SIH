@@ -704,6 +704,35 @@ patientRouter.post("/bookGeneralAppointment", async function (req, res) {
   }
 });
 
+patientRouter.delete("/delete-appointment",async(req,res)=>{
+     
+  const {aptId}=req.body;
+
+  console.log("this is my aptId",aptId);
+
+  await CenterAppointmentModel.deleteOne({
+    _id:aptId
+  });
+
+  const {phoneNo}=req.body;
+   
+console.log("yeah numbe pre notify ",phoneNo);
+
+  
+      await client.messages.create({
+      body: `Your Appointment has been Successfully cancelled with Your Registered Number ${phoneNo} 
+      Check Your DashBoard for more details.` ,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91${phoneNo}`,
+    });
+
+
+  res.json({
+    message:"deleted"
+  })
+
+})
+
 // *************************** GET PATIENT APPOINTMENTS ********************************
 patientRouter.get("/appointments", async function (req, res) {
   try {

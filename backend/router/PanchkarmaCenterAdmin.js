@@ -679,6 +679,8 @@ PanchakarmaCenterRouter.post("/updateCenterProfile", centerImagesUpload, async f
 });
 
 
+// PanchakarmaCenterRouter.post("/delete-a")
+
 // *************************** GET NOTIFICATION UNREAD ********************************
 PanchakarmaCenterRouter.get(
   "/getCenterNotifications",

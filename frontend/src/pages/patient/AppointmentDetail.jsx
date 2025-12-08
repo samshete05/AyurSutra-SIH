@@ -20,6 +20,7 @@ import {
   Star,
   MessageCircle
 } from "lucide-react";
+import axios from "axios";
 
 const AppointmentDetail = () => {
   const { id } = useParams();
@@ -90,15 +91,33 @@ const AppointmentDetail = () => {
   }, []);
 
   // ----------------------- ACTION HANDLERS -----------------------
-  const handleCancel = async () => {
-    setCancelling(true);
-    setTimeout(() => {
-      alert("Appointment cancelled successfully");
-      setCancelling(false);
-      setShowCancel(false);
-      navigate("/patient/appointments");
-    }, 900);
-  };
+ const handleCancel = async () => {
+  setCancelling(true);
+
+  try {
+    const response = await axios.delete(
+      "http://localhost:3000/patient/delete-appointment",
+      {
+        data: { aptId: appointment._id,
+        phoneNo:allData.patientDetails?.phone
+        }
+      }
+    );
+
+    console.log("Cancel response:", response.data);
+
+    alert("Appointment cancelled successfully");
+
+    navigate("/patient/appointments");
+  } catch (error) {
+    console.error("Cancel error:", error);
+    alert("Failed to cancel appointment");
+  } finally {
+    setCancelling(false);
+    setShowCancel(false);
+  }
+};
+
 
   const handleReschedule = async () => {
     if (!showReschedule) return setShowReschedule(true);
@@ -370,7 +389,7 @@ const AppointmentDetail = () => {
 
                     <p className="flex items-center gap-2 text-gray-600">
                       <Mail className="w-4 h-4" />
-                      {appointment.centerDetails.Email}
+                      {allData.centerDetails.email}
                     </p>
                   </div>
                 </div>
@@ -530,11 +549,11 @@ const AppointmentDetail = () => {
                 <div className="space-y-2">
                   <div>
                     <p className="text-sm text-gray-500">Contact</p>
-                    <p className="font-medium">{appointment.patientContact}</p>
+                    <p className="font-medium">{allData.appointmentDetails.PatientPhone}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{appointment.patientEmail}</p>
+                    <p className="font-medium">{allData.appointmentDetails.PatientEmail}</p>
                   </div>
                 </div>
               </div>
