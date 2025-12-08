@@ -107,6 +107,8 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
       isPhoneVerified: bookingData.isPhoneVerified || false,
       centerId: centerId,
       tokenAmount: "100",
+      date:bookingData.selectedDate,
+      slot:bookingData.selectedSlot
     });
 
     if (resp.data.success) {

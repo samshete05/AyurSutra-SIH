@@ -673,6 +673,8 @@ patientRouter.post("/bookGeneralAppointment", async function (req, res) {
       Amount: data.tokenAmount || "100",
       PaymentStatus: "paid",
       status: "scheduled",
+      appointmentDate:data.date,
+      appointmentSlot:data.slot
     };
 
     // Save to database

@@ -1,31 +1,33 @@
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 
-const CenterAppointMentSchema=new mongoose.Schema({
-       ServiceType:String,
-        patientId:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Patient",
-            required:true,
-        },
-        Amount:String,
-        PaymentStatus:String,
-        TherapyId:{
-             type:mongoose.Schema.Types.ObjectId,
-            ref:"Therapy",
-            required:false,  
-        },
-        PatientName:String,
-        PatientEmail:String,
-        PatientPhone:String,
-        PatientAge:String,
-        PatientGender:String,
-        // ProfileImg:String,
-        notes:String,
-        CenterId:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"PanchakarmaCenter",
-            required:true,   
-        }
+const CenterAppointMentSchema = new mongoose.Schema({
+    ServiceType: String,
+    patientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Patient",
+        required: true,
+    },
+    Amount: String,
+    PaymentStatus: String,
+    TherapyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Therapy",
+        required: false,
+    },
+    PatientName: String,
+    PatientEmail: String,
+    PatientPhone: String,
+    PatientAge: String,
+    PatientGender: String,
+    // ProfileImg:String,
+    notes: String,
+    CenterId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PanchakarmaCenter",
+        required: true,
+    },
+    appointmentDate:String,
+    appointmentSlot:String
 })
 
 module.exports = mongoose.model("CenterGeneralAppointment", CenterAppointMentSchema);

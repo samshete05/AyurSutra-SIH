@@ -322,8 +322,9 @@ const Appointments = () => {
                         </button>
                       )}
 
-                      <button className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition">
-                        Details <ChevronRight className="w-4 h-4" />
+
+                      <button onClick={()=>navigate(`/patient/appointment-details/${apt.appointmentDetails._id}`,{state:{Alldata:apt}})} className="flex-1 flex cursor-pointer bg-[#009966] text-white items-center  justify-center gap-2  text-gray-700 py-2 rounded-lg transition">
+                        Details <ChevronRight className="w-4 bg-[#009966]  h-4" />
                       </button>
                     </div>
 
@@ -340,7 +341,7 @@ const Appointments = () => {
           <div className="text-center mt-8">
             <button
               onClick={fetchAppointments}
-              className="bg-white shadow-sm hover:shadow px-5 py-2 rounded-lg flex items-center gap-2 mx-auto"
+              className="bg-white shadow-sm hover:shadow px-5 cursor-pointer py-2 rounded-lg flex items-center gap-2 mx-auto"
             >
               <Filter className="w-4 h-4" /> Refresh
             </button>
