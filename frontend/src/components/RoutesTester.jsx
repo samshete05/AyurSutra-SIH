@@ -17,7 +17,7 @@ const RoutesTester = () => {
     { to: "/center-head-application-success", label: "Center Head Success" },
     { to:"/center-map", label:"Map Center"},
     { to:"/allcenters", label:"All Centers"},
-
+    { to:"/nfc-card-at-ayursutra", label:"NFC"},
   ];
 
   return (

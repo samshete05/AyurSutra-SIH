@@ -37,6 +37,7 @@ import TermsServices from "../pages/TermsServices";
 import Privacy from "../pages/Privacy";
 import HelpCenter from "../pages/HelpCenter";
 import AppointmentDetails from "../pages/patient/AppointmentDetail";
+import NFC from "../pages/NFC";
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 
@@ -63,6 +64,7 @@ export const AppRoutes = () => {
         <Route path="/center-notifications" element={<ProtectedRoute allowedRole="centerHead"><CenterNotifications /></ProtectedRoute>} />
 
         <Route path="/doctor-dashboard" element={<DocDashMain/>}/>
+        <Route path="/nfc-card-at-ayursutra" element={<NFC/>}/>
 
         {/* <Route path="/center-setting" element={<CenterSettingsPage/>}/> */}
         <Route path="/center-profile" element={ <ProtectedRoute allowedRole="centerHead"> <ProfilePage/> </ProtectedRoute>}/> 

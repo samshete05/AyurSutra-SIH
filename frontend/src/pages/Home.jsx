@@ -10,6 +10,8 @@ import HealthBlogsFeature from "../components/HealthBlogsFeature";
 import EcommerceFeatureSection from "../components/EcommerceFeatureSection";
 import Marquee from "react-fast-marquee";
 import { useLocation } from "react-router-dom";
+import NFCFeatureCard from "../components/NFCFeatureCard";
+import { Link } from "lucide-react";
 
 export const Home = () => {
 
@@ -276,6 +278,9 @@ export const Home = () => {
           </div>
         </div>
       </section>
+
+<NFCFeatureCard/>
+      
 
       {/* Call to action */}
       <section className="bg-white py-10 md:py-14">
