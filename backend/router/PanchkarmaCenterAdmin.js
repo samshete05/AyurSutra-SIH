@@ -18,6 +18,7 @@ const upload = require("./multer.js");
 const { NotificationTemplates } = require("../utils/notificationHelper.js");
 const notificationModel = require("../models/Notification.model");
 const CenterAppointmentModel = require("../models/CenterAppointment.model.js");
+const TherapyProgress = require("./../models/TherapyProgress.model")
 
 
 
@@ -865,6 +866,102 @@ PanchakarmaCenterRouter.post("/get-center-appoinment",async(req,res)=>{
      })
 
 })
+
+// *************************** MARK THERAPY ATTENDANCE ********************************
+PanchakarmaCenterRouter.post("/mark-therapy-attendance", async (req, res) => {
+  try {
+    const { appointmentId, patientId, centerId, therapyId, date, status, notes } = req.body;
+
+    if (!appointmentId || !patientId || !centerId || !therapyId || !date || !status) {
+      return res.status(422).json({ message: "Invalid_Input" });
+    }
+
+    let progress = await TherapyProgress.findOne({ appointmentId });
+
+    if (!progress) {
+      progress = await TherapyProgress.create({
+        appointmentId,
+        patientId,
+        centerId,
+        therapyId,
+        attendance: []
+      });
+    }
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0,0,0,0);
+
+    const entry = progress.attendance.find(
+      d => d.date.getTime() === targetDate.getTime()
+    );
+
+    if (entry) {
+      entry.status = status;
+      entry.notes = notes || "";
+    } else {
+      progress.attendance.push({
+        date: targetDate,
+        status,
+        notes
+      });
+    }
+
+    // ---- UPDATE STREAK LOGIC ---- //
+    const sorted = progress.attendance.sort((a,b) => a.date - b.date);
+
+    let streak = 0;
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].status === "present") streak++;
+      else break;
+    }
+
+    progress.streakCount = streak;
+
+    // ---- UPDATE MILESTONES ---- //
+    if (streak >= 7 && !progress.milestones.sevenDays) progress.milestones.sevenDays = true;
+    if (streak >= 15 && !progress.milestones.fifteenDays) progress.milestones.fifteenDays = true;
+    if (streak >= 30 && !progress.milestones.thirtyDays) progress.milestones.thirtyDays = true;
+
+    await progress.save();
+
+    return res.json({
+      message: "Attendance_Updated",
+      progress
+    });
+  } catch (err) {
+    console.error("Error marking attendance:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
+
+// *************************** MARK THERAPY PROGRESS ********************************
+PanchakarmaCenterRouter.post("/patient/therapy-progress", async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    console.log("appointmentId", appointmentId);
+    if (!appointmentId) {
+      return res.status(422).json({ message: "Invalid_Input" });
+    }
+
+    const progress = await TherapyProgress.findOne({ appointmentId }).lean();
+
+    if (!progress) {
+      return res.json({
+        message: "No_Progress_Found",
+        progress: null
+      });
+    }
+
+    return res.json({
+      message: "Success",
+      progress
+    });
+
+  } catch (err) {
+    console.error("Error in /patient/therapy-progress:", err);
+    return res.status(500).json({ message: "Server_Error" });
+  }
+});
 
 module.exports = {
   PanchakarmaCenterRouter: PanchakarmaCenterRouter
