@@ -10,12 +10,13 @@ const DoctorCard = ({
   fee,
   avatar,
   onBook,
+  bio
 }) => {
   return (
     <div className="rounded-2xl bg-white border border-[#1E4B3C]/15 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col w-full h-[410px] cursor-pointer">
 
       {/* FIXED IMAGE HEIGHT */}
-      <div className="h-48 w-full overflow-hidden bg-gray-100">
+      <div className="h-48 w-full object-cover overflow-hidden bg-gray-100">
         <img
           src={
             avatar ||
@@ -58,8 +59,8 @@ const DoctorCard = ({
 
         {/* Focus Areas */}
         <div className="flex items-start gap-2 text-sm text-black leading-snug">
-          <Info className="h-4 w-4 mt-[2px] text-[#1E4B3C]" />
-          <p className="line-clamp-2">{focus}</p>
+         
+          <p className="line-clamp-2">{bio}</p>
         </div>
 
         {/* Book button (optional if needed later)

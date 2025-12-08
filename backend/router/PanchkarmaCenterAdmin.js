@@ -155,6 +155,8 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
         status,
       } = req.body;
 
+      // console.log("this is add doctor daata",req.body);
+
       // Ensure Adminemail exists
       if (!Adminemail) {
         console.warn("Adminemail not provided in req.body");
@@ -448,14 +450,20 @@ PanchakarmaCenterRouter.post("/addTherapist", upload.single("therapistImage"),as
 PanchakarmaCenterRouter.post("/get-therapies",async(req,res)=>{
      console.log("hitting get data routes");
 
-  const {email}=req.body;
+  const {email,centerId}=req.body;
 
   const PanchakarmaCenter=await PanchakarmaCenterModel.findOne({
     email:email
   });
 
+  console.log(email," ",centerId);
+  
+  let id='';
+  if(!centerId) id=PanchakarmaCenter._id;
+  else id=centerId
+
   const getAllTherapy=await TherapyModel.find({
-    centerId:PanchakarmaCenter._id
+    centerId:id
   })
     
   console.log("mil gaya data!!!",getAllTherapy);

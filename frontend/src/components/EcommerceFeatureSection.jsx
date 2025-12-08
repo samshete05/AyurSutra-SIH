@@ -1,5 +1,6 @@
 // EcommerceFeatureSection.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 
 const products = [
   {
@@ -68,14 +69,13 @@ const EcommerceFeatureSection = () => {
           <p className="text-xs font-semibold tracking-[0.18em] text-slate-500 uppercase">
             Ayurveda ecommerce
           </p>
-          <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 leading-snug">
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 leading-snug">
             Central Ayurvedic store delivering trusted products across India
           </h2>
           <p className="text-sm text-slate-600">
             Patients can order authentic Panchakarma and Ayurvedic products
             directly from our central fulfillment hub, with doorstep delivery to
-            any PIN code in India. Products are the same as used inside our
-            therapy centers for continuity of care.[web:420]
+            any PIN code in India.
           </p>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
@@ -113,6 +113,7 @@ const EcommerceFeatureSection = () => {
               key={product.id}
               className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:-translate-y-0.5 hover:shadow-md transition"
             >
+              <a href="https://shop.ayursutra.online/" target="_blank" rel="noopener noreferrer">
               <div className="relative h-44 w-full overflow-hidden bg-slate-100">
                 <img
                   src={product.image}
@@ -143,6 +144,7 @@ const EcommerceFeatureSection = () => {
                   View product
                 </button>
               </div>
+              </a>
             </article>
           ))}
         </div>

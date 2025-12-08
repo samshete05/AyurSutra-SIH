@@ -33,9 +33,11 @@ const HealthBlogsFeature = () => {
     <section className="w-full bg-slate-50 py-10">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
+        <a href="https://blogs.ayursutra.online/" target="_blank" rel="noopener noreferrer">
+        
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-2 mb-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
+            <h2 className="text-2xl md:text-4xl font-bold text-slate-900">
               Read health blogs from our experts
             </h2>
             <p className="mt-1 text-sm text-slate-600 max-w-xl">
@@ -83,6 +85,7 @@ const HealthBlogsFeature = () => {
             </article>
           ))}
         </div>
+        </a>
       </div>
     </section>
   );

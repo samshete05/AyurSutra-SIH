@@ -260,7 +260,7 @@ export const Home = () => {
 
       
       {/* Simple testimonials-style strip */}
-      <section className="bg-emerald-50/70 py-8">
+      {/* <section className="bg-emerald-50/70 py-8">
         <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-3 text-xs md:text-sm text-gray-700">
             <div className="rounded-2xl bg-white border border-emerald-100 p-4">
@@ -277,7 +277,7 @@ export const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
 <NFCFeatureCard/>
       
