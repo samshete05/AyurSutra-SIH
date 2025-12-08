@@ -12,6 +12,7 @@ import CenterNavbar from "./CenterNavbar";
 const initialForm = {
   fullName: "",
   email: "",
+  password:"",
   phone: "",
   speciality: "",
   experience: "",
@@ -29,6 +30,7 @@ const AddDoctorPage = () => {
 
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
+  // const [password,setpassword]=useState(null);
 
   const navigate = useNavigate();
   const Adminemail = localStorage.getItem("email");
@@ -55,6 +57,7 @@ const AddDoctorPage = () => {
     fd.append("Adminemail", Adminemail);
     fd.append("name", form.fullName);
     fd.append("email", form.email);
+    fd.append("password", form.password);
     fd.append("phone", form.phone);
     fd.append("speciality", form.speciality);
     fd.append("experience", form.experience);
@@ -192,7 +195,7 @@ const AddDoctorPage = () => {
               {/* BASIC INFO */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className={labelCls}>Full Name</label>
+                  <label className={labelCls}>Doctor Full Name</label>
                   <input
                     name="fullName"
                     value={form.fullName}
@@ -203,7 +206,7 @@ const AddDoctorPage = () => {
                 </div>
 
                 <div>
-                  <label className={labelCls}>Email</label>
+                  <label className={labelCls}>Doctor Email</label>
                   <input
                     name="email"
                     type="email"
@@ -214,8 +217,23 @@ const AddDoctorPage = () => {
                   />
                 </div>
 
+
+                
                 <div>
-                  <label className={labelCls}>Phone</label>
+                  <label className={labelCls}>Set Password for Doctor</label>
+                  <input
+                    name="password"
+                    // type="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className={inputCls}
+                    required
+                  />
+                </div>
+
+
+                <div>
+                  <label className={labelCls}>Dr.Phone</label>
                   <input
                     name="phone"
                     value={form.phone}
@@ -371,14 +389,14 @@ const AddDoctorPage = () => {
                     setPreview(null);
                     setFile(null);
                   }}
-                  className="rounded-full border px-4 py-1.5 text-xs text-slate-600"
+                  className="rounded-full cursor-pointer border px-8 py-1.5 text-xs text-slate-600"
                 >
                   Clear
                 </button>
 
                 <button
                   type="submit"
-                  className="rounded-full bg-emerald-500 px-6 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                  className="rounded-full cursor-pointer bg-emerald-500 px-6 py-4 text-xs font-semibold text-white hover:bg-emerald-600"
                 >
                   Create Doctor Profile
                 </button>
