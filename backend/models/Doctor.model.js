@@ -61,7 +61,7 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  password:String,
   status: {
     type: String,
     enum: ["Active", "Inactive"],

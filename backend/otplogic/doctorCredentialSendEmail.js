@@ -65,30 +65,6 @@ module.exports = async (email, subject, password, username) => {
               </p>
             </div>
 
-            <p style="font-size: 15px; line-height: 1.6;">
-  For security reasons, we recommend changing your password immediately 
-  after your first login.
-  <br><br>
-  Click the button below to change your login credentials:
-</p>
-
-<div style="text-align:center; margin: 30px 0;">
-  <a href="/doctor/change-credentials/" 
-     style="
-        background: #3ccf91; 
-        color: #000; 
-        padding: 14px 28px; 
-        border-radius: 8px; 
-        text-decoration: none; 
-        font-size: 16px; 
-        font-weight: bold;
-        display:inline-block;
-     ">
-     Change Credentials
-  </a>
-</div>
-            <br />
-
             <p style="font-size: 15px;">
               Regards,<br />
               <strong>AyurSutra Team</strong>

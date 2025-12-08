@@ -5,14 +5,19 @@ const z = require('zod');
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
 const doctorModel = require("../models/Doctor.model");
+const JWT_KEY = process.env.JWT_KEY;
 
 
 
 doctorRouter.post("/login", async function(req,res){
+
+  console.log();
     const requiredatas=z.object({
         email:z.string().min(3).max(100).email(),
+        
         password:z.string().min(5).max(100)
     })
+
 
     const checkdata=requiredatas.safeParse(req.body);
     if(!checkdata.success){
@@ -22,9 +27,12 @@ doctorRouter.post("/login", async function(req,res){
        return;
     }
 
-    const {email,password} =req.body;
-    console.log("login in bac",email)
-    console.log("login in bac",password)
+    const {email,password,institute,centerId} =req.body;
+    // console.log("login in bac",email)
+    // console.log("login in bac",password)
+    // console.log(institute);
+    // console.log(centerId);
+
 
     const checkedUser=await doctorModel.findOne({
        email:email
@@ -32,16 +40,26 @@ doctorRouter.post("/login", async function(req,res){
 
     if(!checkedUser){
         res.json({
-            message:"User_not_exists"
+            message:"doctor_not_exists"
         })
         return;
     }
 
-    const finduser= await bcrypt.compare(password,checkedUser.password);
+    const checkedDoctor=await doctorModel.findOne({
+       password:password,
+       centerId:centerId
+    })
+
+    if(!checkedDoctor){
+      res.json({
+        message:"not_found"
+      })
+    }
+
     
-    if(finduser){
+    if(checkedDoctor){
         const token=jwt.sign({
-            id:checkedUser._id
+            id:checkedDoctor._id
         },JWT_KEY)
         res.json({
             token:token,
@@ -49,7 +67,7 @@ doctorRouter.post("/login", async function(req,res){
         })
     }else{
         res.json({
-            message:"User_not_exists"
+            message:"doctor_not_exists"
         })
         return;
     }  
