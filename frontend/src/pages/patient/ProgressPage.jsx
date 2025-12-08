@@ -8,6 +8,7 @@ import SleepCard from "../../components/patient/progrssCards/SleepCard";
 import ActivityCard from "../../components/patient/progrssCards/ActivityCard";
 import MedicationCard from "../../components/patient/progrssCards/MedicationCard";
 
+
 import {
   Droplets,
   Smile,
@@ -16,12 +17,16 @@ import {
   HeartPulse,
   Pill
 } from "lucide-react";
+import WellnessTrendChart from "../../components/patient/progrssCards/WellnessTrendChart";
+import DailyRadarChart from "../../components/patient/progrssCards/DailyRadarChart";
+import InsightsOverlay from "../../components/patient/progrssCards/InsightsOverlay";
 
 const themeColor = "#1e4b3c";
 
 function ProgressPage() {
   const [loading, setLoading] = useState(true);
   const [todayData, setTodayData] = useState(null);
+  const [showInsights, setShowInsights] = useState(true);
 
   useEffect(() => {
     fetchToday();
@@ -80,7 +85,7 @@ function ProgressPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-10 rounded-2xl">
 
-      {/* ===================== HERO BANNER ===================== */}
+      {/* ******************** HERO BANNER ******************** */}
       <div
         className="relative w-full h-100 bg-cover bg-center rounded-2xl"
         style={{
@@ -150,7 +155,7 @@ function ProgressPage() {
         </div>
       </div>
 
-      {/* ===================== QUICK STATS ===================== */}
+      {/* ******************** QUICK STATS ******************** */}
       <div className="max-w-7xl mx-auto px-6 mt-6">
         <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
@@ -197,7 +202,7 @@ function ProgressPage() {
         </div>
       </div>
 
-      {/* ===================== MAIN CARDS ===================== */}
+      {/* ******************** MAIN CARDS ******************** */}
       <div className="max-w-7xl mx-auto px-6 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <WaterCard data={todayData?.water} refresh={fetchToday} />
         <MoodCard data={todayData?.mood} refresh={fetchToday} />
@@ -207,7 +212,7 @@ function ProgressPage() {
         <MedicationCard data={todayData?.medication} refresh={fetchToday} />
       </div>
 
-      {/* ===================== EMPTY STATE ===================== */}
+      {/* ******************** EMPTY STATE ******************** */}
       {!todayData && (
         <div className="max-w-7xl mx-auto px-6 mt-10">
           <div className="bg-white shadow-sm border border-gray-200 rounded-2xl p-10 text-center">
@@ -221,9 +226,21 @@ function ProgressPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <WellnessTrendChart days={14} />
+        <DailyRadarChart />
+      </div>
+
+      {todayData && (
+      <InsightsOverlay
+        open={showInsights}
+        onClose={() => setShowInsights(false)}
+        todayData={todayData}
+      />
+    )}
+  </div>
+)}
 
 /* COMPONENT: Quick Stat Box */
 function QuickStat({ icon, label, value }) {
