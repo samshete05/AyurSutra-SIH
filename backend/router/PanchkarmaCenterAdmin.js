@@ -125,7 +125,7 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
         degree: z.string().min(2).max(100),
         licenseNo: z.string().min(10).max(1000),
         address: z.string().min(5).max(100),
-        bio: z.string().min(10).max(1000),
+        bio: z.string().min(5).max(1000),
       });
 
       const checkdata = requireData.safeParse(req.body);
@@ -143,6 +143,7 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
       const {
         name,
         Adminemail,
+        password,
         phone,
         email,
         experience,
@@ -156,6 +157,7 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
         status,
       } = req.body;
 
+      console.log(req.body);
       // console.log("this is add doctor daata",req.body);
 
       // Ensure Adminemail exists
