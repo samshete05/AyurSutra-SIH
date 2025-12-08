@@ -8,11 +8,9 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Calendar,
   Star,
   Shield,
-  ExternalLink,
   Compass,
   Building2,
 } from "lucide-react";
@@ -23,8 +21,6 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import BookingGeneralAppointment from "../../components/BookingGeneralAppointment";
 import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTherapyAppointment";
-// Uncomment if you have therapy booking component
-// import BookingTherapyAppointment from "../../components/bookingtherapy/BookingTherapyAppointment";
 
 const CenterDetails = () => {
   const { centerId } = useParams();
@@ -32,6 +28,7 @@ const CenterDetails = () => {
 
   const [center, setCenter] = useState(null);
   const [TherapyData, setTherapyData] = useState(null);
+  const [doctorList, setDoctorList] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,7 +59,7 @@ const CenterDetails = () => {
           "http://localhost:3000/PanchKarmaCenter/getCenterProfile",
           { centerId }
         );
-        console.log("Backend response:", res.data);
+        console.log("Backend response also with doctors:", res.data);
 
         const c = res?.data?.center;
         if (!c) {
@@ -79,7 +76,7 @@ const CenterDetails = () => {
             centerImages: Array.isArray(c.centerImages) ? c.centerImages : [],
             locationUrl: c.locationUrl || "",
             bookingAiNumber: c.BotNumber || "",
-            customerNumber: c.MobileNo || "",
+            customerNumber: c.MobileNo || c.Mobile || "",
             rating: c.rating || 4.5,
             reviewCount: c.reviewCount || 0,
 
@@ -99,15 +96,17 @@ const CenterDetails = () => {
               evening: { startTime: "05:00 PM", endTime: "07:00 PM", tokenAmount: 100 },
             },
 
-            // Therapies and doctors
+            // Therapies and doctors (kept but we will fetch doctors separately)
             therapies: Array.isArray(c.therapies) ? c.therapies : [],
             Doctors: Array.isArray(c.Doctors) ? c.Doctors : [],
 
             bookingSettings: c.bookingSettings || {
               tokenRefundPolicy: "Standard refund policy applies",
             },
+
+            // admin email used to fetch doctors via /get-doctors
+            adminEmail: c.email || c.AdminEmail || c.centerAdminEmail || "",
           };
-          // console.log("tr: ",transformedCenter)
           setCenter(transformedCenter);
         }
       } catch (err) {
@@ -121,7 +120,7 @@ const CenterDetails = () => {
     fetchCenter();
   }, [centerId]);
 
-  // Fetch therapies separately (unchanged)
+  // Fetch therapies separately
   useEffect(() => {
     const fetchTherapyData = async () => {
       if (!centerId) return;
@@ -148,6 +147,31 @@ const CenterDetails = () => {
 
     fetchTherapyData();
   }, [centerId]);
+
+  // Fetch doctors separately using the backend route /get-doctors
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      if (!center || !center.adminEmail) {
+        setDoctorList([]);
+        return;
+      }
+
+      try {
+        const resp = await axios.post(
+          "http://localhost:3000/PanchKarmaCenter/get-doctors",
+          { email: center.adminEmail }
+        );
+
+        console.log("Fetched Doctors:", resp.data.getAllDr);
+        setDoctorList(Array.isArray(resp.data.getAllDr) ? resp.data.getAllDr : []);
+      } catch (err) {
+        console.error("Error fetching doctors:", err);
+        setDoctorList([]);
+      }
+    };
+
+    fetchDoctors();
+  }, [center]);
 
   // Determine open / closed safely (still used for badge)
   const toMinutesSafe = (time) => {
@@ -235,406 +259,389 @@ const CenterDetails = () => {
   }
 
   return (
-  <>
-    <Navbar />
+    <>
+      <Navbar />
 
-    {/* ANIMATIONS */}
-    <style>{`
-      @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-      }
-      .blink-animation {
-        animation: blink 2s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.6; }
-      }
-      .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
-    `}</style>
+      {/* ANIMATIONS */}
+      <style>{`
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+        .blink-animation {
+          animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
 
-    <main className="min-h-screen bg-[#F5F7F6]">
-      
-      {/* HERO SECTION */}
-      <section className="bg-gradient-to-br from-slate-50 to-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-          <div className="grid md:grid-cols-5 gap-6 lg:gap-8 items-start">
-            
-            {/* LEFT PANEL */}
-            <div className="md:col-span-2 space-y-5">
-              
-              {/* Status + Certified Badge */}
-              <div className="flex flex-wrap items-center gap-3">
-                
-                {/* Status Badge */}
-                <span
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-                    isOpen ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                  }`}
-                >
-                  <span className="w-2 h-2 bg-white rounded-full blink-animation" />
-                  {isOpen ? "Open Now" : "Closed"}
-                </span>
+      <main className="min-h-screen bg-[#F5F7F6]">
+        {/* HERO SECTION */}
+        <section className="bg-gradient-to-br from-slate-50 to-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+            <div className="grid md:grid-cols-5 gap-6 lg:gap-8 items-start">
+              {/* LEFT PANEL */}
+              <div className="md:col-span-2 space-y-5">
+                {/* Status + Certified Badge */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Status Badge */}
+                  <span
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+                      isOpen ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                    }`}
+                  >
+                    <span className="w-2 h-2 bg-white rounded-full blink-animation" />
+                    {isOpen ? "Open Now" : "Closed"}
+                  </span>
 
-                {/* Certified Center */}
-                <div className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border-2 border-emerald-600 shadow-sm hover:shadow-md">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-emerald-100 rounded-full animate-pulse" />
-                    <Shield className="w-5 h-5 text-emerald-600 relative z-10" />
+                  {/* Certified Center */}
+                  <div className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border-2 border-emerald-600 shadow-sm hover:shadow-md">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-emerald-100 rounded-full animate-pulse" />
+                      <Shield className="w-5 h-5 text-emerald-600 relative z-10" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-emerald-800 font-semibold uppercase tracking-wider">
+                        Government
+                      </p>
+                      <p className="text-xs font-bold text-emerald-900">
+                        Certified Center
+                      </p>
+                    </div>
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full blink-animation" />
                   </div>
-                  <div className="text-left">
-                    <p className="text-[10px] text-emerald-800 font-semibold uppercase tracking-wider">
-                      Government
-                    </p>
-                    <p className="text-xs font-bold text-emerald-900">
-                      Certified Center
+                </div>
+
+                {/* Name + Rating */}
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                    {center.name}
+                  </h1>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 bg-white border px-3 py-1.5 rounded-lg shadow-sm">
+                      <Star className="w-5 h-5 fill-amber-400" />
+                      <span className="text-lg font-bold">{center.rating}</span>
+                    </div>
+
+                    {center.reviewCount > 0 && (
+                      <span className="text-gray-600 text-sm">
+                        {center.reviewCount} reviews
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-start gap-3 text-gray-700">
+                  <MapPin className="w-5 h-5 mt-1 text-gray-500" />
+                  <div>
+                    <p className="font-semibold">{center.city}</p>
+                    <p className="text-sm">{center.address}</p>
+                  </div>
+                </div>
+
+                {/* Timings */}
+                <div className="flex items-start gap-3 text-gray-700">
+                  <Clock className="w-5 h-5 text-gray-500" />
+                  <div>
+                    <p className="font-semibold">Timings</p>
+                    <p className="text-sm">
+                      Morning: {center.morningOpenTime} – {center.morningCloseTime} ·{" "}
+                      Evening: {center.eveningOpenTime} – {center.eveningCloseTime}
                     </p>
                   </div>
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full blink-animation" />
+                </div>
+
+                {/* Contacts */}
+                <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                  {center.customerNumber && (
+                    <a
+                      href={`tel:${center.customerNumber}`}
+                      className="flex items-center gap-2 bg-white hover:bg-gray-50 shadow-sm border px-4 py-3 rounded-lg"
+                    >
+                      <Phone className="w-4 h-4" />
+                      <div>
+                        <p className="text-xs text-gray-500">Call Center</p>
+                        <p className="text-sm font-semibold">{center.customerNumber}</p>
+                      </div>
+                    </a>
+                  )}
+
+                  {center.bookingAiNumber && (
+                    <a
+                      href={`tel:${center.bookingAiNumber}`}
+                      className="flex items-center gap-2 bg-white hover:bg-gray-50 shadow-sm border px-4 py-3 rounded-lg"
+                    >
+                      <Phone className="w-4 h-4" />
+                      <div>
+                        <p className="text-xs text-gray-500">AI Booking</p>
+                        <p className="text-sm font-semibold">{center.bookingAiNumber}</p>
+                      </div>
+                    </a>
+                  )}
+                </div>
+
+                {/* Booking Button */}
+                <div className="pt-2">
+                  <button
+                    onClick={() => setIsBookingModalOpen(true)}
+                    className="w-full bg-[#1E4B3C] hover:bg-[#163A2E] text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    <span className="text-lg">Book General Appointment</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Name + Rating */}
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-                  {center.name}
-                </h1>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 bg-white border px-3 py-1.5 rounded-lg shadow-sm">
-                    <Star className="w-5 h-5 fill-amber-400" />
-                    <span className="text-lg font-bold">{center.rating}</span>
+              {/* RIGHT: IMAGE CAROUSEL */}
+              <div className="md:col-span-3">
+                <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-black">
+                  {/* Slides */}
+                  <div
+                    className="flex transition-transform duration-500 ease-out"
+                    style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                  >
+                    {(center.centerImages?.length ? center.centerImages : [center.profileImg]).map(
+                      (imgSrc, idx) => (
+                        <div key={idx} className="w-full flex-shrink-0">
+                          <img
+                            src={imgSrc}
+                            alt={`${center.name} view ${idx + 1}`}
+                            className="w-full h-80 md:h-[450px] lg:h-[500px] object-cover"
+                          />
+                        </div>
+                      )
+                    )}
                   </div>
 
-                  {center.reviewCount > 0 && (
-                    <span className="text-gray-600 text-sm">
-                      {center.reviewCount} reviews
-                    </span>
+                  {/* Controls */}
+                  {center.centerImages?.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrev}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg"
+                      >
+                        <ChevronLeft className="w-3 h-3" />
+                      </button>
+
+                      <button
+                        onClick={handleNext}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg"
+                      >
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
-
-              {/* Location */}
-              <div className="flex items-start gap-3 text-gray-700">
-                <MapPin className="w-5 h-5 mt-1 text-gray-500" />
-                <div>
-                  <p className="font-semibold">{center.city}</p>
-                  <p className="text-sm">{center.address}</p>
-                </div>
-              </div>
-
-              {/* Timings */}
-              <div className="flex items-start gap-3 text-gray-700">
-                <Clock className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="font-semibold">Timings</p>
-                  <p className="text-sm">
-                    Morning: {center.morningOpenTime} – {center.morningCloseTime} · 
-                    Evening: {center.eveningOpenTime} – {center.eveningCloseTime}
-                  </p>
-                </div>
-              </div>
-
-              {/* Contacts */}
-              <div className="grid sm:grid-cols-2 gap-3 pt-2">
-                {center.customerNumber && (
-                  <a href={`tel:${center.customerNumber}`}
-                     className="flex items-center gap-2 bg-white hover:bg-gray-50 shadow-sm border px-4 py-3 rounded-lg">
-                    <Phone className="w-4 h-4" />
-                    <div>
-                      <p className="text-xs text-gray-500">Call Center</p>
-                      <p className="text-sm font-semibold">{center.customerNumber}</p>
-                    </div>
-                  </a>
-                )}
-
-                {center.bookingAiNumber && (
-                  <a href={`tel:${center.bookingAiNumber}`}
-                     className="flex items-center gap-2 bg-white hover:bg-gray-50 shadow-sm border px-4 py-3 rounded-lg">
-                    <Phone className="w-4 h-4" />
-                    <div>
-                      <p className="text-xs text-gray-500">AI Booking</p>
-                      <p className="text-sm font-semibold">{center.bookingAiNumber}</p>
-                    </div>
-                  </a>
-                )}
-              </div>
-
-              {/* Booking Button */}
-              <div className="pt-2">
-                <button
-                  onClick={() => setIsBookingModalOpen(true)}
-                  className="w-full bg-[#1E4B3C] hover:bg-[#163A2E] text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg"
-                >
-                  <Calendar className="w-5 h-5" />
-                  <span className="text-lg">Book General Appointment</span>
-                </button>
-              </div>
             </div>
-
-            {/* RIGHT: IMAGE CAROUSEL */}
-            <div className="md:col-span-3">
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-black">
-                
-                {/* Slides */}
-                <div
-                  className="flex transition-transform duration-500 ease-out"
-                  style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-                >
-                  {(
-                    center.centerImages?.length ? center.centerImages : [center.profileImg]
-                  ).map((imgSrc, idx) => (
-                    <div key={idx} className="w-full flex-shrink-0">
-                      <img
-                        src={imgSrc}
-                        alt={`${center.name} view ${idx + 1}`}
-                        className="w-full h-80 md:h-[450px] lg:h-[500px] object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Controls */}
-                {center.centerImages?.length > 1 && (
-                  <>
-                    <button
-                      onClick={handlePrev}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg"
-                    >
-                      <ChevronLeft className="w-3 h-3" />
-                    </button>
-
-                    <button
-                      onClick={handleNext}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg"
-                    >
-                      <ChevronRight className="w-3 h-3" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* THERAPIES */}
-      <section className="bg-white py-10 md:py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            Available Therapies
-          </h2>
-          <p className="text-sm text-gray-600 mb-6">
-            Explore our range of Ayurvedic therapies
-          </p>
+        {/* THERAPIES */}
+        <section className="bg-white py-10 md:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Available Therapies
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">Explore our range of Ayurvedic therapies</p>
 
-          {!TherapyData?.length ? (
-            <div className="text-center py-12 bg-gray-50 border rounded-xl">
-              <p className="text-sm text-gray-600">
-                No therapies listed yet.
-              </p>
-            </div>
-          ) : (
+            {!TherapyData?.length ? (
+              <div className="text-center py-12 bg-gray-50 border rounded-xl">
+                <p className="text-sm text-gray-600">No therapies listed yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {TherapyData.map((t) => (
+                  <TherapyCard
+                    key={t._id || t.id || Math.random()}
+                    {...t}
+                    onBook={() => {
+                      setSelectedTherapy(t);
+                      setIsTherapyModalOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* DOCTORS */}
+        <section className="bg-gray-50 py-10 md:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Our Expert Doctors</h2>
+            <p className="text-sm text-gray-600 mb-6">Meet our Ayurvedic physicians</p>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {TherapyData.map(t => (
-                <TherapyCard
-                  key={t._id}
-                  {...t}
-                  onBook={() => {
-                    setSelectedTherapy(t);
-                    setIsTherapyModalOpen(true);
-                  }}
+              {(doctorList.length ? doctorList : defaultDoctors).map((d) => (
+                <DoctorCard
+                bio={d.bio}
+                  key={d._id || Math.random()}
+                  name={d.name || d.DoctorName}
+                  degree={d.degree || "BAMS"}
+                  speciality={d.speciality || d.specialization || "Ayurveda"}
+                  experience={d.experience || d.experienceYears}
+                  focus={d.focus || d.speciality}
+                  fee={d.fee}
+                  avatar={d.profileImg || d.avatar || "https://cdn-icons-png.flaticon.com/512/147/147144.png"}
                 />
               ))}
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* DOCTORS */}
-      <section className="bg-gray-50 py-10 md:py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Our Expert Doctors</h2>
-          <p className="text-sm text-gray-600 mb-6">Meet our Ayurvedic physicians</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {(center.Doctors.length ? center.Doctors : defaultDoctors).map(d => (
-              <DoctorCard
-                key={d._id || Math.random()}
-                name={d.name || d.DoctorName}
-                degree={d.degree || "BAMS"}
-                speciality={d.speciality || "Ayurveda"}
-                experience={d.experience}
-                focus={d.focus}
-                fee={d.fee}
-                avatar={
-                  d.avatar ||
-                  d.profileImg ||
-                  "https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                }
-              />
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* MAP SECTION */}
-      <section className="bg-gray-50 py-10 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          
-          {/* Header */}
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">Visit Our Center</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Find us easily with detailed directions
-            </p>
-          </div>
+        {/* MAP SECTION */}
+        <section className="bg-gray-50 py-10 md:py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            {/* Header */}
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">Visit Our Center</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">Find us easily with detailed directions</p>
+            </div>
 
-          {/* Container */}
-          <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-            <div className="grid lg:grid-cols-3">
-              
-              {/* LEFT SIDE: DETAILS */}
-              <div className="p-6 md:p-8 bg-gray-50 border-r space-y-6">
-                
-                {/* Address */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Building2 className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <h3 className="font-bold text-lg">Address</h3>
-                  </div>
-                  <p className="text-gray-700 pl-11">
-                    {center.address} <br /> {center.city}
-                  </p>
-                </div>
-
-                {/* Hours */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Clock className="w-5 h-5 text-green-600" />
-                    </div>
-                    <h3 className="font-bold text-lg">Hours</h3>
-                  </div>
-                  <div className="pl-11">
-                    <p className="text-gray-700 font-medium">
-                      Morning: {center.morningOpenTime} – {center.morningCloseTime} <br />
-                      Evening: {center.eveningOpenTime} – {center.eveningCloseTime}
-                    </p>
-                    <span
-                      className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full mt-2 ${
-                        isOpen ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          isOpen ? "bg-green-500" : "bg-red-500"
-                        } blink-animation`}
-                      />
-                      {isOpen ? "Open Now" : "Closed"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Contact */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Phone className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <h3 className="font-bold text-lg">Contact</h3>
-                  </div>
-
-                  <div className="pl-11 space-y-2">
-                    {center.customerNumber && (
-                      <a href={`tel:${center.customerNumber}`}>
-                        <p className="text-sm">
-                          <span className="font-medium">Customer:</span> {center.customerNumber}
-                        </p>
-                      </a>
-                    )}
-                    {center.bookingAiNumber && (
-                      <a href={`tel:${center.bookingAiNumber}`}>
-                        <p className="text-sm">
-                          <span className="font-medium">AI Booking:</span> {center.bookingAiNumber}
-                        </p>
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {/* Rating */}
-                <div className="pt-4 border-t">
-                  <div className="flex items-center justify-between bg-amber-50 rounded-xl p-4 border border-amber-200">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-6 h-6 fill-amber-400" />
-                      <div>
-                        <p className="text-2xl font-bold">{center.rating}</p>
-                        <p className="text-xs">{center.reviewCount} reviews</p>
+            {/* Container */}
+            <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
+              <div className="grid lg:grid-cols-3">
+                {/* LEFT SIDE: DETAILS */}
+                <div className="p-6 md:p-8 bg-gray-50 border-r space-y-6">
+                  {/* Address */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Building2 className="w-5 h-5 text-blue-600" />
                       </div>
+                      <h3 className="font-bold text-lg">Address</h3>
                     </div>
-                    <Shield className="w-8 h-8 text-amber-500" />
+                    <p className="text-gray-700 pl-11">
+                      {center.address} <br /> {center.city}
+                    </p>
                   </div>
+
+                  {/* Hours */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Clock className="w-5 h-5 text-green-600" />
+                      </div>
+                      <h3 className="font-bold text-lg">Hours</h3>
+                    </div>
+                    <div className="pl-11">
+                      <p className="text-gray-700 font-medium">
+                        Morning: {center.morningOpenTime} – {center.morningCloseTime} <br />
+                        Evening: {center.eveningOpenTime} – {center.eveningCloseTime}
+                      </p>
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full mt-2 ${
+                          isOpen ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isOpen ? "bg-green-500" : "bg-red-500"
+                          } blink-animation`}
+                        />
+                        {isOpen ? "Open Now" : "Closed"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Contact */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Phone className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <h3 className="font-bold text-lg">Contact</h3>
+                    </div>
+
+                    <div className="pl-11 space-y-2">
+                      {center.customerNumber && (
+                        <a href={`tel:${center.customerNumber}`}>
+                          <p className="text-sm">
+                            <span className="font-medium">Customer:</span> {center.customerNumber}
+                          </p>
+                        </a>
+                      )}
+                      {center.bookingAiNumber && (
+                        <a href={`tel:${center.bookingAiNumber}`}>
+                          <p className="text-sm">
+                            <span className="font-medium">AI Booking:</span> {center.bookingAiNumber}
+                          </p>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between bg-amber-50 rounded-xl p-4 border border-amber-200">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-6 h-6 fill-amber-400" />
+                        <div>
+                          <p className="text-2xl font-bold">{center.rating}</p>
+                          <p className="text-xs">{center.reviewCount} reviews</p>
+                        </div>
+                      </div>
+                      <Shield className="w-8 h-8 text-amber-500" />
+                    </div>
+                  </div>
+
+                  {/* Directions Button */}
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${center.address}, ${center.city}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-[#1E4B3C] hover:bg-[#163A2E] text-white font-semibold py-3.5 rounded-xl shadow-md"
+                  >
+                    <Compass className="w-5 h-5" />
+                    Get Directions
+                  </a>
                 </div>
 
-                {/* Directions Button */}
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    `${center.address}, ${center.city}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full bg-[#1E4B3C] hover:bg-[#163A2E] text-white font-semibold py-3.5 rounded-xl shadow-md"
-                >
-                  <Compass className="w-5 h-5" />
-                  Get Directions
-                </a>
+                {/* RIGHT SIDE: MAP */}
+                <div className="lg:col-span-2 h-96 lg:h-[500px] relative">
+                  {center.locationUrl ? (
+                    <iframe
+                      src={center.locationUrl}
+                      title={`${center.name} location`}
+                      className="w-full h-full border-0"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gray-100">
+                      <p className="text-gray-500">Map unavailable</p>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              {/* RIGHT SIDE: MAP */}
-              <div className="lg:col-span-2 h-96 lg:h-[500px] relative">
-                {center.locationUrl ? (
-                  <iframe
-                    src={center.locationUrl}
-                    title={`${center.name} location`}
-                    className="w-full h-full border-0"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full bg-gray-100">
-                    <p className="text-gray-500">Map unavailable</p>
-                  </div>
-                )}
-              </div>
-
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ SECTION */}
-      {/* <FaqSection openFaq={openFaq} setOpenFaq={setOpenFaq} /> */}
+        {/* FAQ SECTION - reserved for future */}
+      </main>
 
-    </main>
+      {/* BOOKING MODAL */}
+      <BookingGeneralAppointment
+        centerId={centerId}
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        centerData={center}
+      />
 
-    {/* BOOKING MODAL */}
-    <BookingGeneralAppointment
-      centerId={centerId}
-      isOpen={isBookingModalOpen}
-      onClose={() => setIsBookingModalOpen(false)}
-      centerData={center}
-    />
+      <Footer />
 
-    <Footer />
-
-          {/* THERAPY BOOKING MODAL - ADD THIS */}
+      {/* THERAPY BOOKING MODAL */}
       {isTherapyModalOpen && selectedTherapy && center && (
         <BookingTherapyAppointment
           isOpen={isTherapyModalOpen}
@@ -643,29 +650,30 @@ const CenterDetails = () => {
             setSelectedTherapy(null);
           }}
           centerData={{
-            id: center._id || centerId,
-            name: center.name || center.CenterName || "Wellness Center",
+            id: center.id || centerId,
+            name: center.name || "Wellness Center",
             address: center.address || "",
-            phone: center.MobileNo || center.customerNumber || "",
-            slots: center.slots || {
-              morning: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM"],
-              evening: ["04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
-            }
+            phone: center.customerNumber || "",
+            slots:
+              center.slots || {
+                morning: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM"],
+                evening: ["04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"],
+              },
           }}
           therapyData={{
-            id: selectedTherapy._id,
-            name: selectedTherapy.therapyName,
+            id: selectedTherapy._id || selectedTherapy.id,
+            name: selectedTherapy.therapyName || selectedTherapy.name,
             category: selectedTherapy.category,
             description: selectedTherapy.description,
             price: selectedTherapy.price,
-            image: selectedTherapy.TherapyImg,
+            image: selectedTherapy.TherapyImg || selectedTherapy.image,
             duration: selectedTherapy.duration,
-            maxPatientsPerDay: selectedTherapy.maxPatientsPerDay
+            maxPatientsPerDay: selectedTherapy.maxPatientsPerDay,
           }}
         />
       )}
-  
-    </>  
-)};
+    </>
+  );
+};
 
 export default CenterDetails;
