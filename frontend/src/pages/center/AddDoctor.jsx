@@ -30,7 +30,8 @@ const AddDoctorPage = () => {
 
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
-  // const [password,setpassword]=useState(null);
+
+  const [loading, setLoading] = useState(false);   // 🔥 ADDED
 
   const navigate = useNavigate();
   const Adminemail = localStorage.getItem("email");
@@ -48,9 +49,11 @@ const AddDoctorPage = () => {
     setPreview(URL.createObjectURL(f));
   };
 
-  // Handle submit with FormData (CLOUDINARY SAFE)
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setLoading(true);  // 🔥 START LOADER
 
     const fd = new FormData();
 
@@ -71,22 +74,27 @@ const AddDoctorPage = () => {
 
     if (file) fd.append("profileImage", file);
 
-    console.log("here fr data",fd);
+    try {
+      const resp = await axios.post(
+        "http://localhost:3000/PanchKarmaCenter/addDoctor",
+        fd,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    const resp = await axios.post(
-      "http://localhost:3000/PanchKarmaCenter/addDoctor",
-      fd,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-
-    if (resp.data.message === "doctor_added_success") {
-      alert("Doctor Added Successfully!");
-      window.location.reload();
-      return;
-    } else if (resp.data.message === "Dr_Email_Present_use_different_one!!") {
-      alert("Doctor Already Exists!");
-      return;
+      if (resp.data.message === "doctor_added_success") {
+        alert("Doctor Added Successfully and Login Credential is send to doctor!");
+        window.location.reload();
+      } else if (resp.data.message === "Dr_Email_Present_use_different_one!!") {
+        alert("Doctor Already Exists!");
+      } else {
+        alert("Something went wrong!");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server Error!");
     }
+
+    setLoading(false); // 🔥 STOP LOADER
   };
 
   const labelCls =
@@ -119,7 +127,7 @@ const AddDoctorPage = () => {
               </span>
 
               <input
-                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm placeholder:text-slate-400"
                 placeholder="Search doctors, patients..."
               />
             </div>
@@ -194,6 +202,7 @@ const AddDoctorPage = () => {
 
               {/* BASIC INFO */}
               <div className="grid gap-4 md:grid-cols-2">
+
                 <div>
                   <label className={labelCls}>Doctor Full Name</label>
                   <input
@@ -217,20 +226,16 @@ const AddDoctorPage = () => {
                   />
                 </div>
 
-
-                
                 <div>
                   <label className={labelCls}>Set Password for Doctor</label>
                   <input
                     name="password"
-                    // type="password"
                     value={form.password}
                     onChange={handleChange}
                     className={inputCls}
                     required
                   />
                 </div>
-
 
                 <div>
                   <label className={labelCls}>Dr.Phone</label>
@@ -287,7 +292,6 @@ const AddDoctorPage = () => {
 
                 <div>
                   <label className={labelCls}>Gender</label>
-
                   <div className="flex gap-3 rounded-xl border bg-slate-50 px-2 py-1">
                     {["Male", "Female", "Other"].map((g) => (
                       <button
@@ -380,26 +384,18 @@ const AddDoctorPage = () => {
 
               {/* ACTION BUTTONS */}
               <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(initialForm);
-                    setGender("Male");
-                    setStatus("Active");
-                    setPreview(null);
-                    setFile(null);
-                  }}
-                  className="rounded-full cursor-pointer border px-8 py-1.5 text-xs text-slate-600"
-                >
-                  Clear
-                </button>
 
                 <button
                   type="submit"
-                  className="rounded-full cursor-pointer bg-emerald-500 px-6 py-4 text-xs font-semibold text-white hover:bg-emerald-600"
+                  className="rounded-full cursor-pointer bg-emerald-500 px-6 py-3 text-xs font-semibold text-white hover:bg-emerald-600 flex items-center gap-2"
                 >
-                  Create Doctor Profile
+                  {loading && (
+                    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  )}
+
+                  {loading ? "Creating Doctor..." : "Create Doctor Profile"}
                 </button>
+
               </div>
             </form>
 
