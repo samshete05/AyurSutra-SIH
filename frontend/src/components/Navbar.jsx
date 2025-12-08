@@ -144,9 +144,10 @@ const Navbar = () => {
   };
 
   const HandleDashboardClick = () => {
+    console.log("this is our role!!!",role);
     if (role === "patient") navigate("/patient");
     else if (role === "centerHead") navigate("/PanchaKarma-Dashboard");
-    else navigate("/");
+    else navigate("/doctor-dashboard");
   };
 
   return (
