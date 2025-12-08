@@ -608,20 +608,16 @@ const CenterDetails = () => {
                 </div>
 
                 {/* RIGHT SIDE: MAP */}
-                <div className="lg:col-span-2 h-96 lg:h-[500px] relative">
-                  {center.locationUrl ? (
+                <div className="lg:col-span-2 relative h-full w-full">
+                  
                     <iframe
-                      src={center.locationUrl}
-                      title={`${center.name} location`}
-                      className="w-full h-full border-0"
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d110214.99246992456!2d77.8825336433594!3d30.31630180000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3909298c3f6cb66b%3A0xd23354ebae6751!2sPanchtatva%20Ayurvedic%20Clinic%20%26%20Panchakarma%20Centre!5e0!3m2!1sen!2sin!4v1765197635566!5m2!1sen!2sin"
+                      className="w-full h-full border-0 rounded-xl"
                       allowFullScreen
                       loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
                     />
-                  ) : (
-                    <div className="flex items-center justify-center h-full bg-gray-100">
-                      <p className="text-gray-500">Map unavailable</p>
-                    </div>
-                  )}
+                  
                 </div>
               </div>
             </div>
