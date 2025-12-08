@@ -399,7 +399,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
                 </p>
                 <p className="text-xs text-blue-700 mt-1 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" />
-                  Fully Refundable after visit or cancellation (24h before)
+                  Money will not be Refundable after cancellation.     
                 </p>
               </div>
             </div>
@@ -458,7 +458,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
               type="tel"
               value={phoneInput}
               onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              placeholder="9876543210"
+              placeholder="Enter Phone Number"
               disabled={otpSent}
               className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#1E4B3C] focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
             />
@@ -527,7 +527,7 @@ const BookingGeneralAppointment = ({ isOpen, onClose, centerData, centerId }) =>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-xs text-blue-800 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span><strong>Demo Mode:</strong> Use OTP <strong>123456</strong> to proceed</span>
+               The OTP is Sent to your <strong>Phone Number</strong> Successfully.
               </p>
             </div>
           </div>
