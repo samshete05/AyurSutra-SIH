@@ -26,7 +26,7 @@ import {
   Star,
   Zap,
   RefreshCw,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 
 function AIRecommendationPage() {
@@ -42,103 +42,121 @@ function AIRecommendationPage() {
       category: "treatment",
       title: "Abhyanga (Ayurvedic Oil Massage)",
       subtitle: "Recommended for your Vata imbalance",
-      description: "Based on your recent stress levels and sleep patterns, daily Abhyanga can help balance your Vata dosha and improve circulation.",
+      description:
+        "Based on your recent stress levels and sleep patterns, daily Abhyanga can help balance your Vata dosha and improve circulation.",
       confidence: 95,
       benefit: "Reduces stress by 40% and improves sleep quality",
       duration: "15-20 mins daily",
       difficulty: "Easy",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8gJdaBLSWC4GYTDVSPnyAotKPKY1UpOaJmA&s",
-      aiInsight: "Your elevated cortisol levels and irregular sleep suggest Vata aggravation. This warm oil massage will ground your energy.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8gJdaBLSWC4GYTDVSPnyAotKPKY1UpOaJmA&s",
+      aiInsight:
+        "Your elevated cortisol levels and irregular sleep suggest Vata aggravation. This warm oil massage will ground your energy.",
       nextSteps: ["Book massage session", "Learn self-massage technique", "Choose appropriate oil"],
       tags: ["Stress Relief", "Sleep", "Vata Balance"],
       likes: 142,
-      isPersonalized: true
+      isPersonalized: true,
     },
     {
       id: 2,
       category: "diet",
       title: "Cooling Pitta-Balancing Diet Plan",
       subtitle: "AI-curated meal plan for next 7 days",
-      description: "Your recent symptoms indicate Pitta aggravation. This cooling diet includes coconut water, cucumber, and sweet fruits.",
+      description:
+        "Your recent symptoms indicate Pitta aggravation. This cooling diet includes coconut water, cucumber, and sweet fruits.",
       confidence: 88,
       benefit: "Reduces inflammation and improves digestion",
       duration: "7-day plan",
       difficulty: "Moderate",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp9CwjUez2l33Y607lfPzPTm82R9l_uOKJHA&s",
-      aiInsight: "Blood pressure readings and digestive patterns show Pitta dominance. Cooling foods will restore balance.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp9CwjUez2l33Y607lfPzPTm82R9l_uOKJHA&s",
+      aiInsight:
+        "Blood pressure readings and digestive patterns show Pitta dominance. Cooling foods will restore balance.",
       nextSteps: ["View meal plan", "Generate shopping list", "Set reminders"],
       tags: ["Pitta Balance", "Cooling", "Digestion"],
       likes: 98,
-      isPersonalized: true
+      isPersonalized: true,
     },
     {
       id: 3,
       category: "meditation",
       title: "Pranayama: Nadi Shodhana (Alternate Nostril Breathing)",
       subtitle: "Perfect for your morning routine",
-      description: "This breathing technique balances both brain hemispheres and calms the nervous system - ideal for your schedule.",
+      description:
+        "This breathing technique balances both brain hemispheres and calms the nervous system - ideal for your schedule.",
       confidence: 92,
       benefit: "Enhances focus and reduces anxiety by 50%",
       duration: "10 mins, twice daily",
       difficulty: "Easy",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdre3-WzLChjnfq6WPEc8KistUPSw-smxO0A&s",
-      aiInsight: "Your activity patterns show peak stress at 10 AM. Morning pranayama can prevent this spike.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdre3-WzLChjnfq6WPEc8KistUPSw-smxO0A&s",
+      aiInsight:
+        "Your activity patterns show peak stress at 10 AM. Morning pranayama can prevent this spike.",
       nextSteps: ["Watch tutorial", "Set daily reminder", "Track progress"],
       tags: ["Breathing", "Anxiety", "Focus"],
       likes: 256,
-      isPersonalized: false
+      isPersonalized: false,
     },
     {
       id: 4,
       category: "lifestyle",
       title: "Dinacharya: Optimal Daily Routine",
       subtitle: "Personalized schedule based on your chronotype",
-      description: "AI analysis shows you're a morning person. This routine optimizes your natural rhythm for maximum productivity and health.",
+      description:
+        "AI analysis shows you're a morning person. This routine optimizes your natural rhythm for maximum productivity and health.",
       confidence: 90,
       benefit: "Increases energy levels by 35%",
       duration: "Daily routine",
       difficulty: "Moderate",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGdOuaCYm9nPnYz_u_Z14mSnfFPCPsc75QLA&s",
-      aiInsight: "Your wearable data reveals peak performance at 6-10 AM. Let's leverage that window.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGdOuaCYm9nPnYz_u_Z14mSnfFPCPsc75QLA&s",
+      aiInsight:
+        "Your wearable data reveals peak performance at 6-10 AM. Let's leverage that window.",
       nextSteps: ["View full routine", "Set morning alarm", "Integrate with calendar"],
       tags: ["Routine", "Energy", "Productivity"],
       likes: 187,
-      isPersonalized: true
+      isPersonalized: true,
     },
     {
       id: 5,
       category: "herbs",
       title: "Ashwagandha Supplementation",
       subtitle: "Adaptogen for stress management",
-      description: "Clinical studies + your health profile suggest Ashwagandha can significantly reduce your cortisol levels.",
+      description:
+        "Clinical studies + your health profile suggest Ashwagandha can significantly reduce your cortisol levels.",
       confidence: 85,
       benefit: "Reduces stress hormones by 28%",
       duration: "8-week course",
       difficulty: "Easy",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBa0SncITj1UcNZz-E2jJLsrtk2aHfNeha5A&s",
-      aiInsight: "Stress biomarkers are 40% above optimal. Ashwagandha shows best results for your profile type.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBa0SncITj1UcNZz-E2jJLsrtk2aHfNeha5A&s",
+      aiInsight:
+        "Stress biomarkers are 40% above optimal. Ashwagandha shows best results for your profile type.",
       nextSteps: ["Consult with doctor", "Order supplement", "Track effectiveness"],
       tags: ["Adaptogen", "Stress", "Cortisol"],
       likes: 312,
-      isPersonalized: true
+      isPersonalized: true,
     },
     {
       id: 6,
       category: "yoga",
       title: "Yin Yoga for Deep Relaxation",
       subtitle: "Evening practice for better sleep",
-      description: "Slow-paced poses held for 3-5 minutes to release deep tension. Perfect complement to your active morning routine.",
+      description:
+        "Slow-paced poses held for 3-5 minutes to release deep tension. Perfect complement to your active morning routine.",
       confidence: 87,
       benefit: "Improves sleep onset by 25 minutes",
       duration: "30 mins before bed",
       difficulty: "Easy",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPtc0rDUmcUb2NtJhbrb5fr8S4GC2DCNM_Ew&s",
-      aiInsight: "Sleep tracker shows difficulty falling asleep. Evening yin yoga targets this specific issue.",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPtc0rDUmcUb2NtJhbrb5fr8S4GC2DCNM_Ew&s",
+      aiInsight:
+        "Sleep tracker shows difficulty falling asleep. Evening yin yoga targets this specific issue.",
       nextSteps: ["Join live class", "Download routine", "Set evening reminder"],
       tags: ["Sleep", "Relaxation", "Flexibility"],
       likes: 203,
-      isPersonalized: true
-    }
+      isPersonalized: true,
+    },
   ];
 
   const categories = [
@@ -148,12 +166,12 @@ function AIRecommendationPage() {
     { id: "meditation", label: "Mindfulness", icon: Brain },
     { id: "lifestyle", label: "Lifestyle", icon: Sun },
     { id: "herbs", label: "Herbs", icon: Droplets },
-    { id: "yoga", label: "Yoga", icon: Target }
+    { id: "yoga", label: "Yoga", icon: Target },
   ];
 
   const handleLike = (id) => {
     if (likedRecommendations.includes(id)) {
-      setLikedRecommendations(likedRecommendations.filter(item => item !== id));
+      setLikedRecommendations(likedRecommendations.filter((item) => item !== id));
     } else {
       setLikedRecommendations([...likedRecommendations, id]);
       setShowFeedback(id);
@@ -164,39 +182,50 @@ function AIRecommendationPage() {
 
   const handleSave = (id) => {
     if (savedRecommendations.includes(id)) {
-      setSavedRecommendations(savedRecommendations.filter(item => item !== id));
+      setSavedRecommendations(savedRecommendations.filter((item) => item !== id));
     } else {
       setSavedRecommendations([...savedRecommendations, id]);
     }
     // TODO: Save to backend
   };
 
-  const filteredRecommendations = activeCategory === "all"
-    ? recommendations
-    : recommendations.filter(rec => rec.category === activeCategory);
+  const filteredRecommendations =
+    activeCategory === "all"
+      ? recommendations
+      : recommendations.filter((rec) => rec.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-slate-50 -m-4 md:-m-6">
       <div className="max-w-7xl mx-auto">
-        
         {/* Hero Section - Recombee Style */}
         <div className="relative bg-white px-4 md:px-8 pt-0 pb-16 md:pb-24 overflow-hidden">
-          {/* Background decorative elements */}          
+          {/* Background decorative elements */}
           <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
                 AI Recommendations
-                <br />
-                <span className="text-slate-700">and Search</span>
               </h1>
-              
-              <p className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed max-w-xl">
-                Discover your path to wellness with AI-powered Ayurvedic insights tailored to your unique mind, body, and spirit.
+
+              <p className="text-lg md:text-xl text-slate-600 mb-4 leading-relaxed max-w-xl">
+                Discover your path to wellness with AI-powered Ayurvedic insights tailored to your
+                unique mind, body, and spirit.
               </p>
-              <p className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed max-w-xl">
-                Find your natural balance with personalized Ayurvedic recommendations powered by AI – where ancient wisdom meets modern intelligence.
+              <p className="text-lg md:text-xl text-slate-600 mb-6 leading-relaxed max-w-xl">
+                Find your natural balance with personalized Ayurvedic recommendations powered by AI –
+                where ancient wisdom meets modern intelligence.
               </p>
+
+              {/* NEW BUTTON: Ask AyurBot */}
+              <button
+                onClick={() => {
+                  window.location.href = "https://sih-ayursutra-t1ci.onrender.com/chat";
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Ask AyurBot
+              </button>
             </div>
 
             {/* Right Illustration - 3D Isometric Style */}
@@ -204,19 +233,19 @@ function AIRecommendationPage() {
               <div className="relative w-full h-[500px]">
                 {/* Base platform layers */}
                 <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full transform rotate-12 opacity-20"></div>
-                
+
                 {/* Isometric platforms */}
                 <div className="absolute bottom-20 right-20 w-64 h-64">
                   {/* Bottom tier */}
                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-56 h-12 bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-xl transform perspective-1000 -rotate-x-20 shadow-xl">
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-400 to-transparent opacity-50 rounded-xl"></div>
                   </div>
-                  
+
                   {/* Middle tier */}
                   <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-48 h-12 bg-gradient-to-br from-teal-300 to-teal-400 rounded-xl transform perspective-1000 -rotate-x-20 shadow-xl">
                     <div className="absolute inset-0 bg-gradient-to-t from-teal-400 to-transparent opacity-50 rounded-xl"></div>
                   </div>
-                  
+
                   {/* Top tier */}
                   <div className="absolute bottom-32 left-1/2 -translate-x-1/2 w-40 h-12 bg-gradient-to-br from-cyan-300 to-cyan-400 rounded-xl transform perspective-1000 -rotate-x-20 shadow-xl">
                     <div className="absolute inset-0 bg-gradient-to-t from-cyan-400 to-transparent opacity-50 rounded-xl"></div>
@@ -235,9 +264,27 @@ function AIRecommendationPage() {
 
                 {/* Connecting lines */}
                 <svg className="absolute inset-0 w-full h-full" style={{ zIndex: -1 }}>
-                  <path d="M 100 400 Q 200 300 280 250" stroke="#10b981" strokeWidth="2" fill="none" opacity="0.3" />
-                  <path d="M 150 350 Q 220 280 300 220" stroke="#14b8a6" strokeWidth="2" fill="none" opacity="0.3" />
-                  <path d="M 120 380 Q 200 320 290 240" stroke="#06b6d4" strokeWidth="2" fill="none" opacity="0.3" />
+                  <path
+                    d="M 100 400 Q 200 300 280 250"
+                    stroke="#10b981"
+                    strokeWidth="2"
+                    fill="none"
+                    opacity="0.3"
+                  />
+                  <path
+                    d="M 150 350 Q 220 280 300 220"
+                    stroke="#14b8a6"
+                    strokeWidth="2"
+                    fill="none"
+                    opacity="0.3"
+                  />
+                  <path
+                    d="M 120 380 Q 200 320 290 240"
+                    stroke="#06b6d4"
+                    strokeWidth="2"
+                    fill="none"
+                    opacity="0.3"
+                  />
                 </svg>
 
                 {/* Pills/Capsules floating */}
@@ -257,11 +304,10 @@ function AIRecommendationPage() {
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
-                  className={`ml-1 flex items-center gap-2 px-5 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${
-                    activeCategory === category.id
+                  className={`ml-1 flex items-center gap-2 px-5 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${activeCategory === category.id
                       ? "bg-emerald-600 text-white shadow-lg scale-105"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
                   <category.icon className="w-4 h-4" />
                   {category.label}
@@ -282,13 +328,9 @@ function AIRecommendationPage() {
                   {/* Card Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
-                          <img 
-                            src={rec.image} 
-                            alt={rec.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                        <img src={rec.image} alt={rec.title} className="w-full h-full object-cover" />
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {rec.isPersonalized && (
@@ -386,25 +428,31 @@ function AIRecommendationPage() {
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => handleLike(rec.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                          likedRecommendations.includes(rec.id)
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${likedRecommendations.includes(rec.id)
                             ? "bg-emerald-100 text-emerald-600"
                             : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                          }`}
                       >
-                        <ThumbsUp className={`w-4 h-4 ${likedRecommendations.includes(rec.id) ? "fill-current" : ""}`} />
-                        <span className="text-sm font-medium">{rec.likes + (likedRecommendations.includes(rec.id) ? 1 : 0)}</span>
+                        <ThumbsUp
+                          className={`w-4 h-4 ${likedRecommendations.includes(rec.id) ? "fill-current" : ""
+                            }`}
+                        />
+                        <span className="text-sm font-medium">
+                          {rec.likes + (likedRecommendations.includes(rec.id) ? 1 : 0)}
+                        </span>
                       </button>
 
                       <button
                         onClick={() => handleSave(rec.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                          savedRecommendations.includes(rec.id)
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${savedRecommendations.includes(rec.id)
                             ? "bg-emerald-100 text-emerald-600"
                             : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                          }`}
                       >
-                        <BookmarkPlus className={`w-4 h-4 ${savedRecommendations.includes(rec.id) ? "fill-current" : ""}`} />
+                        <BookmarkPlus
+                          className={`w-4 h-4 ${savedRecommendations.includes(rec.id) ? "fill-current" : ""
+                            }`}
+                        />
                         <span className="text-sm font-medium">
                           {savedRecommendations.includes(rec.id) ? "Saved" : "Save"}
                         </span>
@@ -448,18 +496,27 @@ function AIRecommendationPage() {
             </button>
           </div>
         </div>
-
       </div>
 
       {/* Add animations in your global CSS or Tailwind config */}
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(12deg); }
-          50% { transform: translateY(-20px) rotate(12deg); }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(12deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(12deg);
+          }
         }
         @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px) rotate(-12deg); }
-          50% { transform: translateY(-15px) rotate(-12deg); }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(-12deg);
+          }
+          50% {
+            transform: translateY(-15px) rotate(-12deg);
+          }
         }
         .animate-float {
           animation: float 3s ease-in-out infinite;
@@ -472,8 +529,14 @@ function AIRecommendationPage() {
           animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>
