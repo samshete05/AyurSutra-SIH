@@ -8,6 +8,8 @@ import UpcomingAppointmentsCard from "../../components/patient/cards/UpcomingApp
 import TreatmentGuidelinesCard from "../../components/patient/cards/TreatmentGuidelinesCard";
 import RecentActivityCard from "../../components/patient/cards/RecentActivityCard";
 import Loader from "../../components/Loader";
+import TherapyProgressGraph from "../../components/patient/progrssCards/TherapyProgressGraph";
+import TherapyProgressDashboardCard from "../../components/patient/cards/TherapyProgressDashboardCard";
 
 function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,7 @@ function DashboardPage() {
       healthScore: 0
     }
   });
+  const activeAppointmentId = dashboardData.appointments[0]?._id;
 
   useEffect(() => {
     fetchDashboardData();
@@ -223,6 +226,11 @@ const generateGuidelines = (profile) => {
     <RecentActivityCard 
       activities={dashboardData.treatments} 
     />
+
+   {/* Therapy Progress Section */}
+<TherapyProgressDashboardCard 
+  appointmentId={dashboardData.appointments[0]?._id}
+/>
   </div>
 );
 
