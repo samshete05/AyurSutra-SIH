@@ -6,9 +6,9 @@ import DoctorDashboard from './DoctorDashboard'
 const DocDashMain = () => {
   return (
     <>
-        <Navbar/>
+        {/* <Navbar/> */}
         <DoctorDashboard/>
-        <Footer/>
+        {/* <Footer/> */}
     </>
   )
 }

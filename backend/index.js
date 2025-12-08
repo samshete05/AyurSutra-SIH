@@ -37,7 +37,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use("/doctor-dashboard", doctorDashboardRouter);
-
+app.use("/followups", require("./router/followup"));
 
 app.use("/patient", patientRouter);
 app.use("/patient", progressRouter);

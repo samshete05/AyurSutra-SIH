@@ -16,6 +16,7 @@ import CenterNavbar from "./CenterNavbar";
 import { useEffect } from "react";
 import axios from 'axios'
 import { useState } from "react";
+import CalendarComponent from "../../components/CalendarComponent";
 
 // Helper function to get initials from name
 const getInitials = (name) => {
@@ -91,6 +92,9 @@ const PaymentBadge = ({ paid }) => {
 const AppointmentList = () => {
   const [patients, setpatients] = useState([]);
   const centerId = localStorage.getItem("centerId");
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     const getAppointmentData = async () => {
@@ -99,7 +103,7 @@ const AppointmentList = () => {
           centerId: centerId
         });
 
-        console.log(resp);
+        // console.log(resp);
         
         if (resp.data && resp.data.appointmentData) {
           setpatients(resp.data.appointmentData);
@@ -124,7 +128,7 @@ const AppointmentList = () => {
       csvEscape(p.Amount),
       csvEscape(p.PaymentStatus ? "Paid" : "Pending"),
     ]);
-
+    // console.log("APPOINTMENT OBJECT:", p);
     const csvContent =
       headers.join(",") +
       "\n" +
@@ -192,12 +196,9 @@ const AppointmentList = () => {
               >
                 Download CSV File
               </button>
-              <button className="rounded-full bg-[#1E4B3C] cursor-pointer px-6 py-3 text-xs font-semibold text-white shadow-sm">
-                + New Appointment
-              </button>
             </div>
           </div>
-
+{/* /*********************************************************************************************/}
           {/* Table card */}
           <div className="rounded-2xl bg-white shadow-sm shadow-slate-100">
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
@@ -244,7 +245,11 @@ const AppointmentList = () => {
                     patients.map((p, index) => (
                       <tr
                         key={p._id || index}
-                        className="rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-50"
+                        onClick={() => {
+                          setSelectedAppointment(p);
+                          setShowModal(true);
+                        }}
+                        className="cursor-pointer rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-100 transition"
                       >
                         <td className="px-6 py-3">
                           <AvatarWithInitials name={p.PatientName} size={9} />
@@ -263,7 +268,7 @@ const AppointmentList = () => {
                   ) : (
                     <tr>
                       <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
-                        No appointments found
+                        No appointments found. Book your First Appointment
                       </td>
                     </tr>
                   )}
@@ -271,6 +276,42 @@ const AppointmentList = () => {
               </table>
             </div>
           </div>
+          {showModal && selectedAppointment && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
+
+              <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-4xl p-6 relative">
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="absolute top-4 right-4 text-slate-500 hover:text-black"
+                >
+                  ✕
+                </button>
+
+                {/* Appointment Details */}
+                <h2 className="text-xl font-semibold mb-4">
+                  Therapy Progress – {selectedAppointment.PatientName}
+                </h2>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <p><strong>Phone:</strong> {selectedAppointment.PatientPhone}</p>
+                  <p><strong>Email:</strong> {selectedAppointment.PatientEmail}</p>
+                  <p><strong>Amount:</strong> ₹{selectedAppointment.Amount}</p>
+                  <p><strong>Payment:</strong> {selectedAppointment.PaymentStatus ? "Paid" : "Pending"}</p>
+                </div>
+
+                {/* Calendar Section */}
+                <div className="mt-6">
+                  <h3 className="font-semibold mb-2">Mark Therapy Attendance</h3>
+                  <CalendarComponent
+                    appointment={selectedAppointment}
+                  />
+                </div>
+
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
