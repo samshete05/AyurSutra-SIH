@@ -40,6 +40,7 @@ import AppointmentDetails from "../pages/patient/AppointmentDetail";
 import NFC from "../pages/NFC";
 import DoctorProtectedRoute from "../pages/doctor/DoctorProtectedRoute";
 import GeneralConsentForm from "../pages/GeneralConsentForm";
+import SuperAdminDashboard from "../pages/super admin/SuperAdminDashboard";
 
 
 // import TherapyBooking from "../pages/TherapyBooking";
@@ -57,6 +58,15 @@ export const AppRoutes = () => {
         <Route path="/contact" element={<Contact/>}/>
         <Route path="/signup" element={<SignUp/>}/>
         <Route path="/login" element={<Login/>}/>
+
+
+
+        {/* Super Admin DashBoard */}
+        <Route path="/super-admin-dashboard" element={<SuperAdminDashboard/>}/>
+
+
+
+
         <Route path="/otpverification" element={<OtpVerification/>}/>
         <Route path="/center-head-application-success" element={<CenterHeadApplicationSuccess/>}/>
         <Route path="/dashboard" element={ <ProtectedRoute allowedRole="centerHead"><PanchakarmaDashboard/> </ProtectedRoute> }/>
