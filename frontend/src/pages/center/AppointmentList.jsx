@@ -1,17 +1,6 @@
-// src/components/AppointmentList.jsx
-import React from "react";
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBell,
-  faMoon,
-  faUserDoctor,
-  faCalendar,
-} from "@fortawesome/free-solid-svg-icons";
-import { CircleDollarSign, LayoutDashboard, Search, User } from "lucide-react";
+import { Search } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
-import CenterNavbarProfile from "./CenterNavbarProfile";
 import CenterNavbar from "./CenterNavbar";
 import { useEffect } from "react";
 import axios from 'axios'
@@ -210,7 +199,7 @@ const AppointmentList = () => {
                   Payment details for each booking
                 </p>
               </div>
-              <select className="h-8 rounded-full border border-slate-200 bg-slate-50 px-3 text-xs text-slate-600">
+              <select className="h-8 rounded-full border border-slate-200 bg-slate-50 px-3 text-xs text-slate-600 cursor-pointer">
                 <option>All</option>
                 <option>Paid</option>
                 <option>Pending</option>
@@ -237,42 +226,62 @@ const AppointmentList = () => {
                     <th className="px-6 py-2 text-left font-semibold">
                       Payment status
                     </th>
+                    <th className="px-6 py-2 text-left font-semibold">
+                      Action
+                    </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {patients.length > 0 ? (
                     patients.map((p, index) => (
                       <tr
                         key={p._id || index}
-                        onClick={() => {
-                          setSelectedAppointment(p);
-                          setShowModal(true);
-                        }}
-                        className="cursor-pointer rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-100 transition"
+                        className="rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-100 transition"
                       >
                         <td className="px-6 py-3">
                           <AvatarWithInitials name={p.PatientName} size={9} />
                         </td>
+                    
                         <td className="px-6 py-3 font-medium">{p.PatientName}</td>
                         <td className="px-6 py-3 text-slate-500">{p.PatientPhone}</td>
                         <td className="px-6 py-3 text-slate-500">{p.PatientEmail}</td>
-                        <td className="px-6 py-3 font-semibold text-slate-800">
-                          ₹{p.Amount ? p.Amount.toLocaleString("en-IN") : "0"}
-                        </td>
+                        <td className="px-6 py-3 font-semibold">₹{p.Amount}</td>
+                    
                         <td className="px-6 py-3">
                           <PaymentBadge paid={p.PaymentStatus} />
+                        </td>
+                    
+                        {/* NEW ACTION BUTTON CELL */}
+                        <td className="px-6 py-3">
+                          {false ? (
+                            <button
+                              onClick={() => handleAssignDoctor(p)}
+                              className="px-3 py-2 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                            >
+                              Assign Doctor
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setSelectedAppointment(p);
+                                setShowModal(true);
+                              }}
+                              className="px-3 py-2 text-xs rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer"
+                            >
+                              Mark Attendance
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
-                        No appointments found. Book your First Appointment
+                      <td colSpan="7" className="text-center py-8 text-slate-500">
+                        No appointments found.
                       </td>
                     </tr>
                   )}
-                </tbody>
+                  </tbody>
               </table>
             </div>
           </div>
@@ -308,7 +317,6 @@ const AppointmentList = () => {
                     appointment={selectedAppointment}
                   />
                 </div>
-
               </div>
             </div>
           )}
