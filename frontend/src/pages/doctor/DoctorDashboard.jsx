@@ -1637,7 +1637,7 @@ if (activeTab !== "dashboard") {
     <aside className="hidden lg:flex flex-col w-64 bg-white shadow-sm h-screen overflow-hidden flex-shrink-0">
 
       <div className="h-16 flex items-center px-6 border-b border-slate-200">
-        <span className="text-2xl font-semibold text-emerald-700">AyurSutra</span>
+        <span className="text-lg font-semibold text-emerald-700">Practitioner DashBoard</span>
       </div>
 
       {/* FIXED MENU — NO SCROLLING */}
@@ -1679,7 +1679,7 @@ if (activeTab !== "dashboard") {
     <div className="flex-1 flex flex-col overflow-hidden">
 
       {/* FIXED TOP BAR */}
-      <header className="h-16 bg-white flex items-center justify-between px-6 border-b border-slate-200 flex-shrink-0">
+      {/* <header className="h-16 bg-white flex items-center justify-between px-6 border-b border-slate-200 flex-shrink-0">
         <h1 className="text-lg font-semibold">Practitioner Dashboard</h1>
 
         <div className="flex items-center gap-3">
@@ -1692,7 +1692,7 @@ if (activeTab !== "dashboard") {
             RB
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* SCROLLABLE PAGE CONTENT */}
       <main className="flex-1 overflow-y-auto p-6">
