@@ -96,6 +96,27 @@ const centers = [
   { id: 8, name: "AyurvedGram Wellness", location: "Samarth Nagar, Aurangabad", coords: [19.8909, 75.3392], visitors: 180, rating: 4.6, age: 6, photo: images[3] },
   { id: 9, name: "Aayushcare Panchakarma Center", location: "Solapur City", coords: [17.6599, 75.9064], visitors: 150, rating: 4.5, age: 5, photo: images[0] },
   { id: 10, name: "Shree Ayurvedic Chikitsalaya", location: "Kolhapur", coords: [16.7050, 74.2433], visitors: 110, rating: 4.4, age: 4, photo: images[4] },
+    {
+    id: 11,
+    name: "Himalayan Bliss Ayurveda Retreat",
+    location: "Rajpur Road, Near Pacific Hills, Dehradun",
+    coords: [30.316302, 78.026729],
+    visitors: 160, // arbitrary, adjust if needed
+    rating: 4.5,
+    age: 6,
+    photo: "https://www.google.com/maps/place/Himalayan+Bliss+Ayurveda+Retreat/@30.323454,78.043221,17z/...",
+  },
+  {
+    id: 12,
+    name: "Tranquil Roots Wellness Center",
+    location: "Nandapuri, Ramtek, Nagpur",
+    coords: [21.3977, 79.3319],
+    visitors: 140, // arbitrary
+    rating: 4.5,
+    age: 5,
+    photo: "https://res.cloudinary.com/dnjeghqw0/image/upload/v1765177601/doctor_profiles/ow4u5m9hsuffugbe8yjg.avif",
+  },
+
 ];
 
 const DashboardMap = () => {
@@ -321,7 +342,7 @@ const DashboardMap = () => {
           </div>
 
           {/* MAP */}
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl h-[600px] bg-white border-4 border-white">
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl h-[800px] bg-white border-4 border-white">
             <MapContainer
               center={[19.7515, 75.7139]}
               zoom={7}
