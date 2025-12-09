@@ -39,6 +39,9 @@ import HelpCenter from "../pages/HelpCenter";
 import AppointmentDetails from "../pages/patient/AppointmentDetail";
 import NFC from "../pages/NFC";
 import DoctorProtectedRoute from "../pages/doctor/DoctorProtectedRoute";
+import GeneralConsentForm from "../pages/GeneralConsentForm";
+
+
 // import TherapyBooking from "../pages/TherapyBooking";
 // import DoctorBooking from "../pages/DoctorBooking";
 
@@ -96,6 +99,9 @@ export const AppRoutes = () => {
         <Route path="/terms-services" element={<TermsServices />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/help-center" element={<HelpCenter />} />
+        <Route path="/general-consent-form" element={<GeneralConsentForm />} />
+
+
       </Routes>
     </div>
   );
