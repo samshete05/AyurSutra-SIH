@@ -118,6 +118,7 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
       const requireData = z.object({
         name: z.string().min(3).max(100),
         phone: z.string().min(10).max(13),
+        password:z.string().min(5).max(100),
         email: z.string().min(5).max(100),
         experience: z.string().min(1).max(100),
         speciality: z.string().min(3).max(100),
@@ -190,6 +191,7 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
       const doctor = await DoctorModel.create({
         centerId: checkCenterUser._id,
         fullName: name,
+        password:password,
         phone,
         email,
         experience,
@@ -208,6 +210,8 @@ PanchakarmaCenterRouter.post("/addDoctor",upload.single("profileImage"),
         $push: { Doctors: doctor._id }},
         {new : true}
       );
+
+       await SendEmailDoctor(doctor.email, "Your Login Credential:",password,doctor.fullName);
 
       // CREATE NOTIFICATION FOR CENTER ADMIN
       try {

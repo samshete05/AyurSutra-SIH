@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState,useEffect, useMemo } from "react";
 
 import {
   MdDashboard,
@@ -117,6 +117,7 @@ const completedFollowups = [
 // ==========================================
 const DoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  
 
 
   // ======================
@@ -176,6 +177,97 @@ const toggleUrgent = (id) => {
 
 
 
+// ==========================================
+  // FOLLOW-UP STATE (GLOBAL) SAFE HOOK USAGE
+  // ==========================================
+  // follow-up view tab: "pending" | "completed"
+const [followupView, setFollowupView] = useState("pending");
+
+  const [followups, setFollowups] = useState([]);
+  const [loadingFollowups, setLoadingFollowups] = useState(true);
+
+  const [followForm, setFollowForm] = useState({
+    patientId: "",
+    patientName: "",
+    appointmentId: "",
+    followupDate: "",
+    followupTime: "",
+    notes: "",
+    serviceType: "",
+  });
+
+  // FETCH FOLLOWUPS
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/followups");
+        const data = await res.json();
+        if (data.success) setFollowups(data.followups);
+      } catch (err) {
+        console.error("Follow-up fetch error:", err);
+      }
+      setLoadingFollowups(false);
+    };
+
+    fetchData();
+  }, []);
+
+  // Form change
+  const handleFollowChange = (e) =>
+    setFollowForm({ ...followForm, [e.target.name]: e.target.value });
+
+  // Add follow-up
+  const addFollowup = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/followups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(followForm),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setFollowups((prev) => [...prev, data.followUp]);
+
+        setFollowForm({
+          patientId: "",
+          patientName: "",
+          appointmentId: "",
+          followupDate: "",
+          followupTime: "",
+          notes: "",
+          serviceType: "",
+        });
+      }
+    } catch (err) {
+      console.error("Error adding follow-up:", err);
+    }
+  };
+
+  // Complete follow-up
+  const completeFollowup = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3000/followups/${id}/complete`, {
+        method: "PUT",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setFollowups((prev) =>
+          prev.map((f) =>
+            f._id === id ? { ...f, status: "completed" } : f
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error updating:", err);
+    }
+  };
+
+
+
 
   
   const appointments = dummyAppointments;
@@ -202,10 +294,460 @@ const toggleUrgent = (id) => {
   };
 
 
-  // ==========================================
+
+
+
   // PAGE RENDERER
-  // ==========================================
   const renderPage = () => {
+
+
+
+
+    // ================== APPOINTMENTS PAGE ==================
+if (activeTab === "appointments") {
+  const appointmentList = [
+    {
+      _id: "69368f9073bc7bb4667a5dd7",
+      ServiceType: "therapy",
+      patientId: "6935ae9256085374c83a495c",
+      Amount: "100",
+      PaymentStatus: "paid",
+      TherapyId: null,
+      PatientName: "Vedant khasbage",
+      PatientEmail: "ravan@gmail.com",
+      PatientPhone: "7709535901",
+      PatientAge: "20",
+      PatientGender: "male",
+      notes: "this is my note",
+      CenterId: "6936772e39fb7b08f4c3fc57",
+      appointmentDate: "2025-12-09",
+      appointmentSlot: "morning",
+    },
+    {
+      _id: "69369105e15cbe2fbf487063",
+      ServiceType: "therapy",
+      patientId: "6935ae9256085374c83a495c",
+      Amount: "100",
+      PaymentStatus: "paid",
+      TherapyId: null,
+      PatientName: "harsh chafle",
+      PatientEmail: "ravan@gmail.com",
+      PatientPhone: "7709535901",
+      PatientAge: "20",
+      PatientGender: "male",
+      notes: "",
+      CenterId: "6936772e39fb7b08f4c3fc57",
+      appointmentDate: "2025-12-12",
+      appointmentSlot: "evening",
+    },
+    {
+      _id: "69373ed68e2ba94935a287df",
+      ServiceType: "general",
+      patientId: "692f25ace9616f86cd0e5f3f",
+      Amount: "100",
+      PaymentStatus: "paid",
+      TherapyId: null,
+      PatientName: "Vedant Khasbage",
+      PatientEmail: "itsvedantk@gmail.com",
+      PatientPhone: "7709535901",
+      PatientAge: "20",
+      PatientGender: "male",
+      notes: "body pain,fever,headache,stress,oil allergy",
+      CenterId: "6931fe02a310710a9950521f",
+      appointmentDate: "2025-12-12",
+      appointmentSlot: "morning",
+    }
+  ];
+
+  return (
+    <div className="space-y-8">
+
+      {/* PAGE TITLE */}
+      <div>
+        <h2 className="text-xl font-semibold text-slate-800">All Appointments</h2>
+        <p className="text-xs text-slate-500">
+          Showing all general + therapy + consultation appointments
+        </p>
+      </div>
+
+      {/* TABLE */}
+      <div className="bg-white p-6 rounded-3xl shadow-lg overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs text-slate-500 border-b">
+              <th className="py-2 text-left">Patient</th>
+              <th className="py-2 text-left">Service</th>
+              <th className="py-2 text-left">Date</th>
+              <th className="py-2 text-left">Slot</th>
+              <th className="py-2 text-left">Amount</th>
+              <th className="py-2 text-left">Payment</th>
+              <th className="py-2 text-left">Notes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {appointmentList.map((a) => (
+              <tr key={a._id} className="border-b hover:bg-slate-50">
+
+                {/* Patient */}
+                <td className="py-3">
+                  <div className="font-medium">{a.PatientName}</div>
+                  <div className="text-xs text-slate-500">{a.PatientPhone}</div>
+                </td>
+
+                {/* Service */}
+                <td className="py-3 capitalize">{a.ServiceType}</td>
+
+                {/* Date */}
+                <td className="py-3">
+                  {new Date(a.appointmentDate).toLocaleDateString("en-IN")}
+                </td>
+
+                {/* Slot */}
+                <td className="py-3 capitalize">{a.appointmentSlot}</td>
+
+                {/* Amount */}
+                <td className="py-3">₹{a.Amount}</td>
+
+                {/* Payment */}
+                <td className="py-3">
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full ${
+                      a.PaymentStatus === "paid"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {a.PaymentStatus}
+                  </span>
+                </td>
+
+                {/* Notes */}
+                <td className="py-3 text-xs text-slate-600">
+                  {a.notes === "" ? "—" : a.notes}
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ================== APPOINTMENTS PAGE ==================
+if (activeTab === "today") {
+  const appointmentList = [
+    {
+      _id: "69368f9073bc7bb4667a5dd7",
+      ServiceType: "therapy",
+      patientId: "6935ae9256085374c83a495c",
+      Amount: "100",
+      PaymentStatus: "paid",
+      TherapyId: null,
+      PatientName: "Vedant khasbage",
+      PatientEmail: "ravan@gmail.com",
+      PatientPhone: "7709535901",
+      PatientAge: "20",
+      PatientGender: "male",
+      notes: "this is my note",
+      CenterId: "6936772e39fb7b08f4c3fc57",
+      appointmentDate: "2025-12-09",
+      appointmentSlot: "morning",
+    },
+    {
+      _id: "69369105e15cbe2fbf487063",
+      ServiceType: "therapy",
+      patientId: "6935ae9256085374c83a495c",
+      Amount: "100",
+      PaymentStatus: "paid",
+      TherapyId: null,
+      PatientName: "harsh chafle",
+      PatientEmail: "ravan@gmail.com",
+      PatientPhone: "7709535901",
+      PatientAge: "20",
+      PatientGender: "male",
+      notes: "",
+      CenterId: "6936772e39fb7b08f4c3fc57",
+      appointmentDate: "2025-12-12",
+      appointmentSlot: "evening",
+    },
+    // {
+    //   _id: "69373ed68e2ba94935a287df",
+    //   ServiceType: "general",
+    //   patientId: "692f25ace9616f86cd0e5f3f",
+    //   Amount: "100",
+    //   PaymentStatus: "paid",
+    //   TherapyId: null,
+    //   PatientName: "Vedant Khasbage",
+    //   PatientEmail: "itsvedantk@gmail.com",
+    //   PatientPhone: "7709535901",
+    //   PatientAge: "20",
+    //   PatientGender: "male",
+    //   notes: "body pain,fever,headache,stress,oil allergy",
+    //   CenterId: "6931fe02a310710a9950521f",
+    //   appointmentDate: "2025-12-12",
+    //   appointmentSlot: "morning",
+    // }
+  ];
+
+  return (
+    <div className="space-y-8">
+
+      {/* PAGE TITLE */}
+      <div>
+        <h2 className="text-xl font-semibold text-slate-800">Today's Appointments</h2>
+        <p className="text-xs text-slate-500">
+          Showing all general + therapy + consultation appointments
+        </p>
+      </div>
+
+      {/* TABLE */}
+      <div className="bg-white p-6 rounded-3xl shadow-lg overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs text-slate-500 border-b">
+              <th className="py-2 text-left">Patient</th>
+              <th className="py-2 text-left">Service</th>
+              <th className="py-2 text-left">Date</th>
+              <th className="py-2 text-left">Slot</th>
+              <th className="py-2 text-left">Amount</th>
+              <th className="py-2 text-left">Payment</th>
+              <th className="py-2 text-left">Notes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {appointmentList.map((a) => (
+              <tr key={a._id} className="border-b hover:bg-slate-50">
+
+                {/* Patient */}
+                <td className="py-3">
+                  <div className="font-medium">{a.PatientName}</div>
+                  <div className="text-xs text-slate-500">{a.PatientPhone}</div>
+                </td>
+
+                {/* Service */}
+                <td className="py-3 capitalize">{a.ServiceType}</td>
+
+                {/* Date */}
+                <td className="py-3">
+                  {new Date(a.appointmentDate).toLocaleDateString("en-IN")}
+                </td>
+
+                {/* Slot */}
+                <td className="py-3 capitalize">{a.appointmentSlot}</td>
+
+                {/* Amount */}
+                <td className="py-3">₹{a.Amount}</td>
+
+                {/* Payment */}
+                <td className="py-3">
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full ${
+                      a.PaymentStatus === "paid"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {a.PaymentStatus}
+                  </span>
+                </td>
+
+                {/* Notes */}
+                <td className="py-3 text-xs text-slate-600">
+                  {a.notes === "" ? "—" : a.notes}
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+    // =============================
+// FOLLOW-UP PAGE UI
+// =============================
+if (activeTab === "followup") {
+  const pendingList = followups.filter((f) => f.status !== "completed");
+  const completedList = followups.filter((f) => f.status === "completed");
+
+  return (
+    <div className="space-y-10">
+
+      {/* PAGE HEADER */}
+      <div>
+        <h2 className="text-xl font-semibold text-slate-800">Follow-Up Patients</h2>
+        <p className="text-xs text-slate-500">Manage follow-up notes and reminders</p>
+      </div>
+
+      {/* ADD FOLLOW-UP FORM */}
+      <div className="bg-white rounded-3xl p-6 shadow-lg space-y-4">
+        <h3 className="text-sm font-semibold mb-2">Add Follow-Up</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <input name="patientId" value={followForm.patientId} onChange={handleFollowChange}
+            placeholder="Patient ID" className="px-3 py-2 rounded-xl bg-slate-100" />
+
+          <input name="patientName" value={followForm.patientName} onChange={handleFollowChange}
+            placeholder="Patient Name" className="px-3 py-2 rounded-xl bg-slate-100" />
+
+          <input name="appointmentId" value={followForm.appointmentId} onChange={handleFollowChange}
+            placeholder="Appointment ID (optional)" className="px-3 py-2 rounded-xl bg-slate-100" />
+
+          <input name="serviceType" value={followForm.serviceType} onChange={handleFollowChange}
+            placeholder="Service Type (therapy/general)" className="px-3 py-2 rounded-xl bg-slate-100" />
+
+          <input type="date" name="followupDate" value={followForm.followupDate} onChange={handleFollowChange}
+            className="px-3 py-2 rounded-xl bg-slate-100" />
+
+          <select name="followupTime" value={followForm.followupTime} onChange={handleFollowChange}
+            className="px-3 py-2 rounded-xl bg-slate-100">
+            <option value="">Select Time</option>
+            <option value="morning">Morning</option>
+            <option value="evening">Evening</option>
+          </select>
+
+        </div>
+
+        <textarea
+          name="notes"
+          value={followForm.notes}
+          onChange={handleFollowChange}
+          placeholder="Notes"
+          className="w-full px-3 py-2 rounded-xl bg-slate-100"
+        />
+
+        <button
+          onClick={addFollowup}
+          className="bg-emerald-600 text-white px-6 py-2 rounded-xl hover:bg-emerald-700"
+        >
+          Add Follow-Up
+        </button>
+      </div>
+
+      {/* =============================== */}
+      {/*  FOLLOW-UP LIST WITH TABS       */}
+      {/* =============================== */}
+      <div className="bg-white rounded-3xl p-6 shadow-lg">
+
+        {/* TABS */}
+        <div className="flex gap-4 mb-6 border-b border-slate-200 pb-2">
+
+          <button
+            onClick={() => setFollowupView("pending")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
+              followupView === "pending"
+                ? "bg-emerald-100 text-emerald-700"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            Pending Follow-ups ({pendingList.length})
+          </button>
+
+          <button
+            onClick={() => setFollowupView("completed")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
+              followupView === "completed"
+                ? "bg-emerald-100 text-emerald-700"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            Completed ({completedList.length})
+          </button>
+
+        </div>
+
+        {/* LIST BASED ON TAB */}
+        {loadingFollowups ? (
+          <p className="text-center text-slate-500">Loading...</p>
+        ) : followupView === "pending" ? (
+          
+          pendingList.length === 0 ? (
+            <p className="text-center text-slate-400 text-sm">No pending follow-ups.</p>
+          ) : (
+            <div className="space-y-4">
+              {pendingList.map((fu) => (
+                <div
+                  key={fu._id}
+                  className="p-4 rounded-xl bg-slate-50 shadow-sm hover:bg-slate-100 transition"
+                >
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="font-semibold">{fu.patientName}</p>
+                      <p className="text-xs text-slate-500">
+                        {fu.followupDate} • {fu.followupTime} • {fu.serviceType}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-1">{fu.notes}</p>
+                    </div>
+
+                    <button
+                      onClick={() => completeFollowup(fu._id)}
+                      className="text-xs px-3 py-1 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                    >
+                      Mark Done
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+
+        ) : (
+          
+          completedList.length === 0 ? (
+            <p className="text-center text-slate-400 text-sm">No completed follow-ups.</p>
+          ) : (
+            <div className="space-y-4">
+              {completedList.map((fu) => (
+                <div
+                  key={fu._id}
+                  className="p-4 rounded-xl bg-green-50 shadow-sm border border-green-200"
+                >
+                  <p className="font-semibold text-green-700">{fu.patientName}</p>
+                  <p className="text-xs text-green-600">
+                    {fu.followupDate} • {fu.followupTime} • {fu.serviceType}
+                  </p>
+                  <p className="text-xs text-green-700 mt-1">{fu.notes}</p>
+                </div>
+              ))}
+            </div>
+          )
+
+        )}
+
+      </div>
+    </div>
+  );
+}
 
 
 
@@ -1095,7 +1637,7 @@ if (activeTab !== "dashboard") {
     <aside className="hidden lg:flex flex-col w-64 bg-white shadow-sm h-screen overflow-hidden flex-shrink-0">
 
       <div className="h-16 flex items-center px-6 border-b border-slate-200">
-        <span className="text-2xl font-semibold text-emerald-700">AyurSutra</span>
+        <span className="text-lg font-semibold text-emerald-700">Practitioner DashBoard</span>
       </div>
 
       {/* FIXED MENU — NO SCROLLING */}
@@ -1137,7 +1679,7 @@ if (activeTab !== "dashboard") {
     <div className="flex-1 flex flex-col overflow-hidden">
 
       {/* FIXED TOP BAR */}
-      <header className="h-16 bg-white flex items-center justify-between px-6 border-b border-slate-200 flex-shrink-0">
+      {/* <header className="h-16 bg-white flex items-center justify-between px-6 border-b border-slate-200 flex-shrink-0">
         <h1 className="text-lg font-semibold">Practitioner Dashboard</h1>
 
         <div className="flex items-center gap-3">
@@ -1150,7 +1692,7 @@ if (activeTab !== "dashboard") {
             RB
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* SCROLLABLE PAGE CONTENT */}
       <main className="flex-1 overflow-y-auto p-6">
