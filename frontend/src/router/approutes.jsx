@@ -68,6 +68,8 @@ export const AppRoutes = () => {
         <Route path="/center-notifications" element={<ProtectedRoute allowedRole="centerHead"><CenterNotifications /></ProtectedRoute>} />
 
         <Route path="/doctor-dashboard" element={ <DoctorProtectedRoute allowedRole="doctor"> <DocDashMain/></DoctorProtectedRoute> }/>
+        <Route path="/doctor/appointments" element={<DoctorProtectedRoute allowedRole="doctor"><DocDashMain activeTab="appointments" /></DoctorProtectedRoute>}/>
+        
         <Route path="/nfc-card-at-ayursutra" element={<NFC/>}/>
 
         {/* <Route path="/center-setting" element={<CenterSettingsPage/>}/> */}

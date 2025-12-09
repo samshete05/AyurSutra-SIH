@@ -252,6 +252,145 @@ doctorRouter.post("/logout",async(req,res)=>{
 })
 
 
+// Get all appointments for logged-in doctor (based on centerId)
+doctorRouter.get("/appointments", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, JWT_KEY);
+    const doctorId = decoded.id;
+
+    const doctor = await DoctorModel.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor_Not_Found" });
+    }
+
+    const centerId = doctor.centerId; // doctor ka center
+
+    const appointments = await CenterAppointmentModel.find({
+      CenterId: centerId,
+    })
+      .sort({ appointmentDate: -1 })
+      .lean();
+
+    const now = new Date();
+
+    const formatted = appointments.map((apt) => {
+      const aptDate = new Date(apt.appointmentDate);
+      const status = apt.status || "scheduled"; // in case schema me na ho
+
+      const hoursDiff = (aptDate - now) / (1000 * 60 * 60);
+      const isUpcoming =
+        aptDate > now && ["scheduled", "confirmed"].includes(status);
+
+      const canCancel =
+        hoursDiff >= 1 && ["scheduled", "confirmed"].includes(status);
+
+      return {
+        appointmentDetails: apt,
+        patientDetails: {
+          name: apt.PatientName,
+          phone: apt.PatientPhone,
+          email: apt.PatientEmail,
+          age: apt.PatientAge,
+          gender: apt.PatientGender,
+        },
+        isUpcoming,
+        canCancel,
+        status,
+      };
+    });
+
+    res.json({
+      message: "Success",
+      appointments: formatted,
+    });
+  } catch (err) {
+    console.error("Doctor /appointments error:", err);
+    res.status(500).json({
+      message: "Server_Error",
+      error: err.message,
+    });
+  }
+});
+
+// *************************** DOCTOR CANCEL APPOINTMENT ***************************
+// Simple delete, like patient /delete-appointment
+doctorRouter.delete("/delete-appointment", async (req, res) => {
+  try {
+    const { aptId, phoneNo } = req.body;
+
+    if (!aptId) {
+      return res.status(400).json({ message: "Appointment ID required" });
+    }
+
+    await CenterAppointmentModel.deleteOne({ _id: aptId });
+
+    // Optional: SMS to patient that doctor cancelled
+    // if (phoneNo) {
+    //   await client.messages.create({
+    //     body: `Your appointment has been cancelled by the doctor. Please check your dashboard for more details.`,
+    //     from: process.env.TWILIO_NUMBER,
+    //     to: `+91${phoneNo}`,
+    //   });
+    // }
+
+    res.json({ message: "deleted" });
+  } catch (err) {
+    console.error("Doctor delete-appointment error:", err);
+    res.status(500).json({
+      message: "Server_Error",
+      error: err.message,
+    });
+  }
+});
+
+// *************************** DOCTOR RESCHEDULE APPOINTMENT ***************************
+doctorRouter.post("/rescheduleAppointment", async (req, res) => {
+  try {
+    const { appointmentId, newdate, newslot, phoneNo } = req.body;
+
+    if (!appointmentId || !newdate || !newslot) {
+      return res.status(400).json({
+        message: "Missing required fields",
+      });
+    }
+
+    const updated = await CenterAppointmentModel.updateOne(
+      { _id: appointmentId },
+      {
+        appointmentDate: newdate,
+        appointmentSlot: newslot,
+      }
+    );
+
+    // Optional: SMS to patient
+    // if (phoneNo) {
+    //   await client.messages.create({
+    //     body: `Your appointment has been rescheduled to ${newdate} (${newslot}). Please check your dashboard for details.`,
+    //     from: process.env.TWILIO_NUMBER,
+    //     to: `+91${phoneNo}`,
+    //   });
+    // }
+
+    res.json({
+      message: "changed",
+      updated,
+    });
+  } catch (err) {
+    console.error("Doctor rescheduleAppointment error:", err);
+    res.status(500).json({
+      message: "Server_Error",
+      error: err.message,
+    });
+  }
+});
+
 
 module.exports={
     doctorRouter:doctorRouter
