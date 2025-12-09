@@ -283,10 +283,12 @@ PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
   try {
     console.log("➡️ allcenterList hit");
 
-    // console.log("Model loaded:", PanchkarmaModel && PanchkarmaModel.modelName);
-
-    const allCenters = await PanchakarmaCenterModel.find({});
-    // console.log("Centers fetched:", allCenters.length);
+    const allCenters = await PanchakarmaCenterModel
+      .find({})
+      .populate({
+        path: "Doctors",
+        model: "Doctor",
+      });
 
     return res.json({
       success: true,
@@ -303,10 +305,39 @@ PanchakarmaCenterRouter.get("/allcenterList", async (req, res) => {
   }
 });
 
+
+PanchakarmaCenterRouter.post("/get-center-doctors", async (req, res) => {
+  try {
+    const { centerId } = req.body;
+
+    if (!centerId) {
+      return res.status(400).json({
+        success: false,
+        message: "centerId is required",
+      });
+    }
+
+    const doctors = await DoctorModel.find({ centerId });
+
+    return res.json({
+      success: true,
+      doctors,
+    });
+
+  } catch (error) {
+    console.error("Error fetching center doctors:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
+
 // ******************** ADD THERAPY ********************
 PanchakarmaCenterRouter.post("/addTherapy", upload.single("therapyImage"),async (req, res) => {
   //console.log("Therapy API called!");
-
+     
   const requireData = z.object({
     name: z.string().min(3).max(100),
     duration: z.string().min(2).max(50),
@@ -872,6 +903,52 @@ PanchakarmaCenterRouter.post("/get-center-appoinment",async(req,res)=>{
      })
 
 })
+
+PanchakarmaCenterRouter.post("/assign-patient-to-doctor", async (req, res) => {
+  try {
+    console.log("hitting assigning routes");
+
+    const { patientId, doctorId } = req.body;
+
+    console.log("Doctor:", doctorId);
+    console.log("Patient:", patientId);
+
+    if (!doctorId || !patientId) {
+      return res.status(400).json({ success: false, message: "Missing doctorId or patientId" });
+    }
+
+    // 1️⃣ Add patient to doctor's assignedPatients array
+    const updatedDoctor = await DoctorModel.findByIdAndUpdate(
+      doctorId,
+      { $addToSet: { assignedPatients: patientId } }, // prevents duplicates
+      { new: true }
+    );
+
+    if (!updatedDoctor) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
+
+    console.log("Updated Doctor:", updatedDoctor);
+
+    return res.json({
+      success: true,
+      message: "Patient assigned successfully",
+      updatedDoctor
+    });
+
+  } catch (error) {
+    console.error("Assign patient error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
 
 // *************************** MARK THERAPY ATTENDANCE ********************************
 PanchakarmaCenterRouter.post("/mark-therapy-attendance", async (req, res) => {

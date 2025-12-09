@@ -72,7 +72,12 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
     maxlength: 1000,
   },
-
+    assignedPatients: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient",
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

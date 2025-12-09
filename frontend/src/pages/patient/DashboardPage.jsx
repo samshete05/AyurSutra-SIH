@@ -227,10 +227,12 @@ const generateGuidelines = (profile) => {
       activities={dashboardData.treatments} 
     />
 
-   {/* Therapy Progress Section */}
-<TherapyProgressDashboardCard 
-  appointmentId={dashboardData.appointments[0]?._id}
-/>
+    {/* Therapy Progress Section */}
+    {dashboardData.appointments[0]?.therapyId && (
+      <TherapyProgressDashboardCard 
+        appointmentId={dashboardData.appointments[0]._id}
+      />
+    )}
   </div>
 );
 
