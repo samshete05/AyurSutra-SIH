@@ -95,8 +95,8 @@ const PanchakarmaDashboard = () => {
           {/* KPI Cards */}
           <div className="mb-6 grid gap-4 md:grid-cols-4">
             {[
-              { title: "Annual Revenue", value: "$2,840,000", trend: "+20%" },
-              { title: "Monthly Revenue", value: "$120,000", trend: "+25%" },
+              { title: "Annual Revenue", value: "₹2,840,000", trend: "+20%" },
+              { title: "Monthly Revenue", value: "₹120,000", trend: "+25%" },
               { title: "Total Patients", value: "1,420", trend: "+18%" },
               { title: "Therapy Sessions", value: "980", trend: "+15%" },
             ].map((kpi) => (
