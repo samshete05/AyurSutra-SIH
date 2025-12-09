@@ -214,7 +214,6 @@ const AppointmentList = () => {
                     <th className="px-6 py-2">Assign</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {patients.map((p, i) => (
                     <tr
@@ -282,7 +281,6 @@ const AppointmentList = () => {
                   <h3 className="font-semibold mb-2">Mark Therapy Attendance</h3>
                   <CalendarComponent appointment={selectedAppointment} />
                 </div>
-
               </div>
             </div>
           )}
