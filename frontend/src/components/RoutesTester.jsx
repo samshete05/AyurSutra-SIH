@@ -18,6 +18,7 @@ const RoutesTester = () => {
     { to:"/center-map", label:"Map Center"},
     { to:"/allcenters", label:"All Centers"},
     { to:"/nfc-card-at-ayursutra", label:"NFC"},
+    { to:"/super-admin-dashboard", label:"Super Admin DashBoard"},
   ];
 
   return (
