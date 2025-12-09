@@ -13,19 +13,44 @@
 
 // }
 
-// export default App
-
 import './App.css'
 import { BrowserRouter } from 'react-router-dom'
 import { AppRoutes } from './router/approutes'
 import { useState, useEffect } from 'react'
-import Loader from './components/Loader'   // ⬅️ Add this
+import Loader from './components/Loader'
 
 function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Loader disappears after 1 second
+    // Add Google Translate script
+    const addScript = () => {
+      const script = document.createElement('script')
+      script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+      script.async = true
+      document.body.appendChild(script)
+    }
+    
+    // Initialize Google Translate
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { 
+          pageLanguage: "en",
+          includedLanguages: "en,es,fr,de,zh,hi,ta,te,mr,bn",
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
+        },
+        "google_translate_element"
+      )
+    }
+
+    addScript()
+
+    return () => {
+      delete window.googleTranslateElementInit
+    }
+  }, [])
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false)
     }, 1000)
@@ -33,7 +58,6 @@ function App() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Show loader while loading = true
   if (loading) return <Loader />
 
   return (
@@ -46,3 +70,4 @@ function App() {
 }
 
 export default App
+
