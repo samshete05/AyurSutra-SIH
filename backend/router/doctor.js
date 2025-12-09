@@ -5,6 +5,7 @@ const z = require('zod');
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
 const doctorModel = require("../models/Doctor.model");
+const DoctorModel = require("../models/Doctor.model");
 const JWT_KEY = process.env.JWT_KEY;
 
 
@@ -73,6 +74,37 @@ doctorRouter.post("/login", async function(req,res){
     }  
     console.log("end")         
 })
+
+
+doctorRouter.post("/doctorProfile", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find doctor + populate assignedPatients
+    const profile = await DoctorModel.findOne({ email })
+      .populate("assignedPatients"); // <-- This gives full patient details
+
+    if (!profile) {
+      return res.json({
+        success: false,
+        message: "Doctor not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      profile,
+      assignedPatients: profile.assignedPatients, // return directly
+    });
+
+  } catch (err) {
+    console.log("Doctor Profile Error:", err);
+    res.json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
 
 // *************************** FORGET PASSWORD ********************************
 // STEP 1 : Doctor requests password reset (send OTP to email)

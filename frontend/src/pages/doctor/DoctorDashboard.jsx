@@ -35,6 +35,7 @@ import {
   Pie,
   Cell
 } from "recharts";
+import axios from "axios";
 
 
 
@@ -297,144 +298,100 @@ const [followupView, setFollowupView] = useState("pending");
 
 
 
+  const [assignedPatients, setAssignedPatients] = useState([]);
+
+useEffect(() => {
+  const loadAssigned = async () => {
+    try {
+      const email = localStorage.getItem("email");
+      const profile = await axios.post(
+        "http://localhost:3000/doctor/doctorProfile",
+        { email }
+      );
+
+      const doctor = profile.data.profile;
+      if (!doctor || !doctor.assignedPatients) return;
+
+      const patientIds = doctor.assignedPatients;
+
+      const patientResp = await axios.post(
+        "http://localhost:3000/doctor/get-assigned-patient-details",
+        { patientIds }
+      );
+
+      setAssignedPatients(patientResp.data.patients || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  loadAssigned();
+}, []);
+
+
+
   // PAGE RENDERER
   const renderPage = () => {
-
-
+   
 
 
     // ================== APPOINTMENTS PAGE ==================
+     
+    // ================== APPOINTMENTS PAGE ==================
 if (activeTab === "appointments") {
-  const appointmentList = [
-    {
-      _id: "69368f9073bc7bb4667a5dd7",
-      ServiceType: "therapy",
-      patientId: "6935ae9256085374c83a495c",
-      Amount: "100",
-      PaymentStatus: "paid",
-      TherapyId: null,
-      PatientName: "Vedant khasbage",
-      PatientEmail: "ravan@gmail.com",
-      PatientPhone: "7709535901",
-      PatientAge: "20",
-      PatientGender: "male",
-      notes: "this is my note",
-      CenterId: "6936772e39fb7b08f4c3fc57",
-      appointmentDate: "2025-12-09",
-      appointmentSlot: "morning",
-    },
-    {
-      _id: "69369105e15cbe2fbf487063",
-      ServiceType: "therapy",
-      patientId: "6935ae9256085374c83a495c",
-      Amount: "100",
-      PaymentStatus: "paid",
-      TherapyId: null,
-      PatientName: "harsh chafle",
-      PatientEmail: "ravan@gmail.com",
-      PatientPhone: "7709535901",
-      PatientAge: "20",
-      PatientGender: "male",
-      notes: "",
-      CenterId: "6936772e39fb7b08f4c3fc57",
-      appointmentDate: "2025-12-12",
-      appointmentSlot: "evening",
-    },
-    {
-      _id: "69373ed68e2ba94935a287df",
-      ServiceType: "general",
-      patientId: "692f25ace9616f86cd0e5f3f",
-      Amount: "100",
-      PaymentStatus: "paid",
-      TherapyId: null,
-      PatientName: "Vedant Khasbage",
-      PatientEmail: "itsvedantk@gmail.com",
-      PatientPhone: "7709535901",
-      PatientAge: "20",
-      PatientGender: "male",
-      notes: "body pain,fever,headache,stress,oil allergy",
-      CenterId: "6931fe02a310710a9950521f",
-      appointmentDate: "2025-12-12",
-      appointmentSlot: "morning",
-    }
-  ];
 
   return (
     <div className="space-y-8">
 
-      {/* PAGE TITLE */}
       <div>
-        <h2 className="text-xl font-semibold text-slate-800">All Appointments</h2>
-        <p className="text-xs text-slate-500">
-          Showing all general + therapy + consultation appointments
-        </p>
+        <h2 className="text-xl font-semibold text-slate-800">Assigned Patients</h2>
+        <p className="text-xs text-slate-500">Patients assigned to you</p>
       </div>
 
-      {/* TABLE */}
       <div className="bg-white p-6 rounded-3xl shadow-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-xs text-slate-500 border-b">
               <th className="py-2 text-left">Patient</th>
-              <th className="py-2 text-left">Service</th>
-              <th className="py-2 text-left">Date</th>
-              <th className="py-2 text-left">Slot</th>
-              <th className="py-2 text-left">Amount</th>
-              <th className="py-2 text-left">Payment</th>
-              <th className="py-2 text-left">Notes</th>
+              <th className="py-2 text-left">Email</th>
+              <th className="py-2 text-left">Phone</th>
+              <th className="py-2 text-left">Gender</th>
+              <th className="py-2 text-left">Age</th>
             </tr>
           </thead>
 
           <tbody>
-            {appointmentList.map((a) => (
-              <tr key={a._id} className="border-b hover:bg-slate-50">
+            {assignedPatients.length > 0 ? (
+              assignedPatients.map((p) => (
+                <tr key={p._id} className="border-b hover:bg-slate-50">
 
-                {/* Patient */}
-                <td className="py-3">
-                  <div className="font-medium">{a.PatientName}</div>
-                  <div className="text-xs text-slate-500">{a.PatientPhone}</div>
+                  <td className="py-3">
+                    <div className="font-medium">{p.name}</div>
+                    <div className="text-xs text-slate-500">{p._id}</div>
+                  </td>
+
+                  <td className="py-3">{p.email}</td>
+                  <td className="py-3">{p.mobileNo}</td>
+                  <td className="py-3 capitalize">{p.gender}</td>
+                  <td className="py-3">{p.age || "—"}</td>
+
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-slate-400 text-sm">
+                  No assigned patients yet.
                 </td>
-
-                {/* Service */}
-                <td className="py-3 capitalize">{a.ServiceType}</td>
-
-                {/* Date */}
-                <td className="py-3">
-                  {new Date(a.appointmentDate).toLocaleDateString("en-IN")}
-                </td>
-
-                {/* Slot */}
-                <td className="py-3 capitalize">{a.appointmentSlot}</td>
-
-                {/* Amount */}
-                <td className="py-3">₹{a.Amount}</td>
-
-                {/* Payment */}
-                <td className="py-3">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      a.PaymentStatus === "paid"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {a.PaymentStatus}
-                  </span>
-                </td>
-
-                {/* Notes */}
-                <td className="py-3 text-xs text-slate-600">
-                  {a.notes === "" ? "—" : a.notes}
-                </td>
-
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
+
     </div>
   );
 }
+
 
 
 
