@@ -33,6 +33,7 @@ const patientSchema = new schema({
     type: String,
     default: "India",
   },
+  
 
   // Medical History Fields
   height: String,

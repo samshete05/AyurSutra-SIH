@@ -1,216 +1,199 @@
 // src/components/AppointmentList.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBell,
-  faMoon,
-  faUserDoctor,
-  faCalendar,
-} from "@fortawesome/free-solid-svg-icons";
-import { CircleDollarSign, LayoutDashboard, Search, User } from "lucide-react";
+import { Search } from "lucide-react";
 import SidePanel from "../../components/CenterSidePanel";
 import Logo from "../../components/SidePanelLogo";
-import CenterNavbarProfile from "./CenterNavbarProfile";
 import CenterNavbar from "./CenterNavbar";
-import { useEffect } from "react";
-import axios from 'axios'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import CalendarComponent from "../../components/CalendarComponent";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Helper function to get initials from name
+/* ----------------------------------------------------------
+   Helper Functions
+-----------------------------------------------------------*/
+
 const getInitials = (name) => {
   if (!name) return "?";
-  const names = name.split(" ");
-  if (names.length === 1) return names[0].charAt(0).toUpperCase();
-  return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  const parts = name.split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-// Helper function to generate random color based on name
 const getRandomColor = (name) => {
-  if (!name) return '#6b7280'; // default gray
-  
-  // Simple hash function for consistent colors
+  if (!name) return "#6b7280";
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
   const colors = [
-    '#3b82f6', // blue
-    '#10b981', // emerald
-    '#8b5cf6', // violet
-    '#f59e0b', // amber
-    '#ef4444', // red
-    '#ec4899', // pink
-    '#14b8a6', // teal
-    '#f97316', // orange
-    '#6366f1', // indigo
-    '#06b6d4', // cyan
+    "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b",
+    "#ef4444", "#ec4899", "#14b8a6", "#f97316",
+    "#6366f1", "#06b6d4",
   ];
-  
   return colors[Math.abs(hash) % colors.length];
 };
 
-// Avatar component that shows initials
-const AvatarWithInitials = ({ name, size = 9 }) => {
-  const initials = getInitials(name);
-  const bgColor = getRandomColor(name);
-  
+const AvatarWithInitials = ({ name }) => {
   return (
-    <div 
-      className={`h-${size} w-${size} rounded-full flex items-center justify-center text-white font-semibold shadow-sm`}
-      style={{ backgroundColor: bgColor }}
+    <div
+      className="h-9 w-9 rounded-full flex items-center justify-center text-white font-semibold shadow-sm"
+      style={{ backgroundColor: getRandomColor(name) }}
     >
-      {initials}
+      {getInitials(name)}
     </div>
   );
 };
 
-// Small helper to escape CSV values
-const csvEscape = (value) => {
-  if (value == null) return "";
-  const str = String(value);
-  if (/[",\n]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-};
+const PaymentBadge = ({ paid }) => (
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+      paid ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+    }`}
+  >
+    {paid ? "Paid" : "Pending"}
+  </span>
+);
 
-const PaymentBadge = ({ paid }) => {
-  return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-        paid ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-      }`}
-    >
-      {paid ? "Paid" : "Pending"}
-    </span>
-  );
-};
+/* ----------------------------------------------------------
+   MAIN COMPONENT
+-----------------------------------------------------------*/
 
 const AppointmentList = () => {
-  const [patients, setpatients] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const centerId = localStorage.getItem("centerId");
+
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [showModal, setShowModal] = useState(false);
 
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
 
+  // Load appointments + doctors
   useEffect(() => {
-    const getAppointmentData = async () => {
+    const loadAppointments = async () => {
       try {
-        const resp = await axios.post("http://localhost:3000/PanchKarmaCenter/get-center-appoinment", {
-          centerId: centerId
-        });
-
-        // console.log(resp);
-        
-        if (resp.data && resp.data.appointmentData) {
-          setpatients(resp.data.appointmentData);
-        } else {
-          console.error("Invalid response format:", resp);
-        }
-      } catch (error) {
-        console.error("Error fetching appointment data:", error);
+        const res = await axios.post(
+          "http://localhost:3000/PanchKarmaCenter/get-center-appoinment",
+          { centerId }
+        );
+        setPatients(res.data?.appointmentData || []);
+      } catch (e) {
+        console.error(e);
       }
     };
-    
-    getAppointmentData();
+
+    const loadDoctors = async () => {
+      try {
+        const res = await axios.post(
+          "http://localhost:3000/PanchKarmaCenter/get-center-doctors",
+          { centerId }
+        );
+        setDoctors(res.data?.doctors || []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    loadAppointments();
+    loadDoctors();
   }, [centerId]);
 
-  const handleExport = () => {
-    // 1. Build CSV header
-    const headers = ["Name", "Mobile", "Email", "Amount", "Payment Status"];
-    const rows = patients.map((p) => [
-      csvEscape(p.PatientName),
-      csvEscape(p.PatientPhone),
-      csvEscape(p.PatientEmail),
-      csvEscape(p.Amount),
-      csvEscape(p.PaymentStatus ? "Paid" : "Pending"),
-    ]);
-    // console.log("APPOINTMENT OBJECT:", p);
-    const csvContent =
-      headers.join(",") +
-      "\n" +
-      rows.map((row) => row.join(",")).join("\n");
+  const assignToDoctor = async (doctorId) => {
+  try {
+    await axios.post("http://localhost:3000/PanchKarmaCenter/assign-patient-to-doctor", {
+      doctorId: doctorId,
+      patientId: selectedAppointment._id, 
+    });
 
-    // 2. Create blob & download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    toast.success("Patient successfully assigned!");
+    setShowDoctorModal(false);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to assign patient");
+  }
+};
+
+
+  // CSV download
+  const downloadCSV = () => {
+    const rows = [
+      ["Name", "Phone", "Email", "Amount", "Payment Status"],
+      ...patients.map((p) => [
+        p.PatientName,
+        p.PatientPhone,
+        p.PatientEmail,
+        p.Amount,
+        p.PaymentStatus ? "Paid" : "Pending",
+      ]),
+    ];
+
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = url;
     link.download = "appointments.csv";
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+
     URL.revokeObjectURL(url);
   };
 
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-800">
+      <ToastContainer theme="light" />
+
       {/* Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white px-6 py-6 md:flex md:flex-col">
+      <aside className="hidden w-64  bg-white px-6 py-6 md:flex md:flex-col">
         <Logo />
-        <nav className="space-y-6 text-sm">
-          <div>
-            <SidePanel />
-          </div>
-        </nav>
+        <SidePanel />
       </aside>
 
-      {/* Right side: Top bar + content */}
-      <div className="flex min-h-screen flex-1 flex-col">
-        {/* Top bar */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:px-8">
-          <div className="flex items-center gap-3">
-            <div className="relative hidden items-center md:flex">
-              <span className="pointer-events-none absolute left-3 text-slate-400">
-                <Search className="h-5 w-5 text-gray-500" />
-              </span>
-              <input
-                className="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm placeholder:text-slate-400"
-                placeholder="Search appointments..."
-              />
-            </div>
+      {/* MAIN AREA */}
+      <div className="flex flex-1 flex-col">
+
+        {/* NAVBAR */}
+        <header className="flex items-center justify-between  bg-white px-4 py-3 md:px-8">
+          <div className="relative hidden md:flex items-center">
+            <Search className="absolute left-3 h-5 w-5 text-gray-500" />
+            <input
+              className="h-10 w-64 rounded-xl  bg-slate-50 pl-9 pr-3 text-sm"
+              placeholder="Search appointments..."
+            />
           </div>
+
           <CenterNavbar />
         </header>
 
-        {/* Main content area */}
-        <main className="flex-1 bg-slate-100 px-4 py-4 md:px-8 md:py-6">
-          {/* Page title row */}
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        {/* CONTENT */}
+        <main className="flex-1 px-4 py-6 md:px-8">
+
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-sm text-slate-500">
-                Track payments for each appointment
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Patients Appointments
-              </h1>
+              <p className="text-sm text-slate-500">Track payments</p>
+              <h1 className="text-2xl font-semibold">Patients Appointments</h1>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleExport}
-                className="rounded-full cursor-pointer border border-grey-200 px-6 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Download CSV File
-              </button>
-            </div>
+
+            <button
+              onClick={downloadCSV}
+              className="border rounded-full px-6 py-2 text-xs text-slate-600"
+            >
+              Download CSV
+            </button>
           </div>
-{/* /*********************************************************************************************/}
-          {/* Table card */}
-          <div className="rounded-2xl bg-white shadow-sm shadow-slate-100">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+
+          {/* TABLE */}
+          <div className="bg-white shadow-sm">
+
+            <div className="flex justify-between border-b px-6 py-4">
               <div>
-                <p className="text-sm font-semibold text-slate-800">
-                  Today&apos;s Appointments
-                </p>
-                <p className="text-xs text-slate-400">
-                  Payment details for each booking
-                </p>
+                <p className="font-semibold">Today's Appointments</p>
+                <p className="text-xs text-slate-400">Payment details</p>
               </div>
-              <select className="h-8 rounded-full border border-slate-200 bg-slate-50 px-3 text-xs text-slate-600">
+
+              <select className="border rounded-full bg-slate-50 px-3 text-xs">
                 <option>All</option>
                 <option>Paid</option>
                 <option>Pending</option>
@@ -218,78 +201,72 @@ const AppointmentList = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full border-separate border-spacing-y-2 px-4 pb-4">
+              <table className="min-w-full border-separate border-spacing-y-2 p-4">
+
                 <thead>
                   <tr className="text-xs text-slate-400">
-                    <th className="px-6 py-2 text-left font-semibold">Photo</th>
-                    <th className="px-6 py-2 text-left font-semibold">
-                      Patient name
-                    </th>
-                    <th className="px-6 py-2 text-left font-semibold">
-                      Mobile
-                    </th>
-                    <th className="px-6 py-2 text-left font-semibold">
-                      Email
-                    </th>
-                    <th className="px-6 py-2 text-left font-semibold">
-                      Amount
-                    </th>
-                    <th className="px-6 py-2 text-left font-semibold">
-                      Payment status
-                    </th>
+                    <th className="px-6 py-2">Photo</th>
+                    <th className="px-6 py-2">Name</th>
+                    <th className="px-6 py-2">Phone</th>
+                    <th className="px-6 py-2">Email</th>
+                    <th className="px-6 py-2">Amount</th>
+                    <th className="px-6 py-2">Payment</th>
+                    <th className="px-6 py-2">Assign</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {patients.length > 0 ? (
-                    patients.map((p, index) => (
-                      <tr
-                        key={p._id || index}
-                        onClick={() => {
-                          setSelectedAppointment(p);
-                          setShowModal(true);
-                        }}
-                        className="cursor-pointer rounded-xl bg-slate-50/70 text-sm text-slate-700 hover:bg-slate-100 transition"
-                      >
-                        <td className="px-6 py-3">
-                          <AvatarWithInitials name={p.PatientName} size={9} />
-                        </td>
-                        <td className="px-6 py-3 font-medium">{p.PatientName}</td>
-                        <td className="px-6 py-3 text-slate-500">{p.PatientPhone}</td>
-                        <td className="px-6 py-3 text-slate-500">{p.PatientEmail}</td>
-                        <td className="px-6 py-3 font-semibold text-slate-800">
-                          ₹{p.Amount ? p.Amount.toLocaleString("en-IN") : "0"}
-                        </td>
-                        <td className="px-6 py-3">
-                          <PaymentBadge paid={p.PaymentStatus} />
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
-                        No appointments found. Book your First Appointment
+                  {patients.map((p, i) => (
+                    <tr
+                      key={i}
+                      className="bg-slate-50 hover:bg-slate-100 cursor-pointer"
+                      onClick={() => {
+                        setSelectedAppointment(p);
+                        setShowAppointmentModal(true);
+                      }}
+                    >
+                      <td className="px-6 py-3">
+                        <AvatarWithInitials name={p.PatientName} />
+                      </td>
+                      <td className="px-6 py-3">{p.PatientName}</td>
+                      <td className="px-6 py-3 text-slate-500">{p.PatientPhone}</td>
+                      <td className="px-6 py-3 text-slate-500">{p.PatientEmail}</td>
+                      <td className="px-6 py-3 font-semibold">₹{p.Amount}</td>
+                      <td className="px-6 py-3">
+                        <PaymentBadge paid={p.PaymentStatus} />
+                      </td>
+                      <td className="px-6 py-3">
+                        <button
+                          className="bg-blue-600 text-white text-xs px-3 py-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAppointment(p);
+                            setShowDoctorModal(true);
+                          }}
+                        >
+                          Assign
+                        </button>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
+
               </table>
             </div>
           </div>
-          {showModal && selectedAppointment && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
 
-              <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-4xl p-6 relative">
+          {/* APPOINTMENT MODAL */}
+          {showAppointmentModal && selectedAppointment && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+              <div className="bg-white p-6 w-[90%] max-w-4xl relative">
 
-                {/* Close Button */}
                 <button
-                  onClick={() => setShowModal(false)}
-                  className="absolute top-4 right-4 text-slate-500 hover:text-black"
+                  onClick={() => setShowAppointmentModal(false)}
+                  className="absolute top-3 right-4 text-xl text-slate-600"
                 >
                   ✕
                 </button>
 
-                {/* Appointment Details */}
                 <h2 className="text-xl font-semibold mb-4">
                   Therapy Progress – {selectedAppointment.PatientName}
                 </h2>
@@ -301,17 +278,59 @@ const AppointmentList = () => {
                   <p><strong>Payment:</strong> {selectedAppointment.PaymentStatus ? "Paid" : "Pending"}</p>
                 </div>
 
-                {/* Calendar Section */}
                 <div className="mt-6">
                   <h3 className="font-semibold mb-2">Mark Therapy Attendance</h3>
-                  <CalendarComponent
-                    appointment={selectedAppointment}
-                  />
+                  <CalendarComponent appointment={selectedAppointment} />
                 </div>
 
               </div>
             </div>
           )}
+
+          {/* CLEAN DOCTOR ASSIGN MODAL (UI STYLE A — minimal, Apple-like) */}
+          {showDoctorModal && selectedAppointment && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+              <div className="bg-white p-6 w-[95%] max-w-md rounded-xl shadow-lg relative">
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowDoctorModal(false)}
+                  className="absolute top-3 right-4 text-2xl text-gray-500 hover:text-black"
+                >
+                  ✕
+                </button>
+
+                {/* Title */}
+                <h2 className="text-xl font-semibold mb-1 text-slate-800">
+                  Assign Doctor
+                </h2>
+
+                <p className="text-sm text-slate-500 mb-4">
+                  Choose a doctor for <strong>{selectedAppointment.PatientName}</strong>
+                </p>
+
+                {/* Doctor List */}
+                <div className="max-h-80 overflow-y-auto space-y-2">
+                  {doctors.length > 0 ? (
+                    doctors.map((doc) => (
+                      <div
+                        key={doc._id}
+                        onClick={() => assignToDoctor(doc._id)}
+                        className="border p-3 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+                      >
+                        <p className="font-semibold">{doc.fullName}</p>
+                        <p className="text-xs text-slate-500">{doc.speciality}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-slate-500 text-sm">No doctors found.</p>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </div>
