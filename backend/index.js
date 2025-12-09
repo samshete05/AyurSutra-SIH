@@ -38,6 +38,8 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use("/doctor-dashboard", doctorDashboardRouter);
 app.use("/followups", require("./router/followup"));
+app.use("/appointments", require("./router/doctordashboard"));
+
 
 app.use("/patient", patientRouter);
 app.use("/patient", progressRouter);
