@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faStethoscope, faUserDoctor, faUser, faGear } from "@fortawesome/free-solid-svg-icons";
-import { CircleDollarSign, LayoutDashboard, User, HandHeart, BriefcaseMedical } from "lucide-react";
+import { CircleDollarSign, LayoutDashboard, User, HandHeart, BriefcaseMedical, ScanHeart, LayoutTemplate } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const SidePanel = () => {
@@ -100,11 +100,21 @@ const SidePanel = () => {
 
 
       <button
-        onClick={() => navigate("/billing")}
+        onClick={() => navigate("/pharmaco-reporting")}
         className={`${baseItem} ${isActive("/billing") ? activeClasses : inactiveClasses}`}
       >
-        <CircleDollarSign className="h-5 w-5" />
-        <span>Billing</span>
+             <ScanHeart size={30} strokeWidth={1.5} />
+
+        <span>Pharmaco vigiliance Report </span>
+      </button>
+
+      <button
+        onClick={() => navigate("/inventory")}
+        className={`${baseItem} ${isActive("/billing") ? activeClasses : inactiveClasses}`}
+      >
+            <LayoutTemplate className="w-6 h-6 text-gray-700"/>
+
+        <span>Inventory Management </span>
       </button>
 
       {/* NEW SECTION */}

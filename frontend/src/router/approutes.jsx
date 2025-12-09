@@ -40,6 +40,8 @@ import AppointmentDetails from "../pages/patient/AppointmentDetail";
 import NFC from "../pages/NFC";
 import DoctorProtectedRoute from "../pages/doctor/DoctorProtectedRoute";
 import GeneralConsentForm from "../pages/GeneralConsentForm";
+import PharmaReporting from "../pages/PharmacoReporting";
+import PanchakarmaInventory from "../pages/center/Inventory";
 
 
 // import TherapyBooking from "../pages/TherapyBooking";
@@ -66,9 +68,13 @@ export const AppRoutes = () => {
         <Route path="/add-therapy"  element={ <ProtectedRoute allowedRole="centerHead" > <AddTherapy/> </ProtectedRoute>}/>
         <Route path="/view-therapy" element={ <ProtectedRoute allowedRole="centerHead"> <ViewTherapies/> </ProtectedRoute>}/>
         <Route path="/center-notifications" element={<ProtectedRoute allowedRole="centerHead"><CenterNotifications /></ProtectedRoute>} />
+        <Route path="/pharmaco-reporting" element={ <ProtectedRoute allowedRole="centerHead"> <PharmaReporting/> </ProtectedRoute>} />
+        <Route path="/inventory" element={ <ProtectedRoute allowedRole="centerHead"> <PanchakarmaInventory/> </ProtectedRoute>} />
 
         <Route path="/doctor-dashboard" element={ <DoctorProtectedRoute allowedRole="doctor"> <DocDashMain/></DoctorProtectedRoute> }/>
         <Route path="/nfc-card-at-ayursutra" element={<NFC/>}/>
+
+  
 
         {/* <Route path="/center-setting" element={<CenterSettingsPage/>}/> */}
         <Route path="/center-profile" element={ <ProtectedRoute allowedRole="centerHead"> <ProfilePage/> </ProtectedRoute>}/> 

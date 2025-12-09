@@ -342,6 +342,14 @@ patientRouter.get("/getPatientInfo",async(req,res)=>{
 
    console.log("email here",email);
 
+   const userdata=await PatientModel.findOne({
+    email:email
+   })
+
+   return res.json({
+    message:userdata
+   })
+
 })
 
 // *************************** RESEND CODE ********************************
