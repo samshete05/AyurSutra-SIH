@@ -1,6 +1,20 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import {
+  MdDashboard,
+  MdOutlineSettings,
+} from "react-icons/md";
+import { AiOutlineSchedule } from "react-icons/ai";
+import { GoLocation } from "react-icons/go";
+import { TbDeviceDesktopAnalytics } from "react-icons/tb";
+import { BsStars } from "react-icons/bs";
+import { HiOutlineUserCircle } from "react-icons/hi";
+import { RiUserHeartLine } from "react-icons/ri";
+import CenterMap from "../../pages/center/CenterMap"
 
-/* ---------- RAW DATA ARRAYS (frontend only) ---------- */
+import { Bell, UserCircle2, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+
+// ===================== RAW DATA (READ-ONLY) =====================
 
 // CenterGeneralAppointment-like data
 const centerAppointments = [
@@ -57,7 +71,7 @@ const centerAppointments = [
   },
 ];
 
-// Doctors / Practitioners
+// Doctors / practitioners
 const doctors = [
   {
     _id: "6936a5ccbb5ec0613582b88e",
@@ -70,11 +84,7 @@ const doctors = [
     consultationFee: 100,
     gender: "Male",
     degree: "BAMS, MD (Ayurveda)",
-    licenseNo: "AYU-MH-221134",
-    address: "Dharampeth, Nagpur, Maharashtra",
     status: "Active",
-    profileImg: "",
-    bio: "Expert in Panchkarma with a focus on chronic pain management and detox therapies.",
   },
   {
     _id: "6936a888bb5ec0613582ba2a",
@@ -87,11 +97,7 @@ const doctors = [
     consultationFee: 187,
     gender: "Female",
     degree: "BAMS, Diploma in Cosmeceuticals",
-    licenseNo: "1654335431354651",
-    address: "Bandra West, Mumbai",
     status: "Active",
-    profileImg: "",
-    bio: "Highly experienced in Ayurvedic facials, anti-aging therapies, and herbal skincare.",
   },
   {
     _id: "6936a902bb5ec0613582ba94",
@@ -104,11 +110,7 @@ const doctors = [
     consultationFee: 200,
     gender: "Male",
     degree: "BAMS, Fellowship in Spine Care",
-    licenseNo: "413543135461518343",
-    address: "Shivaji Nagar, Pune",
     status: "Active",
-    profileImg: "",
-    bio: "Specializes in Kati Basti, Janu Basti, and joint rehabilitation therapies.",
   },
   {
     _id: "6936aac1bb5ec0613582bd11",
@@ -121,11 +123,7 @@ const doctors = [
     consultationFee: 200,
     gender: "Male",
     degree: "BAMS, Fellowship in Spine Care",
-    licenseNo: "45514681686484",
-    address: "Ayurvedic General Physician",
     status: "Active",
-    profileImg: "",
-    bio: "Passionate about holistic healing, lifestyle correction, and immunity-building.",
   },
   {
     _id: "6937715590656112a11161ed",
@@ -138,13 +136,8 @@ const doctors = [
     consultationFee: 200,
     gender: "Male",
     degree: "MD",
-    licenseNo: "768td7s6sjs6tsj5rs5",
-    address: "SAHUJI NAGAR KARLA ROAD, NEAR HAJARE COMPLEX",
     status: "Active",
-    profileImg: "",
-    bio: "This is the short bio.",
   },
-  // New practitioner Ravi Bhatt
   {
     _id: "RAVI_BHATT_ID",
     centerId: "6931fe02a310710a9950521f",
@@ -156,33 +149,11 @@ const doctors = [
     consultationFee: 250,
     gender: "Male",
     degree: "BAMS, MD (Ayurveda)",
-    licenseNo: "AYU-UK-998877",
-    address: "Rajpur Road, Dehradun",
     status: "Active",
-    profileImg: "",
-    bio: "Expert in Panchakarma with a focus on chronic pain management and detox therapies.",
   },
 ];
 
-// Images and synthetic centers for map-like section
-const images = [
-  "https://content3.jdmagicbox.com/v2/comp/solapur/w2/9999px217.x217.150728150300.i3w2/catalogue/dr-raghavendra-nadargi-ayurved-and-panchakarma-chikitsalaya-jodibhavi-peth-solapur-ayurvedic-doctors-klies5t1xx.jpg",
-  "https://aatreyaayurved.com/wp-content/uploads/2024/07/Aatreya-Ayurveda-Panchakarma-Clinic-Hadapsar-Pune-1536x1024.jpg",
-  "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu.jpg",
-  "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/07/66/46/c5/ayurshreshta-ayurvedic.jpg?w=900&h=500&s=1",
-  "https://content3.jdmagicbox.com/v2/comp/palakkad/k5/9999px491.x491.221023223641.u5k5/catalogue/aayushcare-ayurveda-wellness-clinic-and-panchakarma-centre-palakkad-ayurvedic-treatment-centres-for-panchakarma-og03an8otz.jpg",
-];
-
-const syntheticCenters = [
-  { id: 1, name: "Ayushakti Panchakarma Center", city: "Mumbai", visitors: 240, rating: 4.7, age: 7, photo: images[2] },
-  { id: 2, name: "Kerala Ayurveda Kendra", city: "Mumbai", visitors: 200, rating: 4.6, age: 5, photo: images[3] },
-  { id: 3, name: "Aatreya Ayurveda Clinic", city: "Pune", visitors: 260, rating: 4.9, age: 9, photo: images[1] },
-  { id: 4, name: "Vishwamrut Ayurveda", city: "Pune", visitors: 190, rating: 4.7, age: 6, photo: images[3] },
-  { id: 5, name: "Prakruti Wellness Center", city: "Nagpur", visitors: 175, rating: 4.5, age: 5, photo: images[4] },
-  { id: 6, name: "Jeevansparsh Panchakarma", city: "Nagpur", visitors: 210, rating: 4.8, age: 8, photo: images[0] },
-];
-
-// Real Panchakarma centers (core two)
+// Real centers
 const coreCenters = [
   {
     _id: "6931fe02a310710a9950521f",
@@ -214,6 +185,72 @@ const coreCenters = [
   },
 ];
 
+// Synthetic extra centers used only for stats / cards
+const images = [
+  "https://content3.jdmagicbox.com/v2/comp/solapur/w2/9999px217.x217.150728150300.i3w2/catalogue/dr-raghavendra-nadargi-ayurved-and-panchakarma-chikitsalaya-jodibhavi-peth-solapur-ayurvedic-doctors-klies5t1xx.jpg",
+  "https://aatreyaayurved.com/wp-content/uploads/2024/07/Aatreya-Ayurveda-Panchakarma-Clinic-Hadapsar-Pune-1536x1024.jpg",
+  "https://content.jdmagicbox.com/v2/comp/mumbai/b5/022pxx22.xx22.240610200154.h5b5/catalogue/kerala-ayurveda-multi-speciality-clinic-and-panchakarma-center-andheri-mumbai-clinics-g3yMeMOnHu.jpg",
+  "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/07/66/46/c5/ayurshreshta-ayurvedic.jpg?w=900&h=500&s=1",
+  "https://content3.jdmagicbox.com/v2/comp/palakkad/k5/9999px491.x491.221023223641.u5k5/catalogue/aayushcare-ayurveda-wellness-clinic-and-panchakarma-centre-palakkad-ayurvedic-treatment-centres-for-panchakarma-og03an8otz.jpg",
+];
+
+const syntheticCenters = [
+  {
+    id: 1,
+    name: "Ayushakti Panchakarma Center",
+    city: "Mumbai",
+    visitors: 240,
+    rating: 4.7,
+    age: 7,
+    photo: images[2],
+  },
+  {
+    id: 2,
+    name: "Kerala Ayurveda Kendra",
+    city: "Mumbai",
+    visitors: 200,
+    rating: 4.6,
+    age: 5,
+    photo: images[3],
+  },
+  {
+    id: 3,
+    name: "Aatreya Ayurveda Clinic",
+    city: "Pune",
+    visitors: 260,
+    rating: 4.9,
+    age: 9,
+    photo: images[1],
+  },
+  {
+    id: 4,
+    name: "Vishwamrut Ayurveda",
+    city: "Pune",
+    visitors: 190,
+    rating: 4.7,
+    age: 6,
+    photo: images[3],
+  },
+  {
+    id: 5,
+    name: "Prakruti Wellness Center",
+    city: "Nagpur",
+    visitors: 175,
+    rating: 4.5,
+    age: 5,
+    photo: images[4],
+  },
+  {
+    id: 6,
+    name: "Jeevansparsh Panchakarma",
+    city: "Nagpur",
+    visitors: 210,
+    rating: 4.8,
+    age: 8,
+    photo: images[0],
+  },
+];
+
 // Patients
 const patients = [
   {
@@ -226,7 +263,6 @@ const patients = [
     dateOfBirth: "2004-02-21",
     gender: "Male",
     bloodGroup: "O+",
-    address: "Ramtek",
   },
   {
     _id: "PAT_PANKAJ",
@@ -236,7 +272,6 @@ const patients = [
     city: "Nagpur",
     state: "Maharashtra",
     gender: "Male",
-    address: "Nandapuri, Ramtek, Nagpur – 441106",
   },
   {
     _id: "PAT_VEDANT",
@@ -246,7 +281,6 @@ const patients = [
     city: "Dehradun",
     state: "Uttarakhand",
     gender: "Male",
-    address: "Rajpur Road, Near Pacific Hills, Dehradun – 248001",
   },
   {
     _id: "PAT_MAITHILY",
@@ -256,7 +290,6 @@ const patients = [
     city: "Nagpur",
     state: "Maharashtra",
     gender: "Female",
-    address: "Bajaj Nagar, Nagpur",
   },
   {
     _id: "PAT_NILAKSHI",
@@ -266,7 +299,6 @@ const patients = [
     city: "Pune",
     state: "Maharashtra",
     gender: "Female",
-    address: "Kothrud, Pune",
   },
   {
     _id: "PAT_SAMIKSHA",
@@ -276,7 +308,6 @@ const patients = [
     city: "Aurangabad",
     state: "Maharashtra",
     gender: "Female",
-    address: "CIDCO, Aurangabad",
   },
 ];
 
@@ -365,8 +396,7 @@ const therapists = [
   },
 ];
 
-/* ---------- SMALL HELPERS ---------- */
-
+// ===================== HELPERS =====================
 const formatDate = (dateStr) => {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
@@ -378,24 +408,40 @@ const formatDate = (dateStr) => {
   });
 };
 
-const statusChipClasses = (status) => {
-  const s = (status || "").toLowerCase();
+const statusChipClasses = (status = "") => {
+  const s = status.toLowerCase();
   if (s.includes("paid") || s.includes("completed"))
-    return "bg-emerald-50 text-emerald-700 border-emerald-100";
+    return "bg-emerald-50 text-emerald-700 border-emerald-200";
   if (s.includes("pending"))
-    return "bg-amber-50 text-amber-700 border-amber-100";
+    return "bg-amber-50 text-amber-700 border-amber-200";
   if (s.includes("cancel"))
-    return "bg-rose-50 text-rose-700 border-rose-100";
-  return "bg-slate-50 text-slate-700 border-slate-100";
+    return "bg-rose-50 text-rose-700 border-rose-200";
+  return "bg-slate-50 text-slate-700 border-slate-200";
 };
 
-/* ---------- MAIN COMPONENT ---------- */
+// ===================== SIDEBAR ITEMS =====================
+const sidebarItems = [
+  { id: "overview", label: "Dashboard Overview", icon: <MdDashboard size={20} /> },
+  { id: "centers-map", label: "Centers Visualization Map", icon: <GoLocation size={20} /> },
+  { id: "centers", label: "Centers", icon: <GoLocation size={20} /> },
+  { id: "practitioners", label: "Practitioners", icon: <RiUserHeartLine size={20} /> },
+  { id: "patients", label: "Patients", icon: <AiOutlineSchedule size={20} /> },
+  { id: "appointments", label: "Appointments", icon: <AiOutlineSchedule size={20} /> },
+  { id: "therapies", label: "Therapies", icon: <TbDeviceDesktopAnalytics size={20} /> },
+  { id: "therapists", label: "Therapists", icon: <TbDeviceDesktopAnalytics size={20} /> },
+  { id: "reports", label: "Reports & Analytics", icon: <BsStars size={20} />, badge: "New" },
+  { id: "profile", label: "Admin Profile", icon: <HiOutlineUserCircle size={20} /> },
+  { id: "settings", label: "Settings", icon: <MdOutlineSettings size={20} /> },
+];
 
+// ===================== MAIN COMPONENT =====================
 const SuperAdminDashboard = () => {
-  // Derived stats
+  const [activeTab, setActiveTab] = useState("overview");
+
   const totalPatients = patients.length;
   const totalCenters = coreCenters.length + syntheticCenters.length;
   const totalAppointments = centerAppointments.length;
+
   const avgRating = useMemo(() => {
     const ratings = [
       ...coreCenters.map((c) => c.rating),
@@ -405,12 +451,11 @@ const SuperAdminDashboard = () => {
     return (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
   }, []);
 
-  // Appointments grouped by center
   const centerAppointmentMap = useMemo(() => {
     const map = {};
-    centerAppointments.forEach((apt) => {
-      if (!map[apt.CenterId]) map[apt.CenterId] = [];
-      map[apt.CenterId].push(apt);
+    centerAppointments.forEach((a) => {
+      if (!map[a.CenterId]) map[a.CenterId] = [];
+      map[a.CenterId].push(a);
     });
     return map;
   }, []);
@@ -424,77 +469,14 @@ const SuperAdminDashboard = () => {
     return map;
   }, []);
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
-      {/* Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-100 shadow-sm">
-        <div className="h-16 flex items-center px-6 border-b border-slate-100">
-          <span className="text-xl font-semibold text-emerald-700">
-            AyurSutra
-          </span>
-        </div>
-        <nav className="flex-1 px-4 py-4 space-y-1 text-sm">
-          {[
-            "Overview",
-            "Centers",
-            "Practitioners",
-            "Patients",
-            "Appointments",
-            "Therapies",
-            "Therapists",
-            "Feedback & Quality",
-            "Notifications",
-            "Reports & Analytics",
-            "Settings",
-          ].map((item, idx) => (
-            <button
-              key={item}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition ${
-                idx === 0
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-300" />
-              <span>{item}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="px-4 py-4 border-t border-slate-100 text-xs text-slate-400">
-          © {new Date().getFullYear()} AyurSutra
-        </div>
-      </aside>
-
-      {/* Main */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6">
-          <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-slate-900">
-              Super Admin Dashboard
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500">
-              Read‑only overview of all centers, practitioners and patients
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right text-xs sm:text-sm">
-              <div className="font-semibold text-slate-900">
-                AyurSutra Super Admin
-              </div>
-              <div className="text-slate-500">Read‑only mode</div>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 font-semibold">
-              SA
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6">
-          {/* Hero + key center */}
+  // ----------------- tab renderer -----------------
+  const renderTab = () => {
+    // OVERVIEW
+    if (activeTab === "overview") {
+      return (
+        <div className="space-y-8">
+          {/* Hero */}
           <section className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            {/* Hero */}
             <div className="xl:col-span-3">
               <div className="relative overflow-hidden rounded-2xl bg-emerald-900 text-emerald-50 p-6 sm:p-8">
                 <div className="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(circle_at_top,_#bbf7d0,_transparent_55%),radial-gradient(circle_at_bottom,_#22c55e,_transparent_55%)]" />
@@ -507,8 +489,8 @@ const SuperAdminDashboard = () => {
                       Welcome back, Super Admin
                     </h2>
                     <p className="mt-2 text-sm text-emerald-100 max-w-xl">
-                      Monitor real-time activity across all Panchakarma centers,
-                      practitioners and patient journeys.
+                      Read‑only control tower for all Panchakarma centers,
+                      practitioners and patients under AyurSutra.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2 text-xs">
                       <span className="inline-flex items-center rounded-full bg-emerald-800/60 px-3 py-1">
@@ -523,7 +505,6 @@ const SuperAdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Highlight Himalayan Bliss */}
                   <div className="bg-emerald-800/60 rounded-xl p-4 min-w-[220px] text-sm">
                     <h3 className="text-emerald-50 font-semibold mb-3">
                       Flagship Center
@@ -538,14 +519,14 @@ const SuperAdminDashboard = () => {
                       Timings: 09:00 – 02:00 · 15:00 – 21:00
                     </p>
                     <p className="text-xs text-emerald-200 mt-1">
-                      Rating: 4.5 ★ · Government‑style certified center
+                      Rating: 4.5 ★ · Certified center
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Quick global stats */}
+            {/* Global snapshot */}
             <div>
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 h-full flex flex-col">
                 <p className="text-xs font-semibold text-slate-500 mb-3">
@@ -624,90 +605,356 @@ const SuperAdminDashboard = () => {
                 100%
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                All {totalAppointments} tracked appointments are paid
+                All tracked appointments are paid
               </p>
             </div>
           </section>
+        </div>
+      );
+    }
 
-          {/* Centers overview */}
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Panchakarma Centers
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Real centers plus sample network clinics
-                </p>
-              </div>
-              <table className="min-w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="text-xs text-slate-500 border-b border-slate-100">
-                    <th className="py-2 pr-4">Center</th>
-                    <th className="py-2 pr-4">City</th>
-                    <th className="py-2 pr-4">Rating</th>
-                    <th className="py-2 pr-4">Doctors</th>
-                    <th className="py-2 pr-4">Appointments</th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs sm:text-sm">
-                  {coreCenters.map((c) => {
-                    const doctorCount = doctors.filter(
-                      (d) => d.centerId === c._id
-                    ).length;
-                    const appts = centerAppointmentMap[c._id] || [];
-                    return (
-                      <tr
-                        key={c._id}
-                        className="border-b border-slate-50 last:border-0"
-                      >
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">
-                              {c.CenterName}
-                            </span>
-                            <span className="text-[11px] text-slate-500">
-                              Admin: {c.Adminname}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {c.city}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {c.rating?.toFixed ? c.rating.toFixed(1) : c.rating} ★
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {doctorCount}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {appts.length}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {syntheticCenters.map((c) => (
+
+    if(activeTab==="centers-map"){
+        return(
+            <CenterMap/>
+        )
+    }
+
+    // CENTERS
+    if (activeTab === "centers") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Panchakarma Centers
+            </h2>
+            <p className="text-xs text-slate-500">
+              Real centers plus sample network clinics
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
+            <table className="min-w-full text-left text-xs sm:text-sm">
+              <thead>
+                <tr className="text-xs text-slate-500 border-b border-slate-100">
+                  <th className="py-2 pr-4">Center</th>
+                  <th className="py-2 pr-4">City</th>
+                  <th className="py-2 pr-4">Admin</th>
+                  <th className="py-2 pr-4">Rating</th>
+                  <th className="py-2 pr-4">Doctors</th>
+                  <th className="py-2 pr-4">Appointments</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coreCenters.map((c) => {
+                  const doctorCount = doctors.filter(
+                    (d) => d.centerId === c._id
+                  ).length;
+                  const appts = centerAppointmentMap[c._id] || [];
+                  return (
                     <tr
-                      key={`syn-${c.id}`}
+                      key={c._id}
                       className="border-b border-slate-50 last:border-0"
                     >
                       <td className="py-2 pr-4">
                         <div className="flex flex-col">
                           <span className="font-semibold text-slate-900">
-                            {c.name}
+                            {c.CenterName}
                           </span>
                           <span className="text-[11px] text-slate-500">
-                            Synthetic center
+                            {c.mainAddress}
                           </span>
                         </div>
                       </td>
-                      <td className="py-2 pr-4 whitespace-nowrap">{c.city}</td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {c.city}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {c.Adminname}
+                      </td>
                       <td className="py-2 pr-4 whitespace-nowrap">
                         {c.rating.toFixed(1)} ★
                       </td>
-                      <td className="py-2 pr-4 whitespace-nowrap">—</td>
                       <td className="py-2 pr-4 whitespace-nowrap">
-                        {c.visitors}
+                        {doctorCount}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {appts.length}
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {syntheticCenters.map((c) => (
+                  <tr
+                    key={`syn-${c.id}`}
+                    className="border-b border-slate-50 last:border-0"
+                  >
+                    <td className="py-2 pr-4">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-900">
+                          {c.name}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Synthetic center
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">{c.city}</td>
+                    <td className="py-2 pr-4 whitespace-nowrap">—</td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {c.rating.toFixed(1)} ★
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">—</td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {c.visitors}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    // PRACTITIONERS
+    if (activeTab === "practitioners") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Practitioners (Doctors)
+            </h2>
+            <p className="text-xs text-slate-500">
+              Active practitioners across core centers
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
+            <table className="min-w-full text-left text-xs sm:text-sm">
+              <thead>
+                <tr className="text-xs text-slate-500 border-b border-slate-100">
+                  <th className="py-2 pr-4">Name</th>
+                  <th className="py-2 pr-4">Center</th>
+                  <th className="py-2 pr-4">Speciality</th>
+                  <th className="py-2 pr-4">Experience</th>
+                  <th className="py-2 pr-4">Fee</th>
+                </tr>
+              </thead>
+              <tbody>
+                {doctors.map((d) => {
+                  const center =
+                    coreCenters.find((c) => c._id === d.centerId) || {};
+                  return (
+                    <tr
+                      key={d._id}
+                      className="border-b border-slate-50 last:border-0"
+                    >
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        <span className="font-semibold text-slate-900">
+                          {d.fullName}
+                        </span>
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {center.CenterName || "—"}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {d.speciality}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {d.experience} yrs
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        ₹{d.consultationFee}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    // PATIENTS
+    if (activeTab === "patients") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Patients Directory
+            </h2>
+            <p className="text-xs text-slate-500">
+              Snapshot of patient profiles across centers
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
+            <table className="min-w-full text-left text-xs sm:text-sm">
+              <thead>
+                <tr className="text-xs text-slate-500 border-b border-slate-100">
+                  <th className="py-2 pr-4">Name</th>
+                  <th className="py-2 pr-4">Email</th>
+                  <th className="py-2 pr-4">Phone</th>
+                  <th className="py-2 pr-4">City</th>
+                  <th className="py-2 pr-4">Gender</th>
+                  <th className="py-2 pr-4">DOB</th>
+                </tr>
+              </thead>
+              <tbody>
+                {patients.map((p) => (
+                  <tr
+                    key={p._id}
+                    className="border-b border-slate-50 last:border-0"
+                  >
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      <span className="font-semibold text-slate-900">
+                        {p.name}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {p.email}
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {p.mobileNo}
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {p.city}, {p.state}
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {p.gender || "—"}
+                    </td>
+                    <td className="py-2 pr-4 whitespace-nowrap">
+                      {p.dateOfBirth ? formatDate(p.dateOfBirth) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    // APPOINTMENTS
+    if (activeTab === "appointments") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Center Appointments
+            </h2>
+            <p className="text-xs text-slate-500">
+              Combined general and therapy bookings
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
+            <table className="min-w-full text-left text-xs sm:text-sm">
+              <thead>
+                <tr className="text-xs text-slate-500 border-b border-slate-100">
+                  <th className="py-2 pr-4">Patient</th>
+                  <th className="py-2 pr-4">Center</th>
+                  <th className="py-2 pr-4">Service</th>
+                  <th className="py-2 pr-4">Date</th>
+                  <th className="py-2 pr-4">Slot</th>
+                  <th className="py-2 pr-4">Amount</th>
+                  <th className="py-2 pr-4">Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {centerAppointments.map((a) => {
+                  const center =
+                    coreCenters.find((c) => c._id === a.CenterId) || {};
+                  return (
+                    <tr
+                      key={a._id}
+                      className="border-b border-slate-50 last:border-0"
+                    >
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-slate-900">
+                            {a.PatientName}
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            {a.PatientPhone}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {center.CenterName || "—"}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {a.ServiceType}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {formatDate(a.appointmentDate)}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap capitalize">
+                        {a.appointmentSlot}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        ₹{a.Amount}
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span
+                          className={
+                            "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium " +
+                            statusChipClasses(a.PaymentStatus)
+                          }
+                        >
+                          {a.PaymentStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    // THERAPIES
+    if (activeTab === "therapies") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Therapy Catalogue
+            </h2>
+            <p className="text-xs text-slate-500">
+              Core Panchakarma therapies and utilization
+            </p>
+          </div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <table className="min-w-full text-left text-xs sm:text-sm">
+                <thead>
+                  <tr className="text-xs text-slate-500 border-b border-slate-100">
+                    <th className="py-2 pr-4">Therapy</th>
+                    <th className="py-2 pr-4">Category</th>
+                    <th className="py-2 pr-4">Duration</th>
+                    <th className="py-2 pr-4">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {therapies.map((t) => (
+                    <tr
+                      key={t._id}
+                      className="border-b border-slate-50 last:border-0"
+                    >
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {t.therapyName}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {t.category}
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {t.duration} min
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        ₹{t.price}
                       </td>
                     </tr>
                   ))}
@@ -715,7 +962,6 @@ const SuperAdminDashboard = () => {
               </table>
             </div>
 
-            {/* Therapy categories */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-sm font-semibold text-slate-900 mb-3">
                 Therapy Categories
@@ -727,7 +973,9 @@ const SuperAdminDashboard = () => {
                     <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                        style={{ width: `${(count / therapies.length) * 100}%` }}
+                        style={{
+                          width: `${(count / therapies.length) * 100}%`,
+                        }}
                       />
                     </div>
                     <div className="w-6 text-right text-slate-700 font-medium">
@@ -737,200 +985,370 @@ const SuperAdminDashboard = () => {
                 ))}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
+      );
+    }
 
-          {/* Practitioners + patients */}
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Practitioners */}
-            <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Practitioners (Doctors)
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Active practitioners across core centers
-                </p>
-              </div>
-              <table className="min-w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="text-xs text-slate-500 border-b border-slate-100">
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">Center</th>
-                    <th className="py-2 pr-4">Speciality</th>
-                    <th className="py-2 pr-4">Experience</th>
-                    <th className="py-2 pr-4">Fee</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {doctors.map((d) => {
-                    const center =
-                      coreCenters.find((c) => c._id === d.centerId) || {};
-                    return (
-                      <tr
-                        key={d._id}
-                        className="border-b border-slate-50 last:border-0"
-                      >
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          <span className="font-semibold text-slate-900">
-                            {d.fullName}
-                          </span>
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {center.CenterName || "—"}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {d.speciality}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {d.experience} yrs
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          ₹{d.consultationFee}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Patients */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Recent Patients
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Snapshot of key patient profiles
-                </p>
-              </div>
-              <div className="space-y-3 text-xs sm:text-sm">
-                {patients.map((p) => (
-                  <div
-                    key={p._id}
-                    className="border border-slate-100 rounded-lg px-3 py-2.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-slate-900">{p.name}</p>
-                      <p className="text-[11px] text-slate-500">
-                        {p.city}, {p.state}
-                      </p>
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      {p.email} · {p.mobileNo}
+    // THERAPISTS
+    if (activeTab === "therapists") {
+      return (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800">
+              Therapists Network
+            </h2>
+            <p className="text-xs text-slate-500">
+              Massage and Panchakarma therapists across centers
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <div className="space-y-3 text-xs sm:text-sm">
+              {therapists.map((t) => (
+                <div
+                  key={t._id}
+                  className="border border-slate-100 rounded-lg px-3 py-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-900">
+                      {t.fullName}
                     </p>
-                    {p.dateOfBirth && (
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        DOB: {formatDate(p.dateOfBirth)} · {p.gender}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Appointments */}
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 overflow-x-auto">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Center Appointments
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Combined general & therapy bookings
-                </p>
-              </div>
-              <table className="min-w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="text-xs text-slate-500 border-b border-slate-100">
-                    <th className="py-2 pr-4">Patient</th>
-                    <th className="py-2 pr-4">Center</th>
-                    <th className="py-2 pr-4">Date</th>
-                    <th className="py-2 pr-4">Slot</th>
-                    <th className="py-2 pr-4">Service</th>
-                    <th className="py-2 pr-4">Amount</th>
-                    <th className="py-2 pr-4">Payment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {centerAppointments.map((a) => {
-                    const center =
-                      coreCenters.find((c) => c._id === a.CenterId) || {};
-                    return (
-                      <tr
-                        key={a._id}
-                        className="border-b border-slate-50 last:border-0"
-                      >
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {a.PatientName}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {center.CenterName || "—"}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {formatDate(a.appointmentDate)}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap capitalize">
-                          {a.appointmentSlot}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          {a.ServiceType}
-                        </td>
-                        <td className="py-2 pr-4 whitespace-nowrap">
-                          ₹{a.Amount}
-                        </td>
-                        <td className="py-2 pr-4">
-                          <span
-                            className={
-                              "inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-medium " +
-                              statusChipClasses(a.PaymentStatus)
-                            }
-                          >
-                            {a.PaymentStatus}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Therapists */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
-                Therapists Network
-              </h3>
-              <div className="space-y-3 text-xs sm:text-sm">
-                {therapists.map((t) => (
-                  <div
-                    key={t._id}
-                    className="border border-slate-100 rounded-lg px-3 py-2.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-slate-900">
-                        {t.fullName}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {t.specialization}
-                      </p>
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      {t.email} · {t.phone}
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Experience: {t.experience} yrs
+                    <p className="text-[11px] text-slate-500">
+                      {t.specialization}
                     </p>
                   </div>
-                ))}
-              </div>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    {t.email} · {t.phone}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Experience: {t.experience} yrs
+                  </p>
+                </div>
+              ))}
             </div>
-          </section>
-        </main>
+          </div>
+        </section>
+      );
+    }
+
+    // REPORTS
+    if (activeTab === "reports") {
+      return (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-slate-800">
+            Reports & Analytics
+          </h2>
+          <p className="text-xs text-slate-500">
+            High‑level metrics and ratios derived from static data.
+          </p>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-sm text-slate-700 space-y-2">
+            <p>
+              Total revenue (sample): ₹
+              {centerAppointments.reduce(
+                (sum, a) => sum + Number(a.Amount || 0),
+                0
+              )}
+            </p>
+            <p>Therapy vs General split:  {centerAppointments.filter(a => a.ServiceType === "therapy").length} therapy / {centerAppointments.filter(a => a.ServiceType === "general").length} general.</p>
+            <p>
+              Unique cities covered:{" "}
+              {[
+                ...new Set([
+                  ...coreCenters.map((c) => c.city),
+                  ...syntheticCenters.map((c) => c.city),
+                ]),
+              ].length}
+            </p>
+          </div>
+        </section>
+      );
+    }
+
+    // PROFILE
+    if (activeTab === "profile") {
+      return (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-slate-800">
+            Super Admin Profile
+          </h2>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 font-semibold">
+              SA
+            </div>
+            <div className="text-sm">
+              <p className="font-semibold text-slate-900">
+                AyurSutra Super Admin
+              </p>
+              <p className="text-xs text-slate-500">
+                Read‑only analytics user for monitoring the whole network.
+              </p>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // SETTINGS
+    if (activeTab === "settings") {
+      return (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-slate-800">
+            Settings (Read‑only)
+          </h2>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 text-sm text-slate-700 space-y-2">
+            <p>Environment: Production sample.</p>
+            <p>Authentication: Enabled (JWT).</p>
+            <p>Notifications: Twilio + email templates configured.</p>
+            <p>Write actions from this dashboard: Disabled.</p>
+          </div>
+        </section>
+      );
+    }
+
+    return null;
+  };
+
+
+
+
+
+  const navigate = useNavigate();
+const [profileOpen, setProfileOpen] = useState(false);
+const [unreadCount] = useState(3); // static for now; wire later if you want real count
+const userName = "Super Admin";
+const role = "Admin";
+const profileImage = null; // you can plug a URL here later
+
+
+
+
+
+
+  // ----------------- main layout -----------------
+return (
+  <div className="h-screen w-screen bg-slate-50 text-slate-900 flex overflow-hidden">
+    {/* Sidebar */}
+    <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-100 shadow-sm">
+      <div className="h-16 flex items-center px-6 border-b border-slate-100">
+        <span className="text-lg font-semibold text-black">
+          Super Admin DashBoard
+        </span>
+      </div>
+      <nav className="flex-1 px-3 py-4 space-y-1 text-sm overflow-y-auto">
+        {sidebarItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition ${
+              activeTab === item.id
+                ? "bg-emerald-50 text-emerald-700"
+                : "text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              {item.icon}
+              <span>{item.label}</span>
+            </span>
+            {item.badge && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                {item.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </nav>
+      <div className="px-4 py-4 border-t border-slate-100 text-xs text-slate-400">
+        © {new Date().getFullYear()} AyurSutra
+      </div>
+    </aside>
+
+    {/* Main content */}
+    <div className="flex-1 flex flex-col min-w-0">
+      {/* Top bar */}
+      {/* <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
+        <div>
+          <h1 className="text-lg sm:text-xl font-semibold text-slate-900">
+            Super Admin Dashboard
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500">
+            High‑level read‑only overview of the entire AyurSutra network
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right text-xs sm:text-sm">
+            <div className="font-semibold text-slate-900">
+              AyurSutra Super Admin
+            </div>
+            <div className="text-slate-500">Read‑only mode</div>
+          </div>
+          <div className="h-10 w-10 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 font-semibold">
+            SA
+          </div>
+        </div>
+      </header> */}
+
+
+
+
+
+      <header className="flex-shrink-0 bg-white border-b border-emerald-100">
+  {/* top thin strip (optional) */}
+  
+
+  {/* main admin navbar */}
+  <div className="flex items-center justify-between px-4 py-2.5 md:px-6 lg:px-8">
+    {/* LEFT: logo + title */}
+    <div className="flex items-center gap-3">
+      <div className="flex items-center">
+        <img
+          src="https://res.cloudinary.com/dlty7hjfx/image/upload/v1764684761/Gemini_Generated_Image_97y8ep97y8ep97y8_n6yxoh.png"
+          alt="AyurSutra"
+          className="h-7"
+        />
+        <span className="mx-2 text-gray-300 hidden sm:inline">|</span>
+        <span className="hidden sm:block text-lg font-semibold tracking-wide text-slate-600">
+          प्रधानाधिकारी
+        </span>
+      </div>
+      
+    </div>
+
+    {/* CENTER: simple admin menu (frontend only) */}
+    <div className="hidden lg:flex items-center gap-6 text-xs font-medium text-slate-700">
+      <button
+        type="button"
+        className={`pb-1 border-b-2 ${
+          activeTab === "overview"
+            ? "border-[#1E4B3C] text-[#1E4B3C]"
+            : "border-transparent hover:text-emerald-800"
+        }`}
+        onClick={() => setActiveTab("overview")}
+      >
+        Overview
+      </button>
+      <button
+        type="button"
+        className={`pb-1 border-b-2 ${
+          activeTab === "centers"
+            ? "border-[#1E4B3C] text-[#1E4B3C]"
+            : "border-transparent hover:text-emerald-800"
+        }`}
+        onClick={() => setActiveTab("centers")}
+      >
+        Centers
+      </button>
+      <button
+        type="button"
+        className={`pb-1 border-b-2 ${
+          activeTab === "practitioners"
+            ? "border-[#1E4B3C] text-[#1E4B3C]"
+            : "border-transparent hover:text-emerald-800"
+        }`}
+        onClick={() => setActiveTab("practitioners")}
+      >
+        Practitioners
+      </button>
+      <button
+        type="button"
+        className={`pb-1 border-b-2 ${
+          activeTab === "reports"
+            ? "border-[#1E4B3C] text-[#1E4B3C]"
+            : "border-transparent hover:text-emerald-800"
+        }`}
+        onClick={() => setActiveTab("reports")}
+      >
+        Reports
+      </button>
+    </div>
+
+    {/* RIGHT: notifications + profile dropdown */}
+    <div className="flex items-center gap-3 md:gap-4">
+      {/* notifications badge (static) */}
+      <button
+        type="button"
+        className="relative h-9 w-9 rounded-full border border-emerald-100 bg-emerald-50 flex items-center justify-center text-emerald-700 hover:bg-emerald-100 transition-colors"
+      >
+        <Bell size={16} />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border-2 border-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {/* profile dropdown */}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setProfileOpen((p) => !p)}
+          className="flex cursor-pointer items-center gap-2 md:gap-3 px-2 py-1.5 rounded-full hover:bg-slate-50 transition-colors"
+        >
+          <div className="hidden sm:block text-right">
+            <p className="text-xs font-semibold text-slate-900">
+              {userName}
+            </p>
+            <p className="text-[11px] text-slate-500">{role}</p>
+          </div>
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="h-9 w-9 rounded-full object-cover border border-slate-300"
+            />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center">
+              <UserCircle2 size={22} className="text-emerald-700" />
+            </div>
+          )}
+          <svg
+            className={`w-4 h-4 text-slate-700 transition-transform ${
+              profileOpen ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+        {profileOpen && (
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+            >
+              <UserCircle2 size={18} />
+              <span className="font-medium">Back to main site</span>
+            </button>
+
+            <div className="h-px bg-slate-200 my-1" />
+
+            <button
+              type="button"
+              onClick={() => console.log("super admin logout (frontend only)")}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={18} />
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  );
+  </div>
+</header>
+
+      {/* Scrollable content */}
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        {renderTab()}
+      </main>
+    </div>
+  </div>
+);
+
 };
 
 export default SuperAdminDashboard;

@@ -210,7 +210,7 @@ const DashboardMap = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="w-full flex justify-center py-10 bg-gradient-to-br from-emerald-50 via-white to-teal-50/30">
         <div className="w-[95%] max-w-7xl">
           
@@ -447,7 +447,7 @@ const DashboardMap = () => {
 
         </div>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };
