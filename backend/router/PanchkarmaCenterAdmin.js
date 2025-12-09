@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 
 const JWT_KEY = process.env.JWT_KEY;
 const otpgenerator = require("otp-generator");
-const sendemail = require("../otplogic/otp");
+const sendemail = require("../otplogic/otp.js");
 const DoctorModel = require("../models/Doctor.model");
 const SendEmailDoctor = require("../otplogic/doctorCredentialSendEmail");
 const PanchakarmaCenterModel = require("../models/PanchakarmaCenter.model");
@@ -726,6 +726,250 @@ PanchakarmaCenterRouter.post("/updateCenterProfile", centerImagesUpload, async f
     });
   }
 });
+
+
+
+const nodemailer = require('nodemailer');
+
+PanchakarmaCenterRouter.post('/submit-report', upload.single('pdf'), async (req, res) => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No PDF file uploaded'
+      });
+    }
+    
+    console.log("Uploaded file:", req.file);
+    console.log("Request body:", req.body);
+
+    // Get form data from request body
+    const { 
+      patientEmail = "vedantkhasbage2005@gmail.com",
+      doctorEmail = "itsvedantk@gmail.com",
+      patientName = "Patient Name",
+      reporterName = "Reporter Name",
+      adrNumberYear = "Not specified",
+      additionalNotes = "",
+      formData // This will be the JSON string from frontend
+    } = req.body;
+
+    // Parse formData if it exists
+    let parsedFormData = {};
+    if (formData) {
+      try {
+        parsedFormData = JSON.parse(formData);
+      } catch (error) {
+        console.error('Error parsing formData:', error);
+      }
+    }
+
+    // Validate emails
+    const recipientEmails = [];
+    if (patientEmail && isValidEmail(patientEmail)) recipientEmails.push(patientEmail);
+    if (doctorEmail && isValidEmail(doctorEmail)) recipientEmails.push(doctorEmail);
+    
+    if (recipientEmails.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid recipient emails provided'
+      });
+    }
+
+    // Get Cloudinary URL
+    const cloudinaryUrl = req.file.path;
+    const fileName = req.file.originalname || `ADR_Report_${Date.now()}.pdf`;
+
+    // Download PDF from Cloudinary
+    const pdfBuffer = await downloadFromCloudinary(cloudinaryUrl);
+
+    // Send email with PDF attachment
+    await sendEmailWithPDFAttachment({
+      to: recipientEmails,
+      subject: `ADR Report - ${patientName || parsedFormData.patientInitials || 'Patient'}`,
+      body: `
+        Dear Recipient,
+        
+        Please find attached the Adverse Drug Reaction (ADR) Report.
+        
+        Report Details:
+        - Patient: ${patientName || parsedFormData.patientInitials || 'Patient'}
+        - Reporter: ${reporterName || parsedFormData.reporterName || 'Reporter'}
+        - ADR Number: ${adrNumberYear || parsedFormData.adrNumberYear || 'Not specified'}
+        - Date: ${new Date().toLocaleDateString()}
+        - File: ${fileName}
+        ${additionalNotes ? `\nAdditional Notes: ${additionalNotes}\n` : ''}
+        
+        This report was generated through the National Pharmacovigilance Program for ASU & H Drugs.
+        
+        Regards,
+        Pharmacovigilance System
+      `,
+      pdfBuffer: pdfBuffer,
+      fileName: fileName
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Report submitted and email sent successfully!',
+      data: {
+        fileName: fileName,
+        fileUrl: cloudinaryUrl,
+        fileSize: req.file.size,
+        recipientEmails: recipientEmails,
+        uploadedAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error submitting report:', error);
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to submit report',
+      error: error.message
+    });
+  }
+});
+
+// Function to download from Cloudinary (updated)
+async function downloadFromCloudinary(cloudinaryUrl) {
+  const https = require('https');
+  
+  return new Promise((resolve, reject) => {
+    // Convert Cloudinary URL to direct download URL
+    // Cloudinary URLs need to be transformed for direct download
+    let downloadUrl = cloudinaryUrl;
+    
+    // If it's a Cloudinary URL, add flags for download
+    if (cloudinaryUrl.includes('cloudinary.com')) {
+      // Add flags for direct download
+      downloadUrl = cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+    }
+    
+    console.log('Downloading from:', downloadUrl);
+    
+    https.get(downloadUrl, (response) => {
+      // Check if request was successful
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download file. Status: ${response.statusCode}`));
+        return;
+      }
+      
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        console.log(`Downloaded ${buffer.length} bytes`);
+        resolve(buffer);
+      });
+      response.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+// Function to send email with PDF attachment
+async function sendEmailWithPDFAttachment({ to, subject, body, pdfBuffer, fileName }) {
+  try {
+    // Check if email credentials are available
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error('Email credentials not configured');
+    }
+
+    console.log('Creating email transporter...');
+    
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    // Verify transporter
+    await transporter.verify();
+    console.log('Email transporter verified');
+
+    // Prepare email options
+    const mailOptions = {
+      from: `"Pharmacovigilance System" <${process.env.EMAIL_USER}>`,
+      to: Array.isArray(to) ? to.join(', ') : to,
+      subject: subject,
+      text: body,
+      attachments: [
+        {
+          filename: fileName,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+          encoding: 'base64'
+        }
+      ]
+    };
+
+    console.log('Sending email to:', to);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
+}
+
+// Alternative: Send email with Cloudinary link (if download fails)
+async function sendEmailWithPDFLink({ to, subject, body, pdfUrl, fileName }) {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error('Email credentials not configured');
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: `"Pharmacovigilance System" <${process.env.EMAIL_USER}>`,
+      to: Array.isArray(to) ? to.join(', ') : to,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2d3748;">ADR Report Notification</h2>
+          <p style="white-space: pre-line;">${body}</p>
+          <div style="margin: 20px 0; padding: 15px; background-color: #f7fafc; border-radius: 5px;">
+            <p><strong>Download Link:</strong></p>
+            <a href="${pdfUrl}" style="display: inline-block; background-color: #48bb78; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">
+              Download PDF Report
+            </a>
+          </div>
+          <p style="color: #718096; font-size: 14px; margin-top: 20px;">
+            This is an automated message from the Pharmacovigilance System.
+          </p>
+        </div>
+      `,
+      text: body + `\n\nDownload link: ${pdfUrl}`
+    };
+
+    return transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email with link:', error);
+    throw error;
+  }
+}
+
+// Email validation helper
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 
 
 // PanchakarmaCenterRouter.post("/delete-a")

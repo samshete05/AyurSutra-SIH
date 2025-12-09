@@ -18,6 +18,7 @@ const doctorDashboardRouter = require("./router/doctordashboard");
 
 const paymentRoutes = require("./router/paymentRoutes");
 const { doctorRouter } = require("./router/doctor");
+const adrRouter = require("./router/adrRoutes");
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use("/patient", patientRouter);
 app.use("/patient", progressRouter);
 app.use("/PanchKarmaCenter", PanchakarmaCenterRouter);
 app.use("/doctor",doctorRouter);
+// app.use("/api", adrRouter);
 
 app.use("/payments", paymentRoutes);
   
