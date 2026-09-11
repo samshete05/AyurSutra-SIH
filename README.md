@@ -1,6 +1,8 @@
 # AyurSutra
 
-AyurSutra is a Smart India Hackathon project for digitizing Panchakarma care. It connects patients, Panchakarma center admins, doctors, and super admins in one workflow for center discovery, appointment booking, therapy scheduling, treatment tracking, feedback, notifications, pharmacovigilance reporting, and payments.
+AyurSutra is a Smart India Hackathon finalist project for digitizing Panchakarma care. It connects patients, Panchakarma center admins, doctors, and super admins in one workflow for center discovery, appointment booking, therapy scheduling, treatment tracking, feedback, notifications, pharmacovigilance reporting, and payments.
+
+Built for the SIH final round, the project focuses on a real healthcare operations problem: Panchakarma centers need a reliable digital system for appointments, therapy planning, patient follow-ups, progress monitoring, and center administration. AyurSutra presents this as a full-stack MERN platform with role-based dashboards and practical integrations for maps, OTP communication, payments, reports, and wellness analytics.
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
@@ -15,8 +17,14 @@ AyurSutra is a Smart India Hackathon project for digitizing Panchakarma care. It
 - AI assistant: https://sih-ayursutra-t1ci.onrender.com/chat
 - Blogs: https://blogs.ayursutra.online/
 - Shop: https://shop.ayursutra.online/
-- GitHub: https://github.com/PankajKorkalai/AyurSutra-Final
-- LinkedIn: https://www.linkedin.com/in/pankaj-korkalai/
+- GitHub: https://github.com/samshete05/AyurSutra-SIH
+- LinkedIn project update 1: https://www.linkedin.com/feed/update/urn:li:activity:7486082793291087874/
+- LinkedIn project update 2: https://www.linkedin.com/feed/update/urn:li:activity:7486082193400729600/
+- LinkedIn project update 3: https://www.linkedin.com/feed/update/urn:li:activity:7486076851782733826/
+
+## Repository Note
+
+The original working repository path is no longer used. This repository is the updated and maintained project path for the final AyurSutra SIH submission.
 
 ## Preview
 
@@ -267,6 +275,7 @@ VITE_API_URL=http://localhost:3000
 ## Resume Highlights
 
 - Built a full-stack healthcare workflow platform for Panchakarma centers.
+- Presented AyurSutra as a Smart India Hackathon finalist solution for digitizing Panchakarma patient management and therapy scheduling.
 - Implemented multi-role authentication and protected routing for patients, doctors, center heads, and super admins.
 - Designed end-to-end appointment, therapy scheduling, payment, progress tracking, and feedback workflows.
 - Integrated third-party services including Razorpay, Twilio, Cloudinary, Nodemailer, maps, and charting libraries.
@@ -280,10 +289,13 @@ VITE_API_URL=http://localhost:3000
 
 ## Author
 
-**Pankaj Korkalai**
+**Samiksha Shete**
 
-- GitHub: https://github.com/PankajKorkalai
-- LinkedIn: https://www.linkedin.com/in/pankaj-korkalai/
+- GitHub: https://github.com/samshete05
+- LinkedIn posts:
+  - https://www.linkedin.com/feed/update/urn:li:activity:7486082793291087874/
+  - https://www.linkedin.com/feed/update/urn:li:activity:7486082193400729600/
+  - https://www.linkedin.com/feed/update/urn:li:activity:7486076851782733826/
 
 ## License
 
